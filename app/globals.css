@@ -1,0 +1,463 @@
+@import "pdfjs-dist/web/pdf_viewer.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+
+@font-face {
+  font-family: 'Virgil';
+  src: url('fonts/Virgil.woff2') format('woff2'),
+    url('fonts/Virgil.woff2') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+@font-face {
+  font-family: 'Rubik';
+  src: url('/app//fonts/Rubik-Regular.woff2') format('woff2'),
+    url('/app/fonts//Rubik-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  /* background-color: rgb(34, 33, 33); */
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+/* overrides for pdf_viewer.css from PDF.JS web viewer */
+
+.textLayer {
+  z-index: 2;
+  opacity: 1;
+  display: flex;
+  mix-blend-mode: multiply;
+
+}
+
+
+.textLayer :is(span, br) {
+
+  /* color: green; */
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+/* .textLayer > div { 
+  position: absolute;
+} */
+
+/* body{
+  background-color: black;
+} */
+
+.App-toolbar{
+  display: none !important;
+}
+
+/* .App-menu.App-menu_top {
+  display: none !important;
+} */
+
+/* 
+.layer-ui__wrapper__footer.App-menu.App-menu_bottom{
+  display: none !important;
+} */
+
+
+.canvas-container {
+  position: absolute;
+}
+
+/* #drawing-canvas {
+  display: block;
+  background-color: aqua;
+  opacity: 0.3;
+} */
+
+
+[id^="drawing-canvas-"] {
+  /* display: block; */
+  /* background-color: aqua;opacity: 0.2; */
+}
+
+canvas {
+  /* background-color: aqua;opacity: 0.2; */
+}
+
+.canvas-grid {
+  background: linear-gradient(to right, #eaeaea 1px, transparent 1px),
+    linear-gradient(to bottom, #eaeaea 1px, transparent 1px);
+  background-size: 20px 20px;
+  /* Adjust spacing for rules */
+  transition: transform 0.2s ease;
+
+}
+
+
+
+/* Dotted Pattern */
+.canvas-dotted {
+  background: radial-gradient(circle, #eaeaea 2px, transparent 1px);
+  background-size: 20px 20px;
+  /* Adjust spacing for dots */
+}
+
+.notebook {
+  width: 100%;
+  height: 500px;
+  background: linear-gradient(to bottom,
+      #fff 95%,
+      /* White space for the background */
+      #d3d3d3 95%,
+      /* Light gray for the lines */
+      #d3d3d3 97%,
+      /* Thickness of the lines */
+      #fff 97%
+      /* Space between the lines */
+    );
+  background-size: 100% 30px;
+  /* Repeat every 30px */
+  border: 1px solid #ccc;
+  /* Optional border for the notebook */
+  padding: 20px;
+  /* Optional padding for content inside */
+  box-sizing: border-box;
+  /* Include padding in width/height */
+  position: relative;
+}
+
+.notebook::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  /* Adjust thickness of the line */
+  background-color: #d3d3d3;
+  /* Line color */
+  margin-left: 50px;
+  /* Space between the left edge and the line */
+}
+
+
+
+.page {
+  border: 2px solid red;
+}
+
+
+.interactiveLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  /* 90% transparent white background */
+  backdrop-filter: blur(2px);
+  /* Add some blur */
+  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 2px, transparent 2px);
+  background-size: 40px 40px;
+  /* Increase the size of the dots */
+  animation: fadeIn 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+
+html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):not(.Highlight__emoji) {
+  opacity: 1;
+  mix-blend-mode: multiply;
+}
+
+.textLayer ::selection {
+  background: rgb(133, 207, 91);
+  mix-blend-mode: multiply;
+}
+
+/* biome-ignore lint/correctness/noUnknownMediaFeatureName: update this */
+@media all and (-ms-high-contrast: none),
+(-ms-high-contrast: active) {
+  .textLayer {
+    opacity: 0.5;
+  }
+}
+
+/* Internet Explorer support method */
+/* biome-ignore lint/correctness/noUnknownMediaFeatureName: update this */
+@media all and (-ms-high-contrast: none),
+(-ms-high-contrast: active) {
+  .textLayer {
+    opacity: 0.5;
+  }
+}
+
+/* Microsoft Edge Browser 12+ (All) - @supports method */
+@supports (-ms-ime-align: auto) {
+  .textLayer {
+    opacity: 0.5;
+  }
+}
+
+
+
+.pdfViewer.singlePageView {
+  display: grid;
+}
+
+.pdfViewer.singlePageView .page {
+  margin: 0;
+  border: none;
+}
+
+
+.icon {
+  width: 31px !important;
+  height: 31px !important;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* for Internet Explorer */
+  scrollbar-width: none; /* for Firefox */
+}
+
+/* 
+
+
+.pdfViewer .page{
+  direction:ltr;
+  width:816px;
+  height:1056px;
+  margin:1px auto -8px;
+  position:relative;
+  overflow:visible;
+  border:var(--page-border);
+  background-clip:content-box;
+  background-color:rgb(255 255 255);
+}
+
+
+
+.pdfViewer.singlePageView{
+  display:inline-block;
+}
+
+.pdfViewer.singlePageView .page{
+  margin:0;
+  border:none;
+}
+
+.pdfViewer:is(.scrollHorizontal, .scrollWrapped),
+.spread{
+  margin-inline:3.5px;
+  text-align:center;
+}
+
+.pdfViewer.scrollHorizontal,
+.spread{
+  white-space:nowrap;
+}
+
+
+.spread :is(.page, .dummyPage),
+.pdfViewer:is(.scrollHorizontal, .scrollWrapped) :is(.page, .spread){
+  display:inline-block;
+  vertical-align:middle;
+}
+
+.spread .page,
+.pdfViewer:is(.scrollHorizontal, .scrollWrapped) .page{
+  margin-inline:-3.5px;
+}
+
+
+
+ */
+
+
+
+.spread-1 {
+  display: grid;
+  grid-template-columns: repeat(2, 0.3fr);
+  /* grid-gap: -16px; 
+  padding: 16px; */
+}
+
+
+/* canvas{
+  background-color: aqua;opacity: 0.4;
+} */
+
+
+/* Tailwind CSS Button styling could be like this in port: */
+.btn {
+  @apply px-4 py-2 mr-2 bg-blue-500 text-white rounded-md;
+}
+
+.btn-add {
+  @apply bg-green-500 hover:bg-green-600;
+}
+
+.btn-toggle {
+  @apply bg-yellow-500 hover:bg-yellow-600;
+}
+
+.btn-delete {
+  @apply bg-red-500 hover:bg-red-600;
+}
+
+
+
+
+
+.resizable-popup {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  width: 200px;
+  height: 150px;
+  resize: both;
+  overflow: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.popup-content {
+  font-size: 14px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: red;
+}
+
+
+
+
+.custom-button {
+  width: 60px !important;
+  height: 60px !important;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.custom-icon {
+  height: 26px !important;
+  width: 26px !important;
+  color: blueviolet
+}
+
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
