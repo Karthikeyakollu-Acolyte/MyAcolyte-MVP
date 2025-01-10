@@ -1,39 +1,68 @@
-import React, { useEffect, useRef } from 'react';
+import { useSettings } from '@/context/SettingsContext';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TransformWrapper, TransformComponent, ReactZoomPanPinchRef } from 'react-zoom-pan-pinch';
 
 const ScrollableTransform = ({ children, id }) => {
   const transformRef = useRef<ReactZoomPanPinchRef>(null);
-  const contentRef = useRef(null);
-  const timeoutRef = useRef(null);
-  
-  const checkBounds = () => {
-    if (!transformRef.current || !contentRef.current) return;
-    
-    const { instance } = transformRef.current;
-    const { offsetWidth: containerWidth } = instance.wrapperComponent;
-    const { offsetWidth: contentWidth } = contentRef.current;
-    console.log(instance.maxBounds)
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const { isInfinite } = useSettings();
+  const isAdjusting = useRef(false);
 
-    return
-    
-    // Get current position
-    const { positionX } = instance;
-    const maxAllowedX = (contentWidth - containerWidth) / 2;
-    
-    // Check if we're out of bounds
-    if (Math.abs(positionX) > maxAllowedX) {
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
-      // Set a small delay before centering to avoid interrupting user interaction
-      timeoutRef.current = setTimeout(() => {
-        instance.centerView(1, 0); // Animate back to center
-      }, 500);
+  const detectOverflow = useCallback(() => {
+    if (!contentRef.current || !transformRef.current) return;
+    const content = contentRef.current;
+    const { instance } = transformRef.current;
+
+    const containerWidth = content.parentElement?.offsetWidth || 0;
+    const contentWidth = content.scrollWidth * instance.transformState.scale; // Adjust for scale
+
+    // Set overflow state
+    setIsOverflowing(contentWidth > containerWidth);
+  }, []);
+
+  const scaleToWidth = (scale: number) => {
+    if (!transformRef.current || !contentRef.current) return;
+
+    const { zoomToElement } = transformRef.current;
+    const pageIndex = 1; // Example page index
+    zoomToPage(scale, pageIndex);
+  };
+
+  const zoomToPage = (scale: number, pageIndex: number) => {
+    if (!transformRef.current) return;
+
+    const { zoomToElement } = transformRef.current;
+    const element = document.querySelector(`[data-page-number="${pageIndex}"]`);
+    if (element) {
+      zoomToElement(element as HTMLElement, scale, 500, 'easeOutQuint');
+    } else {
+      console.warn(`Element with data-page-index="${pageIndex}" not found`);
     }
   };
 
+  useEffect(() => {
+    console.log(isOverflowing)
+
+  }, [isOverflowing])
+
+  useEffect(() => {
+    if (isInfinite) {
+      scaleToWidth(2);
+    } else {
+      scaleToWidth(1);
+    }
+  }, [isInfinite]);
+
+  useEffect(() => {
+    detectOverflow();
+    window.addEventListener('resize', detectOverflow);
+
+    return () => {
+      window.removeEventListener('resize', detectOverflow);
+
+    };
+  }, [detectOverflow]);
 
 
   return (
@@ -43,43 +72,44 @@ const ScrollableTransform = ({ children, id }) => {
       maxScale={5}
       minScale={0.5}
       centerOnInit
-      velocityAnimation={{
-        animationTime: 1,
-        animationType: "linear",
-        sensitivity: 1
-      }}
+      centerZoomedOut
       wheel={{
         step: 3,
         wheelDisabled: true,
         touchPadDisabled: false,
         smoothStep: 0.03,
+        
       }}
       panning={{
         allowMiddleClickPan: false,
         wheelPanning: true,
         allowLeftClickPan: false,
         allowRightClickPan: false,
+        lockAxisX: !isOverflowing,
+        disabled:true,
       }}
       disablePadding
       limitToBounds={false}
-    //   onPanning={checkBounds}
-      onZoom={checkBounds}
-    //   onTransformed={checkBounds}
+      onTransformed={detectOverflow}
+
     >
-      {({ }) => (
-        <div className="w-[80vw] h-screen bg-blue-100">
-          <TransformComponent 
-            wrapperStyle={{ 
-              width: "100%", 
-              overflow: "auto", 
-              height: "calc(100% - 60px)" 
+      {() => (
+        <div className="w-[80vw] h-screen bg-blue-100 scrollbar-hidden">
+          <TransformComponent
+            wrapperStyle={{
+              width: '100%',
+              overflow: 'auto',
+              height: 'calc(100% - 60px)',
             }}
+            contentClass='scrollbar-hidden'
+
+           
           >
             <div className="w-[80vw] h-screen">
               <div
                 ref={contentRef}
                 style={{
-                  width: "850px",
+                  width: '850px',
                 }}
                 className="mx-auto"
               >

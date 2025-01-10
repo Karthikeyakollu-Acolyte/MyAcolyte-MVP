@@ -82,7 +82,7 @@ const Wrapper = ({ id }: { id: string }) => {
                 file={pdfFile}
                 beforeLoad={<div>Loading...</div>}>
                 {(pdfDocument: PDFDocumentProxy) => (
-                    <div className="flex justify-center  bg-black h-full"
+                    <div className="flex justify-center h-full"
                         ref={pdfViewerRef} // Reference for zoom functionality
                         
                     >

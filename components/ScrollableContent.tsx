@@ -67,21 +67,9 @@ export default function ScrollableContent({ isExpanded, id }: ScrollableContentP
   // }, [isInfinite]);
 
 
-  useEffect(() => {
-    console.log(pan)
-  }, [pan.current])
-
-
-  const zoomToele = (ele) => {
-    if (pan.current) {
-      const { zoomToElement } = pan.current;
-      zoomToElement(ele, 2, 1000, "easeOut");
-    }
-
-  }
 
   return (
-    <div className={`mt-8  transition-all h-[100vh] flex justify-center overflow-auto scrollbar-hide duration-300 ease-in-out  w-[100vw]
+    <div className={`mt-8  transition-all h-[100vh] flex justify-center overflow-auto scrollbar-hidden duration-300 ease-in-out  w-[100vw] 
       `}
       ref={containerNodeRef}
     >
