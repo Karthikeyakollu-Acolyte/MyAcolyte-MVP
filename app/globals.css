@@ -154,6 +154,12 @@ body {
   /* background-color: aqua;opacity: 0.2; */
 }
 
+.selectable-text {
+  user-select: text !important;
+  pointer-events: all !important;
+}
+
+
 canvas {
   /* background-color: aqua;opacity: 0.2; */
 }

@@ -33,12 +33,11 @@ const Wrapper = ({ id }: { id: string }) => {
 
     const [pdfFile, setPdfFile] = useState<File | undefined>(undefined);
     const outlineContainerRef = useRef(null);
-    // const [first, setfirst] = useState(false)
     const { setRect } = useCanvas()
     const [scale, setScale] = useState(1); // Manage zoom level
     const pdfViewerRef = useRef<HTMLDivElement>(null);
     const [pdfData, setPdfData] = useState<string | null>(null);
-    const { first, setfirst, currentDocumentId, setcurrentDocumentId } = useSettings()
+    const {currentDocumentId} = useSettings()
 
     const [zoom, setZoom] = useState(1); // Initial zoom level
 
@@ -67,16 +66,11 @@ const Wrapper = ({ id }: { id: string }) => {
         handleFetchPdf()
     }, [currentDocumentId])
 
-    useEffect(() => {
-        setcurrentDocumentId(id)
-        // console.log(id)
-    }, [id])  // This should depend on `id` to update `currentDocumentId` when `id` changes.
+
 
 
     return (
         <div className="w-full  h-full" >
-            {/* <button onClick={() => { setfirst(!first) }} className="border border-1 p-2  m-2 rounded-md">Toggle</button> */}
-
             <PdfLoader
                 url={pdfData}
                 file={pdfFile}
@@ -84,18 +78,18 @@ const Wrapper = ({ id }: { id: string }) => {
                 {(pdfDocument: PDFDocumentProxy) => (
                     <div className="flex justify-center h-full"
                         ref={pdfViewerRef} // Reference for zoom functionality
-                        
+
                     >
 
-                        {!first && (
-                            <PdfHighlighter
-                                pdfDocument={pdfDocument}
-                                pdfScaleValue={zoom}
-                            />
-                        )}
+
+                        <PdfHighlighter
+                            pdfDocument={pdfDocument}
+                            pdfScaleValue={zoom}
+                        />
 
 
-                        {/* {first && <ExcalidrawComponent id={id} />} */}
+
+
 
                     </div>
                 )}

@@ -2,7 +2,7 @@ import { useSettings } from '@/context/SettingsContext';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TransformWrapper, TransformComponent, ReactZoomPanPinchRef } from 'react-zoom-pan-pinch';
 
-const ScrollableTransform = ({ children, id }) => {
+const ScrollableTransform = ({ children}) => {
   const transformRef = useRef<ReactZoomPanPinchRef>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -64,6 +64,16 @@ const ScrollableTransform = ({ children, id }) => {
     };
   }, [detectOverflow]);
 
+  const handleZoomStop = (e:ReactZoomPanPinchRef) => {
+    if (!transformRef.current || !contentRef.current) return;
+    const { instance, centerView, state } = e
+    if(state.scale < 1){
+      centerView(state.scale,100)
+      console.log("executing this shit")
+    }
+
+  }
+
 
   return (
     <TransformWrapper
@@ -78,7 +88,7 @@ const ScrollableTransform = ({ children, id }) => {
         wheelDisabled: true,
         touchPadDisabled: false,
         smoothStep: 0.03,
-        
+
       }}
       panning={{
         allowMiddleClickPan: false,
@@ -86,24 +96,25 @@ const ScrollableTransform = ({ children, id }) => {
         allowLeftClickPan: false,
         allowRightClickPan: false,
         lockAxisX: !isOverflowing,
-        disabled:true,
+        // disabled:true,
       }}
       disablePadding
       limitToBounds={false}
       onTransformed={detectOverflow}
+      onZoomStop={handleZoomStop}
 
     >
       {() => (
-        <div className="w-[80vw] h-screen bg-blue-100 scrollbar-hidden">
+        <div className="w-[80vw] h-screen scrollbar-hidden">
           <TransformComponent
             wrapperStyle={{
               width: '100%',
               overflow: 'auto',
               height: 'calc(100% - 60px)',
             }}
-            contentClass='scrollbar-hidden'
+            contentClass='selectable-text'
 
-           
+
           >
             <div className="w-[80vw] h-screen">
               <div

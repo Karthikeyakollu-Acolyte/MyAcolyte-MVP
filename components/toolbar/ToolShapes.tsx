@@ -77,10 +77,12 @@ export const ToolShapes = ({
     (event: fabric.IEvent) => {
       if (!fabricCanvas.current) return;
       const canvas = fabricCanvas.current;
+
       canvas.isDrawingMode = false;
       const pointer = canvas.getPointer(event.e);
       startX = pointer.x;
       startY = pointer.y;
+
 
       isDrawingShape = true;
       const options = {
@@ -94,6 +96,7 @@ export const ToolShapes = ({
       };
 
       shape = createShape(options, tool);
+      canvas.selection = false
 
       if (shape) {
         console.log(`Created shape with objectId: ${shape.objectId}`); // Log the object ID
@@ -107,6 +110,7 @@ export const ToolShapes = ({
     (event: fabric.IEvent) => {
       if (!isDrawingShape || !shape || !fabricCanvas.current) return;
       const canvas = fabricCanvas.current;
+
       const pointer = canvas.getPointer(event.e);
       const width = pointer.x - startX;
       const height = pointer.y - startY;
@@ -138,16 +142,31 @@ export const ToolShapes = ({
 
     shape = null;
     if (fabricCanvas.current) {
-      // fabricCanvas.current.isDrawingMode = true;
+      // Re-enable object selection and events
+      fabricCanvas.current.getObjects().forEach(obj => {
+        obj.selectable = true;
+        obj.evented = true;
+      });
+      fabricCanvas.current.selection = true;
     }
-    // setSelectedTool(null);
+    setSelectedTool(null);
   }, [setSelectedTool]);
 
+
+
   useEffect(() => {
-    if (fabricCanvas.current) {
-      fabricCanvas.current.isDrawingMode = false;
-    }
-  }, [fabricCanvas.current,tool])
+
+    if (!fabricCanvas.current) return;
+    const canvas = fabricCanvas.current;
+    canvas.getObjects().forEach(obj => {
+      obj.selectable = false;
+      obj.evented = false;
+    });
+    canvas.isDrawingMode=false
+  
+  }, [fabricCanvas.current, tool])
+
+  
   return (
     <CanvasEventListeners
       fabricCanvas={fabricCanvas}
@@ -187,7 +206,7 @@ export const CanvasEventListeners = ({
       canvas.off('mouse:move', onMouseMove);
       canvas.off('mouse:up', onMouseUp);
     };
-  }, [fabricCanvas, onMouseDown, onMouseMove, onMouseUp,currentPage]);
+  }, [fabricCanvas, onMouseDown, onMouseMove, onMouseUp, currentPage]);
 
 
 
