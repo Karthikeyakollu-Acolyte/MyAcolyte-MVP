@@ -31,7 +31,7 @@ const Wrapper = ({ id }: { id: string }) => {
     let linkService: any;
     const [pages, setpages] = useState(1)
 
-    const [pdfFile, setPdfFile] = useState<File | undefined>(undefined);
+    const [pdfFile, setPdfFile] = useState<File | null>(null);
     const outlineContainerRef = useRef(null);
     const { setRect } = useCanvas()
     const [scale, setScale] = useState(1); // Manage zoom level
@@ -80,24 +80,15 @@ const Wrapper = ({ id }: { id: string }) => {
                         ref={pdfViewerRef} // Reference for zoom functionality
 
                     >
-
-
                         <PdfHighlighter
                             pdfDocument={pdfDocument}
                             pdfScaleValue={zoom}
                         />
 
 
-
-
-
                     </div>
                 )}
             </PdfLoader>
-
-            {/* <Toolbar /> */}
-            {/* <SideToolbar /> */}
-
         </div>
 
     )
@@ -106,6 +97,9 @@ const Wrapper = ({ id }: { id: string }) => {
 export default Wrapper
 
 
+
+  {/* <Toolbar /> */}
+  {/* <SideToolbar /> */}
 {/* <div className="col-span-1 overflow-y-auto"> */ }
 {/* <PDFThumbnailViewer
     linkService={linkService}

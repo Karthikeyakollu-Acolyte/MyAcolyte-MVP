@@ -17,8 +17,8 @@
 
 @font-face {
   font-family: 'Rubik';
-  src: url('/app//fonts/Rubik-Regular.woff2') format('woff2'),
-    url('/app/fonts//Rubik-Regular.woff') format('woff');
+  src: url('fonts/Rubik-Regular.woff2') format('woff2'),
+    url('fonts/Rubik-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
 }
@@ -106,6 +106,12 @@ body {
 
 }
 
+.page canvas{
+  border-radius: 10px;
+  padding: 2px;
+  background-color: rgb(152, 144, 144);
+  overflow: hidden;
+}
 
 .textLayer :is(span, br) {
 

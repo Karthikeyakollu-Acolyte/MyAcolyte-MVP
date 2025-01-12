@@ -63,25 +63,6 @@ export const CanvasWrapper: React.FC<CanvasWrapperProps> = ({ pageRects, isDrawi
 
   // Render Canvas Layer components
   const renderCanvasLayers = () => {
-    if (!pageRects || pageRects.length === 0) {
-      if (type === "infinte" && layers) {
-        console.log("yes its inifnte")
-        return layers.map((layer, layerIndex) =>
-          layer.visible && (
-            <CanvasLayer
-              key={`fallback-${layerIndex}`}
-              rect={{ width: 2000, height: 1000, top: 200 }} // Default dimensions for the canvas
-              layer={layer}
-              layerIndex={layerIndex}
-              pageIndex={-1} // Default to a single page
-              saveLayerContent={saveLayerContent}
-            />
-          )
-        );
-      }
-      return null; // Nothing to render if type is not "infinite"
-    }
-
     return pageRects.map((rect, pageIndex) =>
       layers.map((layer, layerIndex) =>
         layer.visible && (

@@ -14,7 +14,7 @@ interface CanvasChange {
 }
 
 interface CanvasContextType {
-  canvasChanges: CanvasChange[];
+  canvasChanges: CanvasChange;
   handleCanvasChange: (pageIndex: number, canvasContent: object) => void;
   rect: { width: number, height: number };
   setRect: any;

@@ -7,6 +7,7 @@ import { CanvasWrapper } from "../canvas/CanvasWrapper"
 import { PdfViewerComponent } from "./pdfViewerTest";
 
 import { useSettings } from "@/context/SettingsContext";
+import CurrentPageListner from "./CurrentPageListner";
 interface PdfHighlighterProps {
     pdfDocument: PDFDocumentProxy;
     pdfScaleValue?: number;
@@ -29,46 +30,6 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
     const [isZoomEnable, setIsZoomEnable] = useState(true);
 
 
-    // useEffect(() => {
-    //     const div = divRef.current;
-    //     const contentDiv = contentRef.current;
-    //     if (!div || !contentDiv) return;
-
-    //     let localScale = 1;
-    //     let zoomTimeout;
-    //     // div.style.transformOrigin = `top center`;
-
-    //     const onWheel = (e) => {
-    //         if (e.ctrlKey) {
-    //             e.preventDefault();
-    //             // div.style.transformOrigin = `top center`;
-
-    //             // Calculate zoom direction
-    //             const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    //             const newScale = Math.min(Math.max(localScale + delta, 0.5), 2);
-
-
-                   
-    //                 contentDiv.style.transformOrigin = `${e.offsetX}px ${e.offsetY}px`;
-    //                 contentDiv.style.transform = `scale(${newScale})`;
-    //             localScale = newScale;
-    //             // setIsZoomEnable(localScale <= 1);
-
-    //             // Clear any existing timeout
-    //             clearTimeout(zoomTimeout);
-
-              
-    //         }
-    //     };
-
-    //     div.addEventListener('wheel', onWheel);
-
-    //     return () => {
-    //         div.removeEventListener('wheel', onWheel);
-    //         clearTimeout(zoomTimeout);
-    //     };
-    // }, [setScale]);
-
 
     return (
         <div
@@ -77,11 +38,10 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
             id="pdf-container"
             style={{
                 width: '100%',
-                // height: '100%',
-                // maxWidth: '100%',
             }}
         >
             <div ref={contentRef} className="h-full">
+                <CurrentPageListner/>
                 <PdfViewerComponent
                     pdfDocument={pdfDocument}
                     onPagesRendered={setPageRects}

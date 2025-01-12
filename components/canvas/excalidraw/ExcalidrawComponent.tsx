@@ -2,12 +2,15 @@
 import dynamic from 'next/dynamic';
 import React, { useState, useCallback, useEffect } from 'react';
 
-import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
-import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types';
+import { ExcalidrawElement, ExcalidrawImageElement } from '@excalidraw/excalidraw/types/element/types';
+import { AppState, BinaryFiles, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types';
 import { useToolContext } from '@/context/ToolContext';
 import { Tool } from '@/types/pdf';
 import { getNoteById, syncNote } from '@/db/note/Note';
 import { useSettings } from '@/context/SettingsContext';
+import { useCanvas } from '@/context/CanvasContext';
+import { convertToExcalidrawElements } from '@excalidraw/excalidraw';
+import { Button } from '@/components/ui/button';
 
 const Excalidraw = dynamic(() =>
     import('@excalidraw/excalidraw').then((mod) => mod.Excalidraw), // Adjust the import path if necessary
@@ -17,8 +20,9 @@ const Excalidraw = dynamic(() =>
 const ExcalidrawComponent = ({ id }: { id: string }) => {
     const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
     const [zoom, setZoom] = useState<number>(1)
-    const { selectedTool } = useToolContext()
+    const { selectedTool,setSelectedTool } = useToolContext()
     const { first } = useSettings()
+    const {canvasChanges} = useCanvas()
 
     const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
@@ -35,6 +39,7 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
         const loadInitialData = async () => {
             try {
                 const documentData = await getNoteById(id);
+                console.log(documentData)
                 if (documentData && excalidrawAPI) {
                     // Update the scene directly when data is fetched
                     excalidrawAPI.updateScene({
@@ -57,7 +62,7 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
 
 
     // Handle changes in the Excalidraw component
-    const handleChange = (elements: [], state: any) => {
+    const handleChange = (elements:readonly  ExcalidrawElement[], state:  AppState, files: BinaryFiles) => {
         if (elements.length < 1) return
         console.log('Excalidraw Elements Changed:', elements);
         console.log('Current Excalidraw State:', state);
@@ -211,6 +216,8 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
                 excalidrawAPI.setActiveTool({ type: 'selection' });
                 break;
             default:
+                resetToolProperties();
+                excalidrawAPI.setActiveTool({ type: 'selection' });
                 console.warn(`Unknown tool: ${selectedTool}`);
         }
     }
@@ -220,22 +227,165 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
     }, [selectedTool, excalidrawAPI]);
 
 
+    const addObjectToCanvas =async (data:string)=>{
+        if(!excalidrawAPI) return
+        const scene = excalidrawAPI.getSceneElements();
+    
+
+        try {
+            // Fetch the image as a blob
+            const response = await fetch(data);
+            const blob = await response.blob();
+            
+            // Convert blob to Data URL
+            const reader = new FileReader();
+            reader.onload = () => {
+              if (excalidrawAPI) {
+                const scene = excalidrawAPI.getSceneElements();
+                console.log(scene)
+      
+                // Add the image to the Excalidraw scene
+                const imageElement = {
+                  type: "image",
+                  version: 1,
+                  versionNonce: Math.floor(Math.random() * 1000000),
+                  isDeleted: false,
+                  id: `image-${Date.now()}`,
+                  fillStyle: "hachure",
+                  strokeWidth: 1,
+                  strokeStyle: "solid",
+                  roughness: 1,
+                  opacity: 100,
+                  angle: 0,
+                  x: 100, // Position of the image
+                  y: 100,
+                  width: 300, // Width of the image
+                  height: 200, // Height of the image
+                  seed: Math.floor(Math.random() * 1000000),
+                  data: { source: reader.result },
+                };
+      
+                excalidrawAPI.updateScene({
+                  elements: [...scene, imageElement],
+                });
+              }
+            };
+            reader.readAsDataURL(blob);
+          } catch (error) {
+            console.error("Error loading image:", error);
+          }
+        
+
+    }
+
+function addImageToExcalidraw(pngUrl:string ="https://placehold.co/600x400",data:string) {
+        fetch(pngUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.blob();
+          })
+          .then(blob => {
+            const reader = new FileReader();
+            console.log("image fetehced")
+            reader.onloadend = () => {
+              const imageElement = {
+                type: 'image',
+                version: 2,
+                versionNonce: Date.now(),
+                x: 100,
+                y: 100,
+                width: 500,
+                height: 500,
+                scale: [1, 1],
+                isDeleted: false,
+                fillStyle: 'hachure',
+                strokeWidth: 1,
+                strokeStyle: 'solid',
+                roughness: 1,
+                opacity: 100,
+                groupIds: [],
+                strokeColor: '#000000',
+                backgroundColor: 'transparent',
+                strokeSharpness: 'sharp',
+                seed: Date.now(),
+                src: reader.result, // Base64-encoded image source
+              };
+              const ele = {
+                type: "rectangle",
+                x: 100,
+                y: 250,
+              }
+
+              const eles = convertToExcalidrawElements(
+                [
+                    imageElement
+                ]
+            )
+
+
+      
+              excalidrawAPI?.updateScene({
+                elements:eles
+              });
+            };
+      
+            reader.onerror = () => {
+              console.error('Error reading the blob as a data URL');
+            };
+      
+            reader.readAsDataURL(blob);
+          })
+          .catch(error => {
+            console.error(`Error fetching the PNG image: ${error.message}`);
+          });
+      }
+      
+
+
+    const clearCanvas =()=>{
+
+        if(!excalidrawAPI) return
+        const data = excalidrawAPI.resetScene()
+        setSelectedTool(null)
+    }
+
+    // useEffect(() => {
+       
+// if(!canvasChanges) return
+// const data = canvasChanges?.newObject.data
+// // console.log(canvasChanges)
+// // addObjectToCanvas(data)
+// // addImageToExcalidraw("https://placehold.co/600x400",data)
+
+//     },[canvasChanges]);
+
+
+    const currentCanvasScene =()=>{
+        if(!excalidrawAPI) return
+        console.log(excalidrawAPI.getSceneElements())
+
+    }
+
+
     return (
         <div className='w-full h-full'>
+            {/* <Button onClick={()=>{addImageToExcalidraw("https://placehold.co/600x400","") }}>Add Image</Button>
+            <Button onClick={clearCanvas}>ClearCanvas</Button>
+            <Button onClick={currentCanvasScene}>CurrentScene</Button> */}
+            
             <Excalidraw
                 onChange={handleChange}
                 excalidrawAPI={(api) => setExcalidrawAPI(api)}
                 handleKeyboardGlobally={false}
                 zenModeEnabled={false}
                 gridModeEnabled={true}
-                // onPointerUpdate={(e) => console.log("pointer", e)}
 
                 onScrollChange={(x, y) => {
-                    console.log(x, y);
+                    // console.log(x, y);
                     // ScrollTo()
                 }}
-
-            // initialData={initialData}
 
             />
         </div>

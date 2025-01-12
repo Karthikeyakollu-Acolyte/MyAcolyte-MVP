@@ -24,7 +24,7 @@ export default function PDFViewSelector() {
         aria-label="Single page view"
         
       >
-        <Image src={singlepage} className=''/>
+        <Image src={singlepage} className=''  alt="Notifications"/>
       </button>
 
       <button
@@ -36,7 +36,7 @@ export default function PDFViewSelector() {
         )}
         aria-label="Double page view"
       >
-        <Image src={twopages}/>
+        <Image src={twopages}  alt="Notifications"/>
       </button>
 
       <button
@@ -48,7 +48,7 @@ export default function PDFViewSelector() {
         )}
         aria-label="Scroll view"
       >
-      <Image src={threepages} />
+      <Image src={threepages}  alt="Notifications" />
       </button>
     </div>
   )

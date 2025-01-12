@@ -69,12 +69,7 @@ export const LayerManagement: React.FC<LayerManagementProps> = ({ pageRects, syn
     handleFetch();
   }, [currentDocumentId]);
 
-  // useEffect(() => {
-  //   const rect = pageRects[0];
-  //   if (rect) {
-  //     setRect({ width: rect.width, height: rect.height });
-  //   }
-  // }, [pageRects]);
+
 
   return (
     <div>

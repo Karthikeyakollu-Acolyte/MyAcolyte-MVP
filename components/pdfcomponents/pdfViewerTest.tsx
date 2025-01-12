@@ -37,7 +37,7 @@ export const PdfViewerComponent: React.FC<PdfViewerProps> = ({
 
     let eventBus: EventBus | undefined;
     const { setPdfViewerRef } = useRefs();
-    const { setPages, scrollMode,scale,currentPage,currentDocumentId,setScale,isInfinite } = useSettings();
+    const {setCurrentPage, setPages, scrollMode,scale,currentPage,currentDocumentId,setScale,isInfinite } = useSettings();
     const {setContainerWidth} = useCanvas()
 
     const initPDFViewer = async () => {
@@ -72,25 +72,21 @@ export const PdfViewerComponent: React.FC<PdfViewerProps> = ({
         viewerRef.current.setDocument(pdfDocument);
         
         eventBus.on("pagesinit", onPagesInit);
-        eventBus.on("pagechanging",(e)=>{
-            console.log("pagechanging",e.pageNumber)
-
-        })
 
     };
     
 
 
-const onPagesInit = () => {
+const onPagesInit = (e) => {
     const pdfViewer = viewerRef.current;
     const container = containerNodeRef.current;
     if (pdfViewer && container) {
         console.log("Pages initialized!");
-
         // Store initial page dimensions if not already stored
         if (!initialPageDimensions.current) {
             storeInitialPageDimensions();
         }
+
 
         updateScale(); // Adjust the scale
 
@@ -146,7 +142,7 @@ useEffect(() => {
         if (pdfViewer && onPagesRendered) {
             const pageRects: DOMRect[] = [];
             
-            for (let i = 1; i <= 8; i++) {
+            for (let i = 1; i <= pdfViewer.pagesCount; i++) {
                 const pageElement = document.querySelector(
                     `[data-page-number="${i}"]`
                 ) as HTMLElement;
