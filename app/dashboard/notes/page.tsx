@@ -6,11 +6,16 @@ import { getUpdatedAt, syncNote, getAllNotes, deleteNotes } from '@/db/note/Note
 import { Trash2, SquarePlus } from 'lucide-react'; // Import the Trash icon
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
+import FileSystem from '@/components/FileSystem';
 
 function page() {
     const [notes, setNotes] = useState<{ documentId: string; thumbnail: string | null }[]>([]);
     const [updatedAtMap, setUpdatedAtMap] = useState<{ [documentId: string]: string | null }>({});
     const router = useRouter();
+      const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+    const [currentPath, setCurrentPath] = useState<string[]>([]);
+      const [documentId, setDocumentId] = useState<string>("");
+      const [fileName, setFileName] = useState<string>("New Note");
     // Fetch the PDFs from IndexedDB
     useEffect(() => {
         const fetchNotes = async () => {
@@ -47,13 +52,16 @@ function page() {
 
 
     const createNote = async () => {
+        console.log("creating moted")
 
         const documentId = uuidv4(); // Generate a unique document ID
+        setDocumentId(documentId)
+        setIsOverlayOpen(false)
 
         try {
             // Add the PDF to IndexedDB
-            await syncNote(documentId, { name: "karthikeya" });
-            router.push(`/note/${documentId}`); // Use next/navigation to navigate
+            await syncNote(documentId, { name: fileName });
+            // router.push(`/note/${documentId}`); // Use next/navigation to navigate
         } catch (error) {
             console.error('Error saving PDF:', error);
             alert('Failed to save the PDF. Please try again.');
@@ -127,12 +135,60 @@ function page() {
                     </div>
                 ))}
                 <div className='w-[182px] h-[224px] bg-white shadow-lg rounded-lg flex justify-center items-center transform transition duration-250 hover:scale-105 cursor-pointer'
-                    onClick={() => { createNote() }}
+                    onClick={() => { setIsOverlayOpen(true) }}
 
                 >
                     <SquarePlus size={80} className='text-slate-200' />
                 </div>
             </div>
+
+
+                        <div className='h-[30vh] border-2 mt-20'>
+                        <FileSystem
+                             currentPath={currentPath}
+                             setCurrentPath={setCurrentPath}
+                             fileType="note"
+               
+                           />
+                        </div>
+
+
+
+                        {isOverlayOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "8px",
+              width: "80%",
+              maxHeight: "80%",
+              overflowY: "auto",
+            }}
+          >
+            <FileSystem
+              currentPath={currentPath}
+              setCurrentPath={setCurrentPath}
+              file={{ documentId:"123", fileName:"fnmae" }} // Pass the documentId and fileName
+              fileType="note"
+              saveFile={createNote}
+
+            />
+          </div>
+        </div>
+      )}
         </div>
     );
 }

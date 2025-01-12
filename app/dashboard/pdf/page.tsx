@@ -6,10 +6,12 @@ import { deletePdf, getAllPdfs } from '@/db/pdf/docs'; // Assuming you have this
 import { getUpdatedAt } from '@/db/pdf/layers';
 import { Trash2 } from 'lucide-react'; // Import the Trash icon
 import FileUpload from '@/components/dashboard/FileUpload';
+import FileSystem from '@/components/FileSystem';
 
 function page() {
   const [pdfs, setPdfs] = useState<{ documentId: string; thumbnail: string | null }[]>([]);
   const [updatedAtMap, setUpdatedAtMap] = useState<{ [documentId: string]: string | null }>({});
+    const [currentPath, setCurrentPath] = useState<string[]>([]);
 
   // Fetch the PDFs from IndexedDB
   useEffect(() => {
@@ -61,7 +63,7 @@ function page() {
   };
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 overflow-auto">
       <h2 className="text-2xl font-rubik font-semibold text-[#6105A2] mb-4">All PdfNotes</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -112,6 +114,15 @@ function page() {
         ))}
         <FileUpload />
       </div>
+
+            <div className='h-[30vh] border-2 mt-20'>
+            <FileSystem
+                 currentPath={currentPath}
+                 setCurrentPath={setCurrentPath}
+                 fileType="pdf"
+   
+               />
+            </div>
     </div>
   );
 }

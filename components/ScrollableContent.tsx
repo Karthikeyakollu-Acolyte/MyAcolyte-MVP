@@ -26,7 +26,7 @@ export default function ScrollableContent({ isExpanded, id }: ScrollableContentP
   }, [id])
 
   return (
-    <div className={`mt-8  transition-all h-[100vh] flex justify-center overflow-auto scrollbar-hidden duration-300 ease-in-out  w-[100vw] 
+    <div className={`mt-8  transition-all h-[100vh] flex justify-center overflow-auto  duration-300 ease-in-out  w-[100vw] 
       `}
       ref={containerNodeRef}
     >

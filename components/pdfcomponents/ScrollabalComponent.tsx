@@ -145,7 +145,7 @@ const ScrollableTransform = ({ children }) => {
   return (
     <div
       ref={containerRef}
-      className="w-[100%] h-screen  overflow-auto relative  scrollbar-hidden"
+      className="w-[100%] h-screen  overflow-auto relative  "
     >
       <div
         ref={contentRef}
