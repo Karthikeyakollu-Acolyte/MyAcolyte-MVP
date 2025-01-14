@@ -48,7 +48,7 @@ const Wrapper = ({ id }: { id: string }) => {
         try {
             const pdf = await getPdfById(currentDocumentId);
             if (pdf) {
-                setPdfData(pdf.base64);
+                // setPdfData(pdf.base64);
             } else {
                 // alert('No PDF found with the given ID.');
             }
@@ -73,7 +73,7 @@ const Wrapper = ({ id }: { id: string }) => {
         <div className="w-full  h-full" >
             <PdfLoader
                 url={PRIMARY_PDF_URL}
-                file={pdfFile}
+                // file={pdfFile}
                 beforeLoad={<div>Loading...</div>}>
                 {(pdfDocument: PDFDocumentProxy) => (
                     <div className="flex justify-center h-full"

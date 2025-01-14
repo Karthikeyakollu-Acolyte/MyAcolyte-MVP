@@ -35,10 +35,13 @@ export default function ScrollableContent({ isExpanded, id }: ScrollableContentP
 
       <div className="w-[80vw] h-screen">
 
-        {!first && <ScrollableTransform>
+        {
+        !first && <ScrollableTransform>
           <Wrapper id={id} />
-        </ScrollableTransform>}
-
+        </ScrollableTransform>
+        
+        }
+{/* this is PDF note compoent */}
         {first && <div
           className="mb-3 mx-auto"
           style={{
