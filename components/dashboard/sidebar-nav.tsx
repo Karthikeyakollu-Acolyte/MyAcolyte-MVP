@@ -3,6 +3,7 @@
 import { Home, MessageSquare, ListTodo, Users2, Settings } from 'lucide-react'
 import Link from 'next/link'
 import React, { useState } from 'react';
+import FolderTree1 from './FolderTree-1';
 
 export function SidebarNav() {
   const [selectedMenu, setSelectedMenu] = useState('home'); // Track selected menu
@@ -54,30 +55,8 @@ export function SidebarNav() {
         </nav>
 
         <div className="mt-8">
-          <div className="px-3 text-xs font-semibold font-rubik text-gray-500">LESSONS</div>
-          <nav className="mt-2 space-y-2">
-            <Link
-              href="#"
-              className="w-[249px] h-[39px] flex items-center gap-3 px-3 py-2 text-lg font-rubik rounded-lg text-gray-600 hover:bg-gray-50"
-            >
-              <span className="w-2 h-2 rounded-full bg-orange-400" />
-              Website Redesign
-            </Link>
-            <Link
-              href="#"
-              className="w-[249px] h-[39px] flex items-center gap-3 px-3 py-2 text-lg font-rubik rounded-lg text-gray-600 hover:bg-gray-50"
-            >
-              <span className="w-2 h-2 rounded-full bg-gray-300" />
-              Design System
-            </Link>
-            <Link
-              href="#"
-              className="w-[249px] h-[39px] flex items-center gap-3 px-3 py-2 text-lg font-rubik rounded-lg text-gray-600 hover:bg-gray-50"
-            >
-              <span className="w-2 h-2 rounded-full bg-blue-400" />
-              Wireframes
-            </Link>
-          </nav>
+          <div className="px-3 text-xs font-semibold font-rubik text-gray-500">SUBJECTS</div>
+          <FolderTree1/>
         </div>
       </div>
     </div>

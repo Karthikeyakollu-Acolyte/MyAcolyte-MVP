@@ -72,7 +72,7 @@ const Wrapper = ({ id }: { id: string }) => {
     return (
         <div className="w-full  h-full" >
             <PdfLoader
-                url={pdfData}
+                url={PRIMARY_PDF_URL}
                 file={pdfFile}
                 beforeLoad={<div>Loading...</div>}>
                 {(pdfDocument: PDFDocumentProxy) => (

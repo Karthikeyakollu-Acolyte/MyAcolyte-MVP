@@ -188,7 +188,7 @@ useEffect(() => {
 
     return (
 
-              <div className="relative">
+              <div className="relative h-full">
                   <div
                
                     ref={containerNodeRef}

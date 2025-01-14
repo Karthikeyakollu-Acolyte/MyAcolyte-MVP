@@ -9,6 +9,7 @@ import { CanvasProvider } from '@/context/CanvasContext'
 import { SettingsProvider, useSettings } from '@/context/SettingsContext'
 import { RefsProvider } from '@/context/sharedRefs'
 import { ToolProvider } from '@/context/ToolContext'
+import TodoNotes from '@/components/dashboard/Todo'
 
 type Props = {}
 
@@ -33,8 +34,7 @@ const Layout = ({ children }:any) => {
 
                                         </div>
                                     </main>
-
-                                    <TasksSidebar />
+                                    <TodoNotes />
                                 </div>
                             </div>
 

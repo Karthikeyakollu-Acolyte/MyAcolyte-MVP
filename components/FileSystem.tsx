@@ -12,8 +12,8 @@ interface FileSystemItem {
   id: string;
   name: string;
   type: 'file' | 'folder';
-  fileType?: 'pdf' | 'note'; // Added fileType for files
-  children?: FileSystemItem[];
+  fileType?: 'pdf' | 'note';
+  parentId: string | null;
 }
 
 interface FileSystemProps {
@@ -27,34 +27,19 @@ interface FileSystemProps {
   saveFile?: () => void;
 }
 
-const getInitialFileSystem = (): FileSystemItem[] => {
-  return [
-    {
-      id: 'root',
-      name: 'root',
-      type: 'folder',
-      children: []
-    }
-  ];
-};
-
 export default function FileSystem({ currentPath, setCurrentPath, file, fileType = 'root', saveFile }: FileSystemProps) {
   const [fileSystem, setFileSystem] = useState<FileSystemItem[]>([]);
   const [editingItem, setEditingItem] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [currentFolder, setCurrentFolder] = useState<string | null>(null);
 
   // Fetch file system data
   const fetchFileSystem = useCallback(async () => {
     try {
       let storedFileSystem = await getFileSystem();
-      
       if (!storedFileSystem || storedFileSystem.length === 0) {
-        storedFileSystem = getInitialFileSystem();
-        await saveFileSystem(storedFileSystem);
+        storedFileSystem = [];
       }
-      
       setFileSystem(storedFileSystem);
-      setIsInitialized(true);
     } catch (error) {
       console.error('Error fetching file system:', error);
     }
@@ -73,31 +58,25 @@ export default function FileSystem({ currentPath, setCurrentPath, file, fileType
     }
   }, []);
 
-  const getCurrentFolder = useCallback(() => {
-    let current = { children: fileSystem };
-    
-    for (const pathPart of currentPath) {
-      const found = current.children?.find((item) => item.name === pathPart);
-      if (!found) return [];
-      current = found;
-    }
-
-    const items = current.children || [];
-    
-    // Filter items based on fileType if not root
-    if (fileType !== 'root') {
-      return items.filter(item => 
-        item.type === 'folder' || 
-        (item.type === 'file' && item.fileType === fileType)
+  const getCurrentItems = useCallback(() => {
+    // If we're in root, show only folders
+    if (!currentFolder) {
+      return fileSystem.filter(item => 
+        item.parentId === null
       );
     }
     
-    return items;
-  }, [fileSystem, currentPath, fileType]);
+    // If we're in a folder, show files of the correct type and no folders
+    return fileSystem.filter(item => 
+      item.parentId === currentFolder && 
+      (item.type === 'file' ? (fileType === 'root' || item.fileType === fileType) : true)
+    );
+  }, [fileSystem, currentFolder, fileType]);
 
   const handleItemClick = useCallback(async (item: FileSystemItem) => {
     if (item.type === 'folder') {
-      setCurrentPath([...currentPath, item.name]);
+      setCurrentFolder(item.id);
+      setCurrentPath([item.name]);
     } else if (item.type === 'file') {
       try {
         if (item.fileType === 'pdf') {
@@ -118,13 +97,12 @@ export default function FileSystem({ currentPath, setCurrentPath, file, fileType
         alert('Failed to open the file.');
       }
     }
-  }, [currentPath, setCurrentPath]);
+  }, [setCurrentPath]);
 
   const handleBackClick = useCallback(() => {
-    if (currentPath.length > 0) {
-      setCurrentPath(currentPath.slice(0, -1));
-    }
-  }, [currentPath, setCurrentPath]);
+    setCurrentFolder(null);
+    setCurrentPath([]);
+  }, [setCurrentPath]);
 
   const handleRename = useCallback(async (id: string, newName: string) => {
     if (newName.trim() === '') {
@@ -132,99 +110,61 @@ export default function FileSystem({ currentPath, setCurrentPath, file, fileType
       return;
     }
 
-    const updatedFileSystem = [...fileSystem];
-    let found = false;
-
-    const findAndRename = (items: FileSystemItem[]) => {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].id === id) {
-          // Preserve file extension if it's a file
-          if (items[i].type === 'file') {
-            const extension = items[i].fileType === 'pdf' ? '.pdf' : '.notes';
-            if (!newName.endsWith(extension)) {
-              items[i].name = `${newName.trim()}${extension}`;
-            } else {
-              items[i].name = newName.trim();
-            }
-          } else {
-            items[i].name = newName.trim();
-          }
-          found = true;
-          break;
+    const updatedFileSystem = fileSystem.map(item => {
+      if (item.id === id) {
+        if (item.type === 'file') {
+          const extension = item.fileType === 'pdf' ? '.pdf' : '.notes';
+          return {
+            ...item,
+            name: newName.endsWith(extension) ? newName.trim() : `${newName.trim()}${extension}`
+          };
         }
-        if (items[i].children) {
-          findAndRename(items[i].children);
-          if (found) break;
-        }
+        return { ...item, name: newName.trim() };
       }
-    };
+      return item;
+    });
 
-    findAndRename(updatedFileSystem);
-    
-    if (found) {
-      await updateFileSystem(updatedFileSystem);
-    }
+    await updateFileSystem(updatedFileSystem);
     setEditingItem(null);
   }, [fileSystem, updateFileSystem]);
 
   const handleCreateFolder = useCallback(async () => {
+    if (currentFolder) return; // Prevent folder creation inside folders
+
     const newFolder: FileSystemItem = {
       id: Date.now().toString(),
       name: 'New Folder',
       type: 'folder',
-      children: [],
+      parentId: null
     };
 
-    const updatedFileSystem = [...fileSystem];
-    let current = { children: updatedFileSystem };
-    
-    for (const pathPart of currentPath) {
-      const found = current.children?.find((item) => item.name === pathPart);
-      if (!found) return;
-      current = found;
-    }
-
-    if (current.children) {
-      current.children.push(newFolder);
-      await updateFileSystem(updatedFileSystem);
-      setEditingItem(newFolder.id);
-    }
-  }, [currentPath, fileSystem, updateFileSystem]);
+    const updatedFileSystem = [...fileSystem, newFolder];
+    await updateFileSystem(updatedFileSystem);
+    setEditingItem(newFolder.id);
+  }, [fileSystem, updateFileSystem, currentFolder]);
 
   const handleAddFileToCurrentFolder = useCallback(async () => {
-    if (!file?.documentId) return;
+    if (!file?.documentId || !currentFolder) return;
 
-    const updatedFileSystem = [...fileSystem];
-    let current = { children: updatedFileSystem };
+    const extension = fileType === 'pdf' ? '.pdf' : '.notes';
+    const fileName = file.fileName.endsWith(extension) 
+      ? file.fileName 
+      : `${file.fileName}${extension}`;
 
-    for (const pathPart of currentPath) {
-      const found = current.children?.find((item) => item.name === pathPart);
-      if (!found) return;
-      current = found;
+    const newFile: FileSystemItem = {
+      id: file.documentId,
+      name: fileName,
+      type: 'file',
+      fileType: fileType === 'pdf' ? 'pdf' : 'note',
+      parentId: currentFolder
+    };
+
+    const updatedFileSystem = [...fileSystem, newFile];
+    await updateFileSystem(updatedFileSystem);
+    if (saveFile) {
+      saveFile();
     }
-
-    if (current.children) {
-      const extension = fileType === 'pdf' ? '.pdf' : '.notes';
-      const fileName = file.fileName.endsWith(extension) 
-        ? file.fileName 
-        : `${file.fileName}${extension}`;
-
-      const newFile: FileSystemItem = {
-        id: file.documentId,
-        name: fileName,
-        type: 'file',
-        fileType: fileType === 'pdf' ? 'pdf' : 'note'
-      };
-
-      current.children.push(newFile);
-      await updateFileSystem(updatedFileSystem);
-      if (saveFile) {
-        saveFile();
-        
-      }
-    }
-    
-  }, [file, currentPath, fileType, fileSystem, updateFileSystem, saveFile]);
+  }, [file, currentFolder, fileType, fileSystem, updateFileSystem, saveFile]);
 
   const getFileIcon = (item: FileSystemItem) => {
     if (item.type === 'folder') {
@@ -241,17 +181,19 @@ export default function FileSystem({ currentPath, setCurrentPath, file, fileType
             variant="ghost" 
             size="icon" 
             onClick={handleBackClick} 
-            disabled={currentPath.length === 0}
+            disabled={!currentFolder}
           >
             <ChevronRight className="rotate-180" />
           </Button>
-          <div className="ml-2">{currentPath.length > 0 ? currentPath.join(' / ') : 'Root'}</div>
+          <div className="ml-2">{currentPath.length > 0 ? currentPath[0] : 'Subjects'}</div>
         </div>
         <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={handleCreateFolder}>
-            <Folder className="h-4 w-4" />
-          </Button>
-          {file && (
+          {!currentFolder && (
+            <Button variant="ghost" size="icon" onClick={handleCreateFolder}>
+              <Folder className="h-4 w-4" />
+            </Button>
+          )}
+          {currentFolder && file && (
             <Button variant="ghost" size="icon" onClick={handleAddFileToCurrentFolder}>
               <Check className="h-4 w-4" />
             </Button>
@@ -260,7 +202,7 @@ export default function FileSystem({ currentPath, setCurrentPath, file, fileType
       </div>
       <div className="flex-1 p-4 overflow-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {getCurrentFolder().map((item) => (
+          {getCurrentItems().map((item) => (
             <div
               key={item.id}
               className="flex flex-col items-center cursor-pointer"
