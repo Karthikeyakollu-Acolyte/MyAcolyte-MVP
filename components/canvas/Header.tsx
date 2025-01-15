@@ -2,12 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
-import { Bell, Search, MoreVertical } from 'lucide-react'
 import Image from "next/image"
 import acolyte from '@/public/acolyte.png'
-import frame from '@/public/frame.png'
 import { Collaborators } from "./collaborators"
-import SearchCompoent from '../pdfcomponents/SearchCompoent'
 import notifications from '@/public/notifications.svg'
 import search from '@/public/search.svg'
 import kebabmenu from '@/public/kebabmenu.svg'
@@ -28,16 +25,13 @@ export default function Header({
   const [isSearchVisible, setIsSearchVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [lastUpdate, setLastUpdate] = useState("")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const {theme,isVisible,setIsVisible} = useSettings()
 
   const searchBarRef = useRef(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
   const {first} = useSettings()
-
-useEffect(()=>{
-  console.log(isVisible)
-},[isVisible])
 
   useEffect(() => {
     const updateLastUpdateTime = () => {
@@ -55,11 +49,18 @@ useEffect(()=>{
 
     updateLastUpdateTime()
     const interval = setInterval(updateLastUpdateTime, 60000)
+
     return () => clearInterval(interval)
   }, [])
 
   const toggleSearch = () => {
     setIsSearchVisible(!isSearchVisible)
+    setIsMobileMenuOpen(false)
+  }
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+    setIsSearchVisible(false)
   }
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +95,7 @@ useEffect(()=>{
         <header 
           className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
             isVisible ? 'translate-y-0' : '-translate-y-full'
-          } flex text-white items-center w-[1920px] h-[89px] p-1 font-sans
+          } flex flex-wrap items-center w-full p-2 font-sans
           ${theme === 'Dark Brown' ? 'bg-[#291D00]' :
             theme === 'Deep Red' ? 'bg-[#390003]' :
             theme === 'Midnight Blue' ? 'bg-[#002033]' :
@@ -104,20 +105,20 @@ useEffect(()=>{
           }`}
         >
           <div className="flex w-full justify-between items-center font-rubik">
-            <div className='w-[563px] z-10 ml-3'>
-              <Image alt="acolyte" src={acolyte} className="h-28 w-28 ml-2" />
+            <div className='flex justify-center w-full sm:w-auto ml-3'>
+              <Image alt="acolyte" src={acolyte} className="h-28 w-28" />
             </div>
 
-            <div className="flex flex-col z-10 w-[286px] items-center justify-center gap-1">
+            <div className="flex flex-col items-center justify-center gap-1 flex-grow sm:flex-none">
               <div className="flex items-center justify-center gap-11">
                 <span className="text-[20px] text-center">{title}</span>
               </div>
-              <p className="text-[15px] w-[296px] font-rubik text-muted-foreground text-center">
+              <p className="text-[15px] font-rubik text-muted-foreground text-center">
                 Last Update: {lastUpdate}
               </p>
             </div>
 
-            <div className="flex justify-start mr-4 z-10 items-center gap-5">
+            <div className="flex justify-start items-center gap-5 sm:gap-3">
               <Collaborators />
               <PdfThemes/>
               <Button
@@ -128,7 +129,7 @@ useEffect(()=>{
                   loading="lazy"
                   src={notifications}
                   alt="Notifications"
-                  className="object-contain w-[31.68px] h-[31.68px] aspect-square"
+                  className="object-contain w-8 h-8"
                 />
               </Button>
 
@@ -140,26 +141,34 @@ useEffect(()=>{
                 <Image
                   loading="lazy"
                   src={search}
-                  alt="Notifications"
-                  className="object-contain w-[31.68px] h-[31.68px] aspect-square"
+                  alt="Search"
+                  className="object-contain w-8 h-8"
                 />
               </Button>
 
               <Button
                 variant="ghost"
                 className="text-muted-foreground hover:text-foreground custom-button"
+                onClick={toggleMobileMenu}
               >
                 <Image
                   loading="lazy"
                   src={kebabmenu}
-                  alt="User profile"
-                  className="object-contain w-[31.68px] h-[31.68px] aspect-[0.97]"
+                  alt="Menu"
+                  className="object-contain w-8 h-8"
                 />
               </Button>
             </div>
           </div>
 
           {isSearchVisible && <SearchCompoent/>}
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="absolute top-0 right-0 w-full bg-white z-50 p-4 sm:hidden">
+              {/* Mobile menu items here */}
+            </div>
+          )}
         </header>
       )}
     </div>
