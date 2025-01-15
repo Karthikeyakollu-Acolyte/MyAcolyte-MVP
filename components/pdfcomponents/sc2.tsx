@@ -5,15 +5,32 @@ const ScrollableTransform = ({ children }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPanning = useRef(false);
-  const { isInfinite, setScale } = useSettings();
+  const { isInfinite, setScale, setIsVisible} = useSettings();
   const lastPosition = useRef({ x: 0, y: 0 });
   const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [isOverflowing, setIsOverflowing] = useState(false);
   const lastTouchDistance = useRef(0);
-
+  const [lastScrollY, setLastScrollY] = useState(0)
+  const controlHeader = (e) => {
+    const currentScrollY = e.target.scrollTop; // Get the scroll position of the container
+    console.log(currentScrollY);
+  
+    if (currentScrollY > lastScrollY) {
+      // Scrolling down
+      setIsVisible(false);
+      console.log("scroll down");
+    } else {
+      // Scrolling up
+      setIsVisible(true);
+      console.log("scroll up");
+    }
+  
+    setLastScrollY(currentScrollY); // Update the last scroll position
+  };
   const handleWheel = (event) => {
     if (event.ctrlKey) {
       event.preventDefault();
+  let globalScale=0
       
       // Get cursor position relative to the container
       const rect = containerRef.current.getBoundingClientRect();
@@ -25,18 +42,31 @@ const ScrollableTransform = ({ children }) => {
       const contentY = (cursorY - transform.y) / transform.scale;
 
       const zoomFactor = -event.deltaY * 0.001;
-      const newScale = Math.max(0.1, Math.min(10, transform.scale * (1 + zoomFactor)));
-      const scaleDelta = newScale / transform.scale;
+      // Prevent zooming out below scale 1.0
+      const newScale = Math.max(1, Math.min(10, transform.scale * (1 + zoomFactor)));
 
-      // Calculate new position to zoom towards cursor
-      const newX = cursorX - (contentX * newScale);
-      const newY = cursorY - (contentY * newScale);
+      // If zooming back to scale 1, reset position
+      if (newScale === 1) {
+        setTransform({
+          scale: 1,
+          x: 0,
+          y: 0
+        });
+        return;
+      }
 
-      setTransform({
-        scale: newScale,
-        x: newX,
-        y: newY
-      });
+      // Only apply zoom if we're zooming in or we're above scale 1
+      if (newScale > transform.scale || transform.scale > 1) {
+        // Calculate new position to zoom towards cursor
+        const newX = cursorX - (contentX * newScale);
+        const newY = cursorY - (contentY * newScale);
+
+        setTransform({
+          scale: newScale,
+          x: newX,
+          y: newY
+        });
+      }
     } else if (transform.scale > 1) {
       // Only allow panning when zoomed in
       setTransform(prev => {
@@ -63,6 +93,8 @@ const ScrollableTransform = ({ children }) => {
     }
   };
 
+
+
   const handleTouchMove = (event) => {
     if (event.touches.length === 2) {
       event.preventDefault();
@@ -83,35 +115,49 @@ const ScrollableTransform = ({ children }) => {
       }
 
       const scale = transform.scale * (distance / lastTouchDistance.current);
-      const newScale = Math.max(0.1, Math.min(10, scale));
+      // Prevent zooming out below scale 1.0
+      const newScale = Math.max(1, Math.min(10, scale));
 
-      // Calculate zoom center relative to container
-      const rect = containerRef.current.getBoundingClientRect();
-      const zoomCenterX = centerX - rect.left;
-      const zoomCenterY = centerY - rect.top;
+      // If zooming back to scale 1, reset position
+      if (newScale === 1) {
+        setTransform({
+          scale: 1,
+          x: 0,
+          y: 0
+        });
+        return;
+      }
 
-      // Apply transformation with bounds
-      setTransform(prev => {
-        const contentX = (zoomCenterX - prev.x) / prev.scale;
-        const contentY = (zoomCenterY - prev.y) / prev.scale;
+      // Only apply zoom if we're zooming in or we're above scale 1
+      if (newScale > transform.scale || transform.scale > 1) {
+        // Calculate zoom center relative to container
+        const rect = containerRef.current.getBoundingClientRect();
+        const zoomCenterX = centerX - rect.left;
+        const zoomCenterY = centerY - rect.top;
 
-        const newX = zoomCenterX - (contentX * newScale);
-        const newY = zoomCenterY - (contentY * newScale);
+        // Apply transformation with bounds
+        setTransform(prev => {
+          const contentX = (zoomCenterX - prev.x) / prev.scale;
+          const contentY = (zoomCenterY - prev.y) / prev.scale;
 
-        const containerWidth = containerRef.current?.offsetWidth || 0;
-        const containerHeight = containerRef.current?.offsetHeight || 0;
-        const contentWidth = 850 * newScale;
-        const contentHeight = (contentRef.current?.offsetHeight || 0) * newScale;
+          const newX = zoomCenterX - (contentX * newScale);
+          const newY = zoomCenterY - (contentY * newScale);
 
-        const minX = containerWidth - contentWidth;
-        const minY = containerHeight - contentHeight;
+          const containerWidth = containerRef.current?.offsetWidth || 0;
+          const containerHeight = containerRef.current?.offsetHeight || 0;
+          const contentWidth = 850 * newScale;
+          const contentHeight = (contentRef.current?.offsetHeight || 0) * newScale;
 
-        return {
-          scale: newScale,
-          x: Math.min(0, Math.max(minX, newX)),
-          y: Math.min(0, Math.max(minY, newY))
-        };
-      });
+          const minX = containerWidth - contentWidth;
+          const minY = containerHeight - contentHeight;
+
+          return {
+            scale: newScale,
+            x: Math.min(0, Math.max(minX, newX)),
+            y: Math.min(0, Math.max(minY, newY))
+          };
+        });
+      }
 
       lastTouchDistance.current = distance;
     }
@@ -132,11 +178,13 @@ const ScrollableTransform = ({ children }) => {
     container.addEventListener('wheel', handleWheel, { passive: false });
     container.addEventListener('touchmove', handleTouchMove, { passive: false });
     container.addEventListener('touchend', handleTouchEnd);
+   container.addEventListener('scroll', controlHeader);
 
     return () => {
       container.removeEventListener('wheel', handleWheel);
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('scroll', controlHeader);
     };
   }, [transform]);
 
@@ -150,10 +198,11 @@ const ScrollableTransform = ({ children }) => {
         scale: Math.max(scale, 1),
       }));
     } else {
-      setTransform(prev => ({
-        ...prev,
+      setTransform({
         scale: 1,
-      }));
+        x: 0,
+        y: 0
+      });
     }
   }, [isInfinite]);
 

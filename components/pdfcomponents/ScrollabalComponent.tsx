@@ -1,4 +1,5 @@
 import { useSettings } from '@/context/SettingsContext';
+import { easeInOut } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 
 const ScrollableTransform = ({ children }) => {
@@ -217,6 +218,7 @@ const ScrollableTransform = ({ children }) => {
           transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
           transformOrigin: '0 0',
           width: '850px',
+          transition: 'all 400ms ease-in-out'
         }}
         className="mx-auto"
       >
