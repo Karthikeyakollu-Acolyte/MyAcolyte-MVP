@@ -5,11 +5,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"; // Adjust the import path based on your project structure
+} from "@/components/ui/dropdown-menu";
 import brushmenu from "@/public/brushmenu.svg";
-import { useTheme } from "@/context/useTheme"; // Adjust the import path for the hook
 import Image from "next/image";
 import { useSettings } from "@/context/SettingsContext";
+
 const availableThemes = [
   "Dark Brown",        // #291D00
   "Deep Red",          // #390003
@@ -18,11 +18,25 @@ const availableThemes = [
   "Charcoal Black",    // #202020
   "Very Dark Purple"   // #090822
 ];
-  
+
+const THEME_STORAGE_KEY = 'pdf-theme-preference';
 
 const PdfThemes = () => {
-  const { setTheme } = useSettings();
+  const { setTheme, theme } = useSettings();
 
+  useEffect(() => {
+    // Retrieve theme from localStorage when component mounts
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme && availableThemes.includes(savedTheme)) {
+      setTheme(savedTheme);
+    }
+  }, [setTheme]);
+
+  const handleThemeChange = (newTheme) => {
+    // Save to localStorage and update theme
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    setTheme(newTheme);
+  };
 
   return (
     <DropdownMenu>
@@ -43,7 +57,7 @@ const PdfThemes = () => {
         {availableThemes.map((themeOption) => (
           <DropdownMenuItem
             key={themeOption}
-            onClick={() => setTheme(themeOption)}
+            onClick={() => handleThemeChange(themeOption)}
           >
             {themeOption.charAt(0).toUpperCase() + themeOption.slice(1)}
           </DropdownMenuItem>

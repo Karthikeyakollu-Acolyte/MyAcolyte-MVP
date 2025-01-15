@@ -69,6 +69,11 @@ export const LayerManagement: React.FC<LayerManagementProps> = ({ pageRects, syn
     handleFetch();
   }, [currentDocumentId]);
 
+  useEffect(()=>{
+   if(!(layers.length > 0)){
+    addLayer()
+   }
+  },[])
 
 
   return (

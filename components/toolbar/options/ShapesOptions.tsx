@@ -42,12 +42,12 @@ export default function ShapesOptions({
                 <ToggleGroupItem value="triangle">
                     <Triangle className="h-6 w-6" />
                 </ToggleGroupItem>
-                <ToggleGroupItem value="star">
+                {/* <ToggleGroupItem value="star">
                     <Star className="h-6 w-6" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="hexagon">
+                </ToggleGroupItem> */}
+                {/* <ToggleGroupItem value="hexagon">
                     <Diamond className="h-6 w-6" />
-                </ToggleGroupItem>
+                </ToggleGroupItem> */}
 
                 {/* <ToggleGroupItem value="arrow">
                     <MoveUpRight className="h-6 w-6" />

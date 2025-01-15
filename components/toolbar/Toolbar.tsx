@@ -130,7 +130,7 @@ function Toolbar() {
             <Button variant="ghost" size="icon" onClick={() => openMenu("pixelEraser")}>
               <Eraser className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => openMenu("rectangleSelection")}>
+            <Button variant="ghost" size="icon" onClick={() => openMenu("rectangleSelection")} disabled>
               <MousePointer className="h-4 w-4" />
             </Button>
 

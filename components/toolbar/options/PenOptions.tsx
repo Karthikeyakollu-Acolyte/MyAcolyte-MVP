@@ -49,10 +49,10 @@ export default function PenOptions({
           <Highlighter className="h-4 w-4" />
         </ToggleGroupItem>
 
-        <ToggleGroupItem value="texthighlighter">
+        {/* <ToggleGroupItem value="texthighlighter">
           <Baseline className="h-4 w-4" />
 
-        </ToggleGroupItem>
+        </ToggleGroupItem> */}
       </ToggleGroup>
       <Slider
         min={1}

@@ -10,6 +10,7 @@ import search from '@/public/search.svg'
 import kebabmenu from '@/public/kebabmenu.svg'
 import { useSettings } from '@/context/SettingsContext'
 import PdfThemes from '../PdfThemes'
+import SearchCompoent from '../pdfcomponents/SearchCompoent'
 
 interface HeaderProps {
   title?: string

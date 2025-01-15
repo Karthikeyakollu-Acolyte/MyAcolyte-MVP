@@ -36,7 +36,7 @@ export default function EraserOptions({ onClose, onToolChange, initialTool,setEr
         className="w-24"
       />
       <ToggleGroup type="single" value={eraserType} onValueChange={(value) => value && setEraserType(value)}>
-        <ToggleGroupItem value="pixel">
+        <ToggleGroupItem value="pixel" disabled>
           <Eraser className="h-4 w-4" />
         </ToggleGroupItem>
         <ToggleGroupItem value="object">

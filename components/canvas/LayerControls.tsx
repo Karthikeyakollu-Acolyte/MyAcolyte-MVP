@@ -10,7 +10,7 @@ export const LayerControls: React.FC<{
   toggleLayerVisibility: (index: number) => void;
   deleteLayer: (index: number) => void;
 }> = ({ layers, addLayer, toggleLayerVisibility, deleteLayer }) => (
-  <div className="fixed top-0 right-0 w-64 bg-white shadow-lg rounded-lg overflow-hidden mt-[135px]" style={{zIndex:90}}>
+  <div className="fixed hidden top-0 right-0 w-64 bg-white shadow-lg rounded-lg overflow-hidden mt-[135px]" style={{zIndex:90}}>
 
     <div className="p-4 bg-gray-100 border-b border-gray-200">
       <Button onClick={addLayer} className="w-full text-white">
