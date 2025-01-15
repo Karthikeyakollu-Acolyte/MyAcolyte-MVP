@@ -25,31 +25,18 @@ const ScrollableTransform = ({ children }) => {
       const contentY = (cursorY - transform.y) / transform.scale;
 
       const zoomFactor = -event.deltaY * 0.001;
-      // Prevent zooming out below scale 1.0
-      const newScale = Math.max(1, Math.min(10, transform.scale * (1 + zoomFactor)));
+      const newScale = Math.max(0.1, Math.min(10, transform.scale * (1 + zoomFactor)));
+      const scaleDelta = newScale / transform.scale;
 
-      // If zooming back to scale 1, reset position
-      if (newScale === 1) {
-        setTransform({
-          scale: 1,
-          x: 0,
-          y: 0
-        });
-        return;
-      }
+      // Calculate new position to zoom towards cursor
+      const newX = cursorX - (contentX * newScale);
+      const newY = cursorY - (contentY * newScale);
 
-      // Only apply zoom if we're zooming in or we're above scale 1
-      if (newScale > transform.scale || transform.scale > 1) {
-        // Calculate new position to zoom towards cursor
-        const newX = cursorX - (contentX * newScale);
-        const newY = cursorY - (contentY * newScale);
-
-        setTransform({
-          scale: newScale,
-          x: newX,
-          y: newY
-        });
-      }
+      setTransform({
+        scale: newScale,
+        x: newX,
+        y: newY
+      });
     } else if (transform.scale > 1) {
       // Only allow panning when zoomed in
       setTransform(prev => {
@@ -96,49 +83,35 @@ const ScrollableTransform = ({ children }) => {
       }
 
       const scale = transform.scale * (distance / lastTouchDistance.current);
-      // Prevent zooming out below scale 1.0
-      const newScale = Math.max(1, Math.min(10, scale));
+      const newScale = Math.max(0.1, Math.min(10, scale));
 
-      // If zooming back to scale 1, reset position
-      if (newScale === 1) {
-        setTransform({
-          scale: 1,
-          x: 0,
-          y: 0
-        });
-        return;
-      }
+      // Calculate zoom center relative to container
+      const rect = containerRef.current.getBoundingClientRect();
+      const zoomCenterX = centerX - rect.left;
+      const zoomCenterY = centerY - rect.top;
 
-      // Only apply zoom if we're zooming in or we're above scale 1
-      if (newScale > transform.scale || transform.scale > 1) {
-        // Calculate zoom center relative to container
-        const rect = containerRef.current.getBoundingClientRect();
-        const zoomCenterX = centerX - rect.left;
-        const zoomCenterY = centerY - rect.top;
+      // Apply transformation with bounds
+      setTransform(prev => {
+        const contentX = (zoomCenterX - prev.x) / prev.scale;
+        const contentY = (zoomCenterY - prev.y) / prev.scale;
 
-        // Apply transformation with bounds
-        setTransform(prev => {
-          const contentX = (zoomCenterX - prev.x) / prev.scale;
-          const contentY = (zoomCenterY - prev.y) / prev.scale;
+        const newX = zoomCenterX - (contentX * newScale);
+        const newY = zoomCenterY - (contentY * newScale);
 
-          const newX = zoomCenterX - (contentX * newScale);
-          const newY = zoomCenterY - (contentY * newScale);
+        const containerWidth = containerRef.current?.offsetWidth || 0;
+        const containerHeight = containerRef.current?.offsetHeight || 0;
+        const contentWidth = 850 * newScale;
+        const contentHeight = (contentRef.current?.offsetHeight || 0) * newScale;
 
-          const containerWidth = containerRef.current?.offsetWidth || 0;
-          const containerHeight = containerRef.current?.offsetHeight || 0;
-          const contentWidth = 850 * newScale;
-          const contentHeight = (contentRef.current?.offsetHeight || 0) * newScale;
+        const minX = containerWidth - contentWidth;
+        const minY = containerHeight - contentHeight;
 
-          const minX = containerWidth - contentWidth;
-          const minY = containerHeight - contentHeight;
-
-          return {
-            scale: newScale,
-            x: Math.min(0, Math.max(minX, newX)),
-            y: Math.min(0, Math.max(minY, newY))
-          };
-        });
-      }
+        return {
+          scale: newScale,
+          x: Math.min(0, Math.max(minX, newX)),
+          y: Math.min(0, Math.max(minY, newY))
+        };
+      });
 
       lastTouchDistance.current = distance;
     }
@@ -177,11 +150,10 @@ const ScrollableTransform = ({ children }) => {
         scale: Math.max(scale, 1),
       }));
     } else {
-      setTransform({
+      setTransform(prev => ({
+        ...prev,
         scale: 1,
-        x: 0,
-        y: 0
-      });
+      }));
     }
   }, [isInfinite]);
 

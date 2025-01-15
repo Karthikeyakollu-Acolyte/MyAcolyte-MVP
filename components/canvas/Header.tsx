@@ -2,12 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
-import { Bell, Search, MoreVertical } from 'lucide-react'
 import Image from "next/image"
 import acolyte from '@/public/acolyte.png'
-import frame from '@/public/frame.png'
 import { Collaborators } from "./collaborators"
-import SearchCompoent from '../pdfcomponents/SearchCompoent'
 import notifications from '@/public/notifications.svg'
 import search from '@/public/search.svg'
 import kebabmenu from '@/public/kebabmenu.svg'
@@ -25,16 +22,14 @@ export default function Header({
   pages = 120,
   annotations = 120,
 }: HeaderProps) {
-  // State to toggle search bar visibility and hold search query
   const [isSearchVisible, setIsSearchVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [lastUpdate, setLastUpdate] = useState("")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Ref to detect clicks outside the search bar and to focus the input
   const searchBarRef = useRef(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Update the last update time dynamically
   useEffect(() => {
     const updateLastUpdateTime = () => {
       const now = new Date()
@@ -50,14 +45,19 @@ export default function Header({
     }
 
     updateLastUpdateTime()
-    const interval = setInterval(updateLastUpdateTime, 60000) // Update every minute
+    const interval = setInterval(updateLastUpdateTime, 60000)
 
     return () => clearInterval(interval)
   }, [])
 
-  // Toggle search bar visibility
   const toggleSearch = () => {
     setIsSearchVisible(!isSearchVisible)
+    setIsMobileMenuOpen(false)
+  }
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+    setIsSearchVisible(false)
   }
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +69,6 @@ export default function Header({
     console.log('Search Query:', searchQuery)
   }
 
-  // Close the search bar if clicked outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchBarRef.current && !searchBarRef.current.contains(event.target as Node)) {
@@ -81,7 +80,6 @@ export default function Header({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Focus on the search input when the search bar becomes visible
   useEffect(() => {
     if (isSearchVisible && searchInputRef.current) {
       searchInputRef.current.focus()
@@ -89,109 +87,101 @@ export default function Header({
   }, [isSearchVisible])
 
   return (
-    <header className="flex items-center w-[1920px] h-[89px] border-b p-1 font-sans bg-white">
-      <div className="flex w-full justify-between items-center font-rubik">
-        <div className='w-[563px] z-10 ml-3'>
-          <Image alt="acolyte" src={acolyte} className="h-28 w-28 ml-2" />
-        </div>
-
-        {/* Centered Title and Last Update Section */}
-        <div className="flex flex-col z-10 w-[286px] items-center justify-center gap-1">
-          <div className="flex items-center justify-center gap-11">
-            <span className="text-[20px] text-center">{title}</span>
+    <header className="relative w-full bg-white border-b">
+      {/* Main Header Content */}
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between py-2 gap-4 sm:gap-6">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Image 
+              alt="acolyte" 
+              src={acolyte} 
+              className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20"
+            />
           </div>
-          <p className="text-[15px] w-[296px] font-rubik text-muted-foreground text-center">
-            Last Update: {lastUpdate}
-          </p>
-        </div>
 
-        <div className="flex justify-start mr-4 z-10 items-center gap-5">
-          <Collaborators />
+          {/* Title and Update Time - Center on mobile, left-aligned on desktop */}
+          <div className="flex flex-col items-center flex-grow text-center">
+  <h1 className="text-lg sm:text-xl lg:text-2xl font-medium">
+    {title}
+  </h1>
+  <p className="text-sm lg:text-base text-muted-foreground mt-1">
+    Last Update: {lastUpdate}
+  </p>
+</div>
 
-          <Image
-            loading="lazy"
-            src={brushmenu}
-            alt="Navigation icon"
-            className="object-contain w-[59.24px] h-[35.88px] aspect-[1.64] mr-2"
-          />
+          {/* Desktop Navigation */}
+          <div className="hidden sm:flex items-center gap-2 lg:gap-4">
+            <Collaborators />
+            <Button variant="ghost" className="p-2">
+              <Image src={brushmenu} alt="Brush menu" className="w-8 h-8 lg:w-10 lg:h-10" />
+            </Button>
+            <Button variant="ghost" className="p-2">
+              <Image src={notifications} alt="Notifications" className="w-8 h-8 lg:w-10 lg:h-10" />
+            </Button>
+            <Button variant="ghost" onClick={toggleSearch} className="p-2">
+              <Image src={search} alt="Search" className="w-8 h-8 lg:w-10 lg:h-10" />
+            </Button>
+            <Button variant="ghost" className="p-2">
+              <Image src={kebabmenu} alt="Menu" className="w-8 h-8 lg:w-10 lg:h-10" />
+            </Button>
+          </div>
 
-          <Button
-            variant="ghost"
-            className="text-muted-foreground hover:text-foreground custom-button"
+          {/* Mobile Navigation Toggle */}
+          <Button 
+            variant="ghost" 
+            onClick={toggleMobileMenu}
+            className="sm:hidden p-2"
           >
-            <Image
-              loading="lazy"
-              src={notifications}
-              alt="Notifications"
-              className="object-contain w-[31.68px] h-[31.68px] aspect-square"
-            />
-          </Button>
-
-          {/* Search Button */}
-          <Button
-            variant="ghost"
-            className="text-muted-foreground hover:text-foreground custom-button"
-            onClick={toggleSearch} // Toggle search visibility on click
-          >
-            <Image
-              loading="lazy"
-              src={search}
-              alt="Notifications"
-              className="object-contain w-[31.68px] h-[31.68px] aspect-square"
-            />
-          </Button>
-
-          <Button
-            variant="ghost"
-            className="text-muted-foreground hover:text-foreground custom-button"
-          >
-            <Image
-              loading="lazy"
-              src={kebabmenu}
-              alt="User profile"
-              className="object-contain w-[31.68px] h-[31.68px] aspect-[0.97]"
-            />
+            <Image src={kebabmenu} alt="Menu" className="w-8 h-8" />
           </Button>
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Mobile Navigation Menu */}
+      {isMobileMenuOpen && (
+        <div className="sm:hidden absolute top-full left-0 right-0 bg-white border-t shadow-lg z-50">
+          <div className="p-4 flex flex-col gap-4">
+            <div className="flex justify-center">
+              <Collaborators />
+            </div>
+            <div className="flex justify-around">
+              <Button variant="ghost" className="p-2">
+                <Image src={brushmenu} alt="Brush menu" className="w-8 h-8" />
+              </Button>
+              <Button variant="ghost" className="p-2">
+                <Image src={notifications} alt="Notifications" className="w-8 h-8" />
+              </Button>
+              <Button variant="ghost" onClick={toggleSearch} className="p-2">
+                <Image src={search} alt="Search" className="w-8 h-8" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search Bar - Responsive positioning */}
       {isSearchVisible && (
-        <div>
-          <div
-            ref={searchBarRef}
-            className="fixed top-32 left-0 right-0 flex justify-center z-50 mt-4"
-          >
-            <form
-              className="w-[850px] relative group"
-              onSubmit={handleSearchSubmit} // Handle form submission
-            >
-              <div className="relative w-full h-[43px] group-hover:h-[68px] bg-white rounded-[18px] shadow-lg border border-gray-300 overflow-hidden transition-all duration-300 ease-in-out">
-                {/* Search Icon */}
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 ml-4">
+        <div className="fixed top-0 sm:top-20 left-0 right-0 p-4 bg-white sm:bg-transparent z-50">
+          <div ref={searchBarRef} className="w-full max-w-2xl mx-auto">
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <div className="relative w-full h-12 bg-white rounded-lg shadow-lg border border-gray-300 overflow-hidden">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
                   <Image src={pdfsearch} alt="Search Icon" width={16} height={16} />
                 </div>
-
-                {/* Search Input */}
                 <input
-                  ref={searchInputRef} // Reference the search input to focus it
+                  ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  placeholder={isSearchVisible ? "Spotlight search" : "Spotlight search"}
-                  className="w-full py-2 pl-16 pr-4 font-rubik text-[20px] text-black focus:outline-none h-[43px] transition-colors duration-300"
-                  onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit(e)} // Handle Enter key to submit
+                  placeholder="Spotlight search"
+                  className="w-full h-full pl-10 pr-4 text-base focus:outline-none"
                 />
-                {/* Additional Placeholder Area */}
-                <div className="absolute top-[40px] pl-16 w-full text-black text-[15px] px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Ask acolyte?
-                </div>
               </div>
             </form>
           </div>
         </div>
       )}
-
     </header>
   )
 }
