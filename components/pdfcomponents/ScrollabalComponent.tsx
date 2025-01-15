@@ -5,15 +5,32 @@ const ScrollableTransform = ({ children }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPanning = useRef(false);
-  const { isInfinite, setScale } = useSettings();
+  const { isInfinite, setScale, setIsVisible} = useSettings();
   const lastPosition = useRef({ x: 0, y: 0 });
   const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [isOverflowing, setIsOverflowing] = useState(false);
   const lastTouchDistance = useRef(0);
-
+  const [lastScrollY, setLastScrollY] = useState(0)
+  const controlHeader = (e) => {
+    const currentScrollY = e.target.scrollTop; // Get the scroll position of the container
+    console.log(currentScrollY);
+  
+    if (currentScrollY > lastScrollY) {
+      // Scrolling down
+      setIsVisible(false);
+      console.log("scroll down");
+    } else {
+      // Scrolling up
+      setIsVisible(true);
+      console.log("scroll up");
+    }
+  
+    setLastScrollY(currentScrollY); // Update the last scroll position
+  };
   const handleWheel = (event) => {
     if (event.ctrlKey) {
       event.preventDefault();
+  let globalScale=0
       
       // Get cursor position relative to the container
       const rect = containerRef.current.getBoundingClientRect();
@@ -75,6 +92,8 @@ const ScrollableTransform = ({ children }) => {
       });
     }
   };
+
+
 
   const handleTouchMove = (event) => {
     if (event.touches.length === 2) {
@@ -159,11 +178,13 @@ const ScrollableTransform = ({ children }) => {
     container.addEventListener('wheel', handleWheel, { passive: false });
     container.addEventListener('touchmove', handleTouchMove, { passive: false });
     container.addEventListener('touchend', handleTouchEnd);
+   container.addEventListener('scroll', controlHeader);
 
     return () => {
       container.removeEventListener('wheel', handleWheel);
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('scroll', controlHeader);
     };
   }, [transform]);
 

@@ -8,8 +8,8 @@ import { Collaborators } from "./collaborators"
 import notifications from '@/public/notifications.svg'
 import search from '@/public/search.svg'
 import kebabmenu from '@/public/kebabmenu.svg'
-import brushmenu from '@/public/brushmenu.svg'
-import pdfsearch from '@/public/pdfsearch.svg'
+import { useSettings } from '@/context/SettingsContext'
+import PdfThemes from '../PdfThemes'
 
 interface HeaderProps {
   title?: string
@@ -27,8 +27,15 @@ export default function Header({
   const [lastUpdate, setLastUpdate] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  const {theme,isVisible,setIsVisible} = useSettings()
+
   const searchBarRef = useRef(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
+  const {first} = useSettings()
+
+useEffect(()=>{
+  console.log(isVisible)
+},[isVisible])
 
   useEffect(() => {
     const updateLastUpdateTime = () => {
@@ -87,101 +94,79 @@ export default function Header({
   }, [isSearchVisible])
 
   return (
-    <header className="relative w-full bg-white border-b">
-      {/* Main Header Content */}
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between py-2 gap-4 sm:gap-6">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Image 
-              alt="acolyte" 
-              src={acolyte} 
-              className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20"
-            />
-          </div>
-
-          {/* Title and Update Time - Center on mobile, left-aligned on desktop */}
-          <div className="flex flex-col items-center flex-grow text-center">
-  <h1 className="text-lg sm:text-xl lg:text-2xl font-medium">
-    {title}
-  </h1>
-  <p className="text-sm lg:text-base text-muted-foreground mt-1">
-    Last Update: {lastUpdate}
-  </p>
-</div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden sm:flex items-center gap-2 lg:gap-4">
-            <Collaborators />
-            <Button variant="ghost" className="p-2">
-              <Image src={brushmenu} alt="Brush menu" className="w-8 h-8 lg:w-10 lg:h-10" />
-            </Button>
-            <Button variant="ghost" className="p-2">
-              <Image src={notifications} alt="Notifications" className="w-8 h-8 lg:w-10 lg:h-10" />
-            </Button>
-            <Button variant="ghost" onClick={toggleSearch} className="p-2">
-              <Image src={search} alt="Search" className="w-8 h-8 lg:w-10 lg:h-10" />
-            </Button>
-            <Button variant="ghost" className="p-2">
-              <Image src={kebabmenu} alt="Menu" className="w-8 h-8 lg:w-10 lg:h-10" />
-            </Button>
-          </div>
-
-          {/* Mobile Navigation Toggle */}
-          <Button 
-            variant="ghost" 
-            onClick={toggleMobileMenu}
-            className="sm:hidden p-2"
-          >
-            <Image src={kebabmenu} alt="Menu" className="w-8 h-8" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
-        <div className="sm:hidden absolute top-full left-0 right-0 bg-white border-t shadow-lg z-50">
-          <div className="p-4 flex flex-col gap-4">
-            <div className="flex justify-center">
-              <Collaborators />
+    <div>
+      {!first && (
+        <header 
+          className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+            isVisible ? 'translate-y-0' : '-translate-y-full'
+          } flex text-white items-center w-[1920px] h-[89px] p-1 font-sans
+          ${theme === 'Dark Brown' ? 'bg-[#291D00]' :
+            theme === 'Deep Red' ? 'bg-[#390003]' :
+            theme === 'Midnight Blue' ? 'bg-[#002033]' :
+            theme === 'Deep Purple' ? 'bg-[#160039]' :
+            theme === 'Charcoal Black' ? 'bg-[#202020]' :
+            theme === 'Very Dark Purple' ? 'bg-[#090822]' : 'bg-white'
+          }`}
+        >
+          <div className="flex w-full justify-between items-center font-rubik">
+            <div className='w-[563px] z-10 ml-3'>
+              <Image alt="acolyte" src={acolyte} className="h-28 w-28 ml-2" />
             </div>
-            <div className="flex justify-around">
-              <Button variant="ghost" className="p-2">
-                <Image src={brushmenu} alt="Brush menu" className="w-8 h-8" />
-              </Button>
-              <Button variant="ghost" className="p-2">
-                <Image src={notifications} alt="Notifications" className="w-8 h-8" />
-              </Button>
-              <Button variant="ghost" onClick={toggleSearch} className="p-2">
-                <Image src={search} alt="Search" className="w-8 h-8" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Search Bar - Responsive positioning */}
-      {isSearchVisible && (
-        <div className="fixed top-0 sm:top-20 left-0 right-0 p-4 bg-white sm:bg-transparent z-50">
-          <div ref={searchBarRef} className="w-full max-w-2xl mx-auto">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <div className="relative w-full h-12 bg-white rounded-lg shadow-lg border border-gray-300 overflow-hidden">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                  <Image src={pdfsearch} alt="Search Icon" width={16} height={16} />
-                </div>
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  placeholder="Spotlight search"
-                  className="w-full h-full pl-10 pr-4 text-base focus:outline-none"
-                />
+            <div className="flex flex-col z-10 w-[286px] items-center justify-center gap-1">
+              <div className="flex items-center justify-center gap-11">
+                <span className="text-[20px] text-center">{title}</span>
               </div>
-            </form>
+              <p className="text-[15px] w-[296px] font-rubik text-muted-foreground text-center">
+                Last Update: {lastUpdate}
+              </p>
+            </div>
+
+            <div className="flex justify-start mr-4 z-10 items-center gap-5">
+              <Collaborators />
+              <PdfThemes/>
+              <Button
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground custom-button"
+              >
+                <Image
+                  loading="lazy"
+                  src={notifications}
+                  alt="Notifications"
+                  className="object-contain w-[31.68px] h-[31.68px] aspect-square"
+                />
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground custom-button"
+                onClick={toggleSearch}
+              >
+                <Image
+                  loading="lazy"
+                  src={search}
+                  alt="Notifications"
+                  className="object-contain w-[31.68px] h-[31.68px] aspect-square"
+                />
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground custom-button"
+              >
+                <Image
+                  loading="lazy"
+                  src={kebabmenu}
+                  alt="User profile"
+                  className="object-contain w-[31.68px] h-[31.68px] aspect-[0.97]"
+                />
+              </Button>
+            </div>
           </div>
-        </div>
+
+          {isSearchVisible && <SearchCompoent/>}
+        </header>
       )}
-    </header>
+    </div>
   )
 }
