@@ -13,7 +13,8 @@ export default function PDFViewSelector() {
   const [selectedView, setSelectedView] = useState<ViewOption>('single')
 
   return (
-    <div className="absolute m-5 w-[48px] h-[207px] rounded-md shadow-xl flex flex-col items-center justify-between gap-10 p-4">
+    <div className='group absolute m-5 w-[48px] h-[207px]' style={{zIndex:100}}>
+    <div className="group-hover:flex hidden absolute m-5 w-[48px] h-[207px] bg-white rounded-md shadow-xl  flex-col items-center justify-between gap-10 p-4" >
       <button
         onClick={() => setSelectedView('single')}
         className={cn(
@@ -50,6 +51,7 @@ export default function PDFViewSelector() {
       >
       <Image src={threepages}  alt="Notifications" />
       </button>
+    </div>
     </div>
   )
 }

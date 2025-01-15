@@ -8,7 +8,7 @@ import { SettingsProvider } from '@/context/SettingsContext'
 import { RefsProvider } from '@/context/sharedRefs'
 import { ToolProvider } from '@/context/ToolContext'
 import Toolbar from '@/components/toolbar/Toolbar';
-import ToggleInfiniteCanvas from '@/components/canvas/ToggleInfiniteCanvas';
+
 import PDFViewSelector from '@/components/pdfcomponents/pdf-view-selector';
 import PDFCounter from '@/components/pdfcomponents/pdf-page-counter';
 import page from './page';
@@ -44,10 +44,8 @@ export default function Layout({ children }: any) {
 
                             {children}
                             
-                            <ToggleInfiniteCanvas />
+                           
                             <Toolbar/>
-
-
                         </CanvasProvider>
 
                     </SettingsProvider>

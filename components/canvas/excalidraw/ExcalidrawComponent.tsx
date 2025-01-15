@@ -370,7 +370,7 @@ function addImageToExcalidraw(pngUrl:string ="https://placehold.co/600x400",data
 
 
     return (
-        <div className='w-full h-full'>
+        <div className='w-[100vw] h-[99%]'>
             {/* <Button onClick={()=>{addImageToExcalidraw("https://placehold.co/600x400","") }}>Add Image</Button>
             <Button onClick={clearCanvas}>ClearCanvas</Button>
             <Button onClick={currentCanvasScene}>CurrentScene</Button> */}
@@ -380,7 +380,7 @@ function addImageToExcalidraw(pngUrl:string ="https://placehold.co/600x400",data
                 excalidrawAPI={(api) => setExcalidrawAPI(api)}
                 handleKeyboardGlobally={false}
                 zenModeEnabled={false}
-                gridModeEnabled={true}
+                // gridModeEnabled={true}
 
                 onScrollChange={(x, y) => {
                     // console.log(x, y);

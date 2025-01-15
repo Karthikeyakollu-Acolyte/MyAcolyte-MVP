@@ -27,8 +27,10 @@ interface SettingsContextType {
   currentDocumentId:string;
   setcurrentDocumentId:any;
   isInfinite:boolean;
-  setIsInfinite:any
-
+  setIsInfinite:any;
+  theme:string;
+  setTheme:any;
+  isVisible:boolean; setIsVisible:any
 
 
 }
@@ -61,6 +63,8 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const [scale, setScale] = useState<number>(0.9)
   const [currentDocumentId, setcurrentDocumentId] = useState<string>("")
   const [isInfinite, setIsInfinite] = useState<boolean>(false);
+  const [theme, setTheme] = useState("light")
+  const [isVisible, setIsVisible] = useState(true)
 
   const toggleScrollMode = () => {
 
@@ -195,7 +199,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   };
 
   return (
-    <SettingsContext.Provider value={{ scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages, pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId, setcurrentDocumentId,isInfinite, setIsInfinite }}>
+    <SettingsContext.Provider value={{ scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages, pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId, setcurrentDocumentId,isInfinite, setIsInfinite,theme, setTheme,isVisible, setIsVisible }}>
       {children}
     </SettingsContext.Provider>
   );

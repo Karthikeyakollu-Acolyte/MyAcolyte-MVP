@@ -5,16 +5,36 @@ const ScrollableTransform = ({ children }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPanning = useRef(false);
-  const {isInfinite,setScale} = useSettings()
+  const {isInfinite,setScale,setIsVisible} = useSettings()
   const lastPosition = useRef({ x: 0, y: 0 });
   const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [isOverflowing, setIsOverflowing] = useState(false);
   const lastTouchDistance = useRef(0); // To track the distance for pinch zoom
+  const [lastScrollY, setLastScrollY] = useState(0)
   let globalScale=0
+
+  const controlHeader = (e) => {
+    const currentScrollY = e.target.scrollTop; // Get the scroll position of the container
+    console.log(currentScrollY);
+  
+    if (currentScrollY > lastScrollY) {
+      // Scrolling down
+      setIsVisible(false);
+      console.log("scroll down");
+    } else {
+      // Scrolling up
+      setIsVisible(true);
+      console.log("scroll up");
+    }
+  
+    setLastScrollY(currentScrollY); // Update the last scroll position
+  };
+
   const handleWheel = (event) => {
     if (event.ctrlKey) {
       // Pinch-to-zoom detected via 'wheel' event (when Ctrl is pressed)
       console.log('Pinch zoom detected via wheel event');
+  
       
       const zoomFactor = event.deltaY * 0.01;  // Adjust zoom sensitivity as needed
       setTransform((prevTransform) => ({
@@ -24,6 +44,8 @@ const ScrollableTransform = ({ children }) => {
       event.preventDefault();  // Prevent the default scroll behavior
     }
   };
+
+
 
   const handleTouchMove = (event) => {
     if (event.touches.length === 2) {
@@ -119,11 +141,13 @@ const ScrollableTransform = ({ children }) => {
     container.addEventListener('wheel', handleWheel, { passive: false });
     container.addEventListener('touchmove', handleTouchMove, { passive: false });
     container.addEventListener('pointermove', handlePointerMove, { passive: false });
+   container.addEventListener('scroll', controlHeader);
 
     return () => {
       container.removeEventListener('wheel', handleWheel);
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('pointermove', handlePointerMove);
+      container.removeEventListener('scroll', controlHeader);
     };
   }, [transform]);  // Dependency array, you can modify it as per your need
 

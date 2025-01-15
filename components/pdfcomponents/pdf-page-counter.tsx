@@ -10,9 +10,10 @@ import { useSettings } from '@/context/SettingsContext'
 export default function PDFCounter() {
 
 const totalAnnotations=2
-  const {currentPage,pages:totalPages} = useSettings()
+  const {currentPage,pages:totalPages,first} = useSettings()
   return (
-    <div className="font-rubik absolute bottom-5 m-5 flex flex-col gap-2 p-2 text-sm">
+   <div className='absolute bottom-5 group  w-[208px] h-[207px] '  style={{zIndex:100}}>
+     {!first && (<div className="font-rubik group-hover:flex hidden absolute bottom-5 m-5  flex-col gap-2 p-2 text-sm">
       <div className="text-muted-foreground mb-3 text-[16px]">
        <span className='text-black'> Page: {currentPage} </span> /{totalPages}
       </div>
@@ -26,7 +27,8 @@ const totalAnnotations=2
           <span className="text-purple-600">{totalAnnotations} Annotations</span>
         </div>
       </div>
-    </div>
+    </div>)}
+   </div>
   )
 }
 
