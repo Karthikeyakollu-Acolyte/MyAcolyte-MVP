@@ -34,7 +34,6 @@ const Wrapper = ({ id }: { id: string }) => {
     const [pdfFile, setPdfFile] = useState<File | null>(null);
     const outlineContainerRef = useRef(null);
     const { setRect } = useCanvas()
-    const [scale, setScale] = useState(1); // Manage zoom level
     const pdfViewerRef = useRef<HTMLDivElement>(null);
     const [pdfData, setPdfData] = useState<string | null>(null);
     const {currentDocumentId} = useSettings()
@@ -43,20 +42,19 @@ const Wrapper = ({ id }: { id: string }) => {
 
 
     const handleFetchPdf = async () => {
-
-
         try {
-            const pdf = await getPdfById(currentDocumentId);
-            if (pdf) {
-                // setPdfData(pdf.base64);
-            } else {
-                // alert('No PDF found with the given ID.');
-            }
+          const pdf = await getPdfById(currentDocumentId);
+          if (pdf?.base64) {
+            // Convert the base64 string to a data URL
+            const dataUrl = `data:application/pdf;base64,${pdf.base64}`;
+            setPdfData(dataUrl);
+            console.log(dataUrl)
+          }
         } catch (error) {
-            console.error('Error fetching PDF:', error);
-            // alert('Failed to fetch the PDF. Please try again.');
+          console.error('Error fetching PDF:', error);
         }
-    };
+      };
+    
 
 
     useEffect(() => {
@@ -72,8 +70,8 @@ const Wrapper = ({ id }: { id: string }) => {
     return (
         <div className="w-full  h-full" >
             <PdfLoader
-                url={PRIMARY_PDF_URL}
-                // file={pdfFile}
+                url={pdfData}
+                file={pdfFile}
                 beforeLoad={<div>Loading...</div>}>
                 {(pdfDocument: PDFDocumentProxy) => (
                     <div className="flex justify-center h-full"

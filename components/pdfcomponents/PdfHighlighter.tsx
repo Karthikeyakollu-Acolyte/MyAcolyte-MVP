@@ -50,7 +50,7 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
                     isZoomEnable={isZoomEnable}
                 />
 
-                {/* <CanvasWrapper pageRects={pageRects} isDrawing={isDrawing} containerNodeRef={containerNodeRef} type="pdf" /> */}
+                <CanvasWrapper pageRects={pageRects} isDrawing={isDrawing} containerNodeRef={containerNodeRef} type="pdf" />
             </div>
         </div>
     );

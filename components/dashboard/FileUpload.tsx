@@ -27,34 +27,47 @@ const FileUpload = () => {
     }
   };
 
-  // Save PDF function
-  const handleSavePdf = async () => {
-    if (!selectedPdf) return;
+const handleSavePdf = async () => {
+  if (!selectedPdf) return;
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = async () => {
-      const arrayBuffer = reader.result as ArrayBuffer; // Use ArrayBuffer for binary content
+  reader.onload = async () => {
+    const arrayBuffer = reader.result as ArrayBuffer;
+    
+    // Convert ArrayBuffer to Base64
+    const base64String = arrayBufferToBase64(arrayBuffer);
 
-      try {
-        // Save the PDF content in IndexedDB
-        await addPdf({ documentId, base64: arrayBuffer });
+    try {
+      // Save the PDF content in IndexedDB
+      await addPdf({ documentId, base64: base64String });
 
-        alert(`PDF file saved to IndexedDB and added to the folder! Current Path: ${currentPath}`);
-        setIsOverlayOpen(false); // Close overlay after saving
-      } catch (error) {
-        console.error("Error saving PDF:", error);
-        alert("Failed to save the PDF. Please try again.");
-      }
-    };
-
-    reader.onerror = () => {
-      alert("Error reading the file. Please try again.");
-    };
-
-    reader.readAsArrayBuffer(selectedPdf); // Read the file as an ArrayBuffer
+      alert(`PDF file saved to IndexedDB and added to the folder! Current Path: ${currentPath}`);
+      setIsOverlayOpen(false); // Close overlay after saving
+    } catch (error) {
+      console.error("Error saving PDF:", error);
+      alert("Failed to save the PDF. Please try again.");
+    }
   };
 
+  reader.onerror = () => {
+    alert("Error reading the file. Please try again.");
+  };
+
+  reader.readAsArrayBuffer(selectedPdf);
+};
+
+// Helper function to convert ArrayBuffer to Base64
+const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+  // Convert ArrayBuffer to Uint8Array
+  const uint8Array = new Uint8Array(buffer);
+  
+  // Convert Uint8Array to string using reduce
+  const binaryString = uint8Array.reduce((str, byte) => str + String.fromCharCode(byte), '');
+  
+  // Convert binary string to base64
+  return btoa(binaryString);
+};
   // Handle cancel button to reset states
   const handleCancel = () => {
     setSelectedPdf(null);

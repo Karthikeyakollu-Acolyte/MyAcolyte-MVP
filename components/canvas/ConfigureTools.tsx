@@ -15,6 +15,7 @@ import KeyEventListener from "../toolbar/KeyEventListener";
 import Selection from "../toolbar/Selection";
 import { ToolText } from "../toolbar/ToolText";
 import Cursors from "../toolbar/Cursors";
+import Text from "./Text"; 
 
 const icons = [
     { type: "image", src: "/images/sample-icon.png" },
@@ -100,9 +101,10 @@ export const ConfigureTools = ({
                 />
             )}
             {tool === "texthighlighter" && (
-                <TextHighlighter
-                    fabricCanvas={fabricCanvas}
-                />
+                // <TextHighlighter
+                //     fabricCanvas={fabricCanvas}
+                // />
+                <Text fabricCanvas={fabricCanvas}/>
             )}
 
             {(tool === "objectEraser" || tool === "pixelEraser") && (

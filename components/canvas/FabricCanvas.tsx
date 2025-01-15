@@ -285,16 +285,16 @@ export const FabricCanvas = ({
 
 
 
-  useEffect(() => {
-    const canvas: any = fabricCanvas.current;
-    if (!canvas || !canvasRef.current) return;
+  // useEffect(() => {
+  //   const canvas: any = fabricCanvas.current;
+  //   if (!canvas || !canvasRef.current) return;
 
-    canvas.setZoom(scale);
-    // console.log(scale)
+  //   canvas.setZoom(scale);
+  //   // console.log(scale)
 
-    canvas.renderAll();
+  //   canvas.renderAll();
 
-  }, [scale]);
+  // }, [scale]);
 
   // const addImageToCanvas = (imgUrl: string, x: number, y: number) => {
   //   const imgElement = new Image();

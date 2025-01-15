@@ -5,12 +5,12 @@ const ScrollableTransform = ({ children }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isPanning = useRef(false);
-  const {isInfinite} = useSettings()
+  const {isInfinite,setScale} = useSettings()
   const lastPosition = useRef({ x: 0, y: 0 });
   const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [isOverflowing, setIsOverflowing] = useState(false);
   const lastTouchDistance = useRef(0); // To track the distance for pinch zoom
-
+  let globalScale=0
   const handleWheel = (event) => {
     if (event.ctrlKey) {
       // Pinch-to-zoom detected via 'wheel' event (when Ctrl is pressed)
@@ -21,7 +21,6 @@ const ScrollableTransform = ({ children }) => {
         ...prevTransform,
         scale: Math.max(0.1, prevTransform.scale - zoomFactor), // Limit scale to avoid negative values
       }));
-
       event.preventDefault();  // Prevent the default scroll behavior
     }
   };
@@ -106,6 +105,11 @@ const ScrollableTransform = ({ children }) => {
       }
     }
   };
+
+  useEffect(()=>{
+
+    setScale(transform.scale)
+  },[transform.scale])
 
   useEffect(() => {
     const container = containerRef.current;

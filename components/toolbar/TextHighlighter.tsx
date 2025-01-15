@@ -19,242 +19,191 @@ export const TextHighlighter: React.FC<TextHighlighterProps> = ({ fabricCanvas }
     const { rect, handleCanvasChange } = useCanvas();
     const [screenShots, setScreenShots] = useState<fabric.Object[]>([])
     const [fontSize, setfontSize] = useState<number>(1)
-    const { setfirst } = useSettings()
-
-    const saveLayerContent = useCallback(
-        (layerIndex: number | string, content: Object) => {
-            setNotes((prevLayers) => {
-                return prevLayers.map((layer) => {
-                    // If the current layer's index matches the given layerIndex, update the content
-                    if (layer.id === layerIndex) {
-                        return {
-                            ...layer, // Spread the existing layer properties
-                            content: content, // Update the content with the new one
-                        };
-                    }
-                    return layer; // Return the layer as is if the index doesn't match
-                });
-            });
-        },
-        []
-    );
+    const { setfirst,scale } = useSettings()
 
     const applyStyle = (
         style: "highlight" | "underline" | "strikeout" | "squiggly" | "clickable" | "canvas"
     ) => {
-
-        console.log("applying styles")
         const canvas = fabricCanvas.current;
         const selection = window.getSelection();
-        console.log(selection, canvas, selectedTextLocal)
         if (!selection || !canvas) return;
-        // if (!selection || !canvas || !selectedTextLocal) return;
+    
         const range = selection.getRangeAt(0);
-        const clientRects = range.getClientRects();
+        const pdfContainer = document.querySelector(`[data-page-number="${currentPage}"]`);
+        const textLayer = pdfContainer?.querySelector('.textLayer');
+        if (!textLayer || !pdfContainer) return;
+    
+        // Get all the scaling factors
         const canvasWrapper = document.getElementById("canvas-wrapper");
-
         if (!canvasWrapper) return;
+    
+        const pdfScale = parseFloat(pdfContainer.style.transform?.match(/scale\((.*?)\)/)?.[1] || "1");
+        const canvasZoom = canvas.getZoom();
+        
+        // Get the computed style to check for any additional transforms
+        const containerStyle = window.getComputedStyle(pdfContainer);
+        const matrix = new DOMMatrix(containerStyle.transform);
+        const containerScale = matrix.a; // Gets the X scale factor from the transform matrix
+    
+        // Calculate the total scaling factor
+        const totalScale = pdfScale * canvasZoom * containerScale;
+    
         canvasWrapper.style.pointerEvents = "none";
         const canvasPosition = canvasWrapper.getBoundingClientRect();
+        const textLayerPosition = textLayer.getBoundingClientRect();
+        const pdfContainerPosition = pdfContainer.getBoundingClientRect();
+    
         const canvasElement = fabricCanvas.current?.lowerCanvasEl;
-        canvasElement.classList.remove("interactiveLayer")
-
-
-        Array.from(clientRects).slice(0, 1).forEach((rect) => {
-            const adjustLeft = rect.left - canvasPosition.left - 10;
-            const adjustTop = rect.top - canvasPosition.top;
-
-            switch (style) {
-                case "highlight":
-                    console.log("applying highlight")
-                    const highlightRect = new fabric.Rect({
-                        left: adjustLeft,
-                        top: adjustTop,
-                        width: rect.width,
-                        height: rect.height,
-                        fill: "yellow",
-                        opacity: 0.4,
-                        selectable: false,
-                        evented: false,
-                        globalCompositeOperation: "multiply",
-                        objectId: uuidv4()
-                    } as CustomFabricObject<fabric.Rect>);
-
-
-                    canvas.add(highlightRect);
-                    break;
-
-                case "underline":
-                    const underline = new fabric.Line(
-                        [adjustLeft, adjustTop + rect.height - 1, adjustLeft + rect.width, adjustTop + rect.height - 1],
-                        {
-                            stroke: "black",
-                            strokeWidth: 1,
-                            selectable: false,
-                            evented: false,
-                            objectId: uuidv4()
-                        } as CustomFabricObject<fabric.Line>
-                    );
-                    canvas.add(underline);
-                    break;
-
-                case "strikeout":
-                    const strikeout = new fabric.Line(
-                        [adjustLeft, adjustTop + rect.height - 10, adjustLeft + rect.width, adjustTop + rect.height - 10],
-                        {
-                            stroke: "red",
-                            strokeWidth: 1,
-                            selectable: false,
-                            evented: false,
-                            objectId: uuidv4()
-                        } as CustomFabricObject<fabric.Line>
-                    );
-                    canvas.add(strikeout);
-                    break;
-
-                case "squiggly":
-                    const amplitude = 3;
-                    const wavelength = 6;
-                    let pathData = `M ${adjustLeft} ${adjustTop + rect.height - 2}`;
-
-                    for (let x = adjustLeft; x <= adjustLeft + rect.width; x += wavelength) {
-                        pathData += ` q ${wavelength / 4} ${-amplitude}, ${wavelength / 2} 0 t ${wavelength / 2} 0`;
-                    }
-
-                    const squigglyLine = new fabric.Path(pathData, {
-                        stroke: "blue",
-                        strokeWidth: 1,
-                        fill: "",
-                        selectable: false,
-                        evented: false,
-                        objectId: uuidv4()
-                    } as CustomFabricObject<fabric.Line>);
-
-                    canvas.add(squigglyLine);
-                    console.log("added to canvas")
-                    break;
-
-                case "clickable":
-                    const noteId = `${Date.now()}`; // Unique ID for both clickableRect and newNote
-                    const clickableRect = new fabric.Rect({
-                        left: adjustLeft,
-                        top: adjustTop,
-                        width: rect.width,
-                        height: rect.height,
-                        fill: "lightgreen",
-                        opacity: 0.4,
-                        selectable: true,
-                        evented: true,
-                    });
-
-                    const newNote: Note = {
-                        id: noteId,
-                        position: { top: adjustLeft, left: adjustTop },
-                        content: selectedText,
-                        isVisible: true
-                    };
-                    // setNotes((prevNotes) => [...prevNotes, newNote]);
-                    const width = fabricCanvas.current?.getWidth();
-                    const height = fabricCanvas.current?.getHeight();
-                    // setScreenShots((prev) => {
-                    //     const width = fabricCanvas.current?.getWidth();
-                    //     const height = fabricCanvas.current?.getHeight();
-
-                    //     const updatedShots = [...prev, highlightedText];
-                    //     const serializedScreenShots = updatedShots.map((shot) => shot.toJSON());
-
-                    //     // Trigger any necessary side effects after state update
-                    //     // handleCanvasChange(currentPage, serializedScreenShots, { width: width, height: height });
-                    //     return updatedShots;
-                    // });
-
-                    const highlightedText = new fabric.IText(selectedText, {
-                        left: adjustLeft, // Same `left` as the rectangle
-                        top: adjustTop,   // Same `top` as the rectangle
-                        fontSize: fontSize,     // Adjust font size as needed
-                        fill: "black",    // Text color
-                        selectable: true,
-                        evented: true,
-                    });
-
-                    handleCanvasChange(currentPage, {
-                        type: "text",
-                        data: selectedText,
-                        position: {
-                            left: adjustLeft, // Same `left` as the rectangle
-                            top: adjustTop,   // Same `top` as the rectangle
-                            fontSize: fontSize,     // Adjust font size as needed
-                            fill: "black",    // Text color
-                            selectable: true,
-                            evented: true,
-                            // objectId: uuidv4(),
-                        }
-
-                    });
-                    setfirst(true)
-
-                    // clickableRect.on("mousedown", () => {
-                    //     setNotes((prevNotes) => {
-                    //         const existingNote = prevNotes.find(note => note.id === newNote.id);
-
-                    //         if (!existingNote) {
-                    //             // Create a new note and set its visibility to true
-                    //             const updatedNote = {
-                    //                 ...newNote,
-                    //                 isVisible: true,  // Set visibility to true
-                    //             };
-
-                    //             return [...prevNotes, updatedNote]; // Add the new note to the list
-                    //         } else {
-                    //             // If the note already exists, set its visibility to true
-                    //             const updatedNotes = prevNotes.map(note =>
-                    //                 note.id === newNote.id ? { ...note, isVisible: true } : note
-                    //             );
-                    //             return updatedNotes; // Return the updated notes array
-                    //         }
-                    //     });
-
-
-
-                    // });
-
-
-
-                    // clickableRect.on("removed", () => {
-                    //     console.log("Highlight deleted:", clickableRect);
-                    // });
-
-                    // canvas.on("mousedown", () => {
-                    //     setNotes((prevNotes) =>
-                    //         prevNotes.map((note) => ({
-                    //             ...note,
-                    //             visible: false, // Set visible to false
-                    //         }))
-                    //     );
-                    // });
-
-                    // canvas.on("removed", () => {
-
-                    // });
-
-                    // canvas.add(clickableRect);
-
-                    break;
-
-                case "canvas":
-
-                    break;
-
+        canvasElement.classList.remove("interactiveLayer");
+    
+        // Function to calculate adjusted position
+        const calculateAdjustedPosition = (rect: DOMRect) => {
+            // Get the position relative to the PDF container
+            const relativeLeft = (rect.left - pdfContainerPosition.left) / totalScale;
+            const relativeTop = (rect.top - pdfContainerPosition.top) / totalScale;
+    
+            // Adjust for canvas position
+            const adjustLeft = relativeLeft;
+            const adjustTop = relativeTop;
+    
+            return {
+                left: adjustLeft,
+                top: adjustTop,
+                width: rect.width / totalScale,
+                height: rect.height / totalScale
+            };
+        };
+    
+        // Get all text nodes within the selection
+        const walker = document.createTreeWalker(
+            textLayer,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: (node) => {
+                    const nodeRange = document.createRange();
+                    nodeRange.selectNodeContents(node);
+                    return range.intersectsNode(node) 
+                        ? NodeFilter.FILTER_ACCEPT 
+                        : NodeFilter.FILTER_REJECT;
+                }
             }
+        );
+    
+        const selectedNodes = [];
+        let node;
+        while (node = walker.nextNode()) {
+            selectedNodes.push(node);
+        }
+    
+        // Process each text node
+        selectedNodes.forEach(textNode => {
+            const nodeRange = document.createRange();
+            nodeRange.selectNodeContents(textNode);
+            
+            if (textNode === range.startContainer) {
+                nodeRange.setStart(textNode, range.startOffset);
+            }
+            if (textNode === range.endContainer) {
+                nodeRange.setEnd(textNode, range.endOffset);
+            }
+    
+            const clientRects = nodeRange.getClientRects();
+    
+            Array.from(clientRects).forEach((rect) => {
+                const { left: adjustLeft, top: adjustTop, width: adjustedWidth, height: adjustedHeight } 
+                    = calculateAdjustedPosition(rect);
+    
+                switch (style) {
+                    case "highlight":
+                        const highlightRect = new fabric.Rect({
+                            left: adjustLeft,
+                            top: adjustTop,
+                            width: adjustedWidth,
+                            height: adjustedHeight,
+                            fill: "yellow",
+                            opacity: 0.4,
+                            selectable: false,
+                            evented: false,
+                            globalCompositeOperation: "multiply",
+                            objectId: uuidv4()
+                        } as CustomFabricObject<fabric.Rect>);
+                        canvas.add(highlightRect);
+                        break;
+    
+                    case "underline":
+                        const underline = new fabric.Line(
+                            [adjustLeft, adjustTop + adjustedHeight,
+                             adjustLeft + adjustedWidth, adjustTop + adjustedHeight],
+                            {
+                                stroke: "black",
+                                strokeWidth: 1 / totalScale,
+                                selectable: false,
+                                evented: false,
+                                objectId: uuidv4()
+                            } as CustomFabricObject<fabric.Line>
+                        );
+                        canvas.add(underline);
+                        break;
+    
+                    case "strikeout":
+                        const strikeout = new fabric.Line(
+                            [adjustLeft, adjustTop + (adjustedHeight/2),
+                             adjustLeft + adjustedWidth, adjustTop + (adjustedHeight/2)],
+                            {
+                                stroke: "red",
+                                strokeWidth: 1 / totalScale,
+                                selectable: false,
+                                evented: false,
+                                objectId: uuidv4()
+                            } as CustomFabricObject<fabric.Line>
+                        );
+                        canvas.add(strikeout);
+                        break;
+    
+                    case "squiggly":
+                        const amplitude = 2 / totalScale;
+                        const wavelength = 4 / totalScale;
+                        let pathData = `M ${adjustLeft} ${adjustTop + adjustedHeight - (2/totalScale)}`;
+    
+                        for (let x = adjustLeft; x <= adjustLeft + adjustedWidth; x += wavelength) {
+                            pathData += ` q ${wavelength/4} ${-amplitude}, ${wavelength/2} 0 t ${wavelength/2} 0`;
+                        }
+    
+                        const squigglyLine = new fabric.Path(pathData, {
+                            stroke: "blue",
+                            strokeWidth: 1 / totalScale,
+                            fill: "",
+                            selectable: false,
+                            evented: false,
+                            objectId: uuidv4()
+                        } as CustomFabricObject<fabric.Path>);
+                        canvas.add(squigglyLine);
+                        break;
+    
+                    case "clickable":
+                        handleCanvasChange(currentPage, {
+                            type: "text",
+                            data: selectedText,
+                            position: {
+                                left: adjustLeft,
+                                top: adjustTop,
+                                fontSize: (fontSize / totalScale),
+                                fill: "black",
+                                selectable: true,
+                                evented: true,
+                            }
+                        });
+                        setfirst(true);
+                        break;
+                }
+            });
         });
-
+    
         canvas.renderAll();
         window.getSelection()?.removeAllRanges();
         setToolbarPosition(null);
-        setSelectedText("")
-        // setSelectedTextLocal(null);
+        setSelectedText("");
     };
-
 
     useEffect(() => {
         canvasWrapper = document.getElementById("canvas-wrapper");
