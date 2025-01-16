@@ -33,7 +33,7 @@ export const FabricCanvas = ({
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const { selectedText, notes, setCurrentPage, scale, currentPage, isInfinite } = useSettings();
   const { rect: pageSize } = useCanvas();
-  const { brushSize, brushColor, eraserSize, setSelectedTool, selectedTool,prevselectedTool } = useToolContext()
+  const { brushSize, brushColor, eraserSize, setSelectedTool, selectedTool,prevselectedTool,setPrevSelectedTool } = useToolContext()
   const [canvasObjects, setCanvasObjects] = useState<[]>(initialContent);
   const infiniteCanvasIndex = -1;
   let globalUpdatedObjects: any
@@ -132,6 +132,10 @@ export const FabricCanvas = ({
     }
   }, [canvasObjects, initialContent,selectedTool]); // Dependencies related to rendering initial contents
 
+
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
   // Second useEffect: Add event listeners and manage interactions
   useEffect(() => {
     const canvas: fabric.Canvas = fabricCanvas.current;
@@ -149,20 +153,27 @@ export const FabricCanvas = ({
         canvas.on("object:modified", debouncedUpdateCanvasContent);
         canvas.on("object:removed",  removeCanvasContent);
         canvas.on("mouse:move", debouncedUpdateCanvasContent);
+        canvas.on("mouse:move", ()=>{ 
+          setSelectedTool(prevselectedTool); 
+          console.log("Current tool is resetting to : ",prevselectedTool)});
+
         canvas.on("mouse:down", (e) => {
           const pageIndex = canvas?.lowerCanvasEl.getAttribute("data-page-index");
           setCurrentPage(parseInt(pageIndex));
-          setSelectedTool(prevselectedTool)
-          console.log("prevoous seletd tool ",prevselectedTool)
+
+          
         });
         canvas.on('mouse:up',()=>{
           setSelectedTool(null)
           // setSelectedTool(prevselectedTool)
+          // setSelectedTool(prevselectedTool)
         })
-        canvas.on('path:created',()=>{
+        canvas.on('path:created',async ()=>{
+          // if(selectedTool == "pen") return
+          // await delay(500)
           // setSelectedTool(null)
-          setSelectedTool(prevselectedTool);
-          // console.log("Current tool is resetting to : ",prevselectedTool)
+          // setSelectedTool(prevselectedTool);
+         
         })
         canvas.on("mouse:wheel", (e) => {
           const pageIndex = canvas.lowerCanvasEl.getAttribute("data-page-index");
@@ -183,13 +194,10 @@ export const FabricCanvas = ({
         canvas.off("object:removed");
         canvas.off("mouse:move");
         canvas.off("mouse:down", (e) => {});
-        canvas.off('mouse:up',()=>{ })
-        canvas.off('path:created',()=>{
-          setSelectedTool(prevselectedTool);
-          console.log("Current tool is resetting to : ",prevselectedTool)
-        })
+        canvas.off('mouse:up',()=>{})
+        canvas.off('path:created',()=>{})
       };
-
+      removeListeners();
       addListeners();
 
       return () => {

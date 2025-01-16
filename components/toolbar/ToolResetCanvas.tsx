@@ -11,13 +11,13 @@ import html2canvas from 'html2canvas';
 
 
 // Component: ToolResetCanvas
-export const ToolResetCanvas = ({ fabricCanvas }: { fabricCanvas: React.MutableRefObject<fabric.Canvas | null> }) => {
+export const ToolResetCanvas = ({ fabricCanvas,tool }: { fabricCanvas: React.MutableRefObject<fabric.Canvas | null> ,tool : Tool}) => {
     useEffect(() => {
         if (!fabricCanvas.current) return;
         const canvas = fabricCanvas.current;
-        canvas.isDrawingMode = false;
-        canvas.selection = false;
+        // canvas.isDrawingMode = false;
+        // canvas.selection = false;
         // canvas.defaultCursor = "default";
-    }, [fabricCanvas]);
+    }, [fabricCanvas,tool]);
     return null;
 };

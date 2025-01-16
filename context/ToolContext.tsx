@@ -9,7 +9,7 @@ const ToolContext = createContext<ToolContextType | undefined>(undefined)
 
 export const ToolProvider = ({ children }: { children: ReactNode }) => {
   const [selectedTool, setSelectedTool] = useState<Tool>(null)
-  const [prevselectedTool, setPrevSelectedTool] = useState<Tool>('pen')
+  const [prevselectedTool, setPrevSelectedTool] = useState<Tool>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [brushSize, setBrushSize] = useState(5)
   const [eraserSize, setEraserSize] = useState(5)

@@ -3,6 +3,8 @@ import React, { useEffect } from 'react';
 import { FabricCanvas } from './FabricCanvas';
 import { Layer, useCanvas } from '@/context/CanvasContext';
 import { useSettings } from '@/context/SettingsContext';
+import { Excalidraw } from '@excalidraw/excalidraw';
+import ExcalidrawFabric from './excalidraw/ExcalidrawFabric';
 
 export const CanvasLayer: React.FC<{
     rect: any;
@@ -30,7 +32,7 @@ export const CanvasLayer: React.FC<{
                 zIndex: 10 + layerIndex,
             }}
         >
-            <FabricCanvas
+            {/* <FabricCanvas
                 rect={rect}
                 index={layerIndex}
                 pageIndex={pageIndex}
@@ -43,7 +45,9 @@ export const CanvasLayer: React.FC<{
 
                 }
                 initialContent={layer.content[pageIndex] || {}}
-            />
+            /> */}
+             <ExcalidrawFabric/>
+           
         </div>
     )
 };

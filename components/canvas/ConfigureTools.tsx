@@ -38,15 +38,12 @@ export const ConfigureTools = ({
     setSelectedTool,
     saveLayerContent
 }: ConfigureToolsProps) => {
-    const {setPrevSelectedTool,prevselectedTool}= useToolContext()
+    const {setPrevSelectedTool,prevselectedTool,selectedTool}= useToolContext()
 
     useEffect(() => {
        if(tool){
         setPrevSelectedTool(tool)
-        console.log("At the point changes the tools with prev ",tool)
-       }
-       if(tool === "pen"){
-        // setSelectedTool(null)
+        console.log("Prev tool is this ",tool)
        }
         const canvasWrapper = document.getElementById("canvas-wrapper");
         // console.log(fabricCanvas.current)
@@ -56,15 +53,17 @@ export const ConfigureTools = ({
 
         // Now TypeScript knows canvasWrapper is an HTMLElement
         (canvasWrapper as HTMLElement).style.pointerEvents = "auto";
-    }, [tool]);
+    }, [selectedTool]);
 
 
     return (
         <>
-            <ToolResetCanvas fabricCanvas={fabricCanvas} />
+            {/* <ToolResetCanvas fabricCanvas={fabricCanvas} tool={tool} /> */}
 
             <KeyEventListener fabricCanvas={fabricCanvas} />
             <Cursors fabricCanvas={fabricCanvas}/>
+
+                 
             
             {tool === "pen" || tool === "highlighter" ? (
                 <>
@@ -88,7 +87,7 @@ export const ConfigureTools = ({
                 />
             ) : null}
 
-            {(tool === "pen" || prevselectedTool==="pen") && (
+            {(tool === "pen") && (
                 <>
                     <PathCreatedHandler
                         fabricCanvas={fabricCanvas}

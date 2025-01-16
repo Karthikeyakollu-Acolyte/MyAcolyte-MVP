@@ -149,7 +149,7 @@ export const ToolShapes = ({
       });
       fabricCanvas.current.selection = true;
     }
-    setSelectedTool(null);
+    // setSelectedTool(null);
   }, [setSelectedTool]);
 
 

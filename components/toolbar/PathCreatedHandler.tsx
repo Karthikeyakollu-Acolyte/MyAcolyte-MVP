@@ -1,17 +1,8 @@
-
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { fabric } from "fabric";
-import { useToolContext } from "@/context/ToolContext"
-import { Images, Image, Circle, Square, Notebook, Dice5 } from "lucide-react"
+import { Images, Image, Circle, Square } from "lucide-react"
 import { findLoop } from "@/lib/canvas";
-import html2canvas from 'html2canvas';
-import { useSettings } from "@/context/SettingsContext";
-import { CustomFabricObject, Note } from "@/types/pdf";
-import { useCanvas } from "@/context/CanvasContext";
-import { v4 as uuidv4 } from "uuid";
-
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -20,154 +11,110 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { IEvent } from "fabric/fabric-impl";
+import { useToolContext } from "@/context/ToolContext";
 
+// Types for better type safety
+type Point = { x: number; y: number };
+type MenuPosition = { top: number; right: number };
+type ShapeAction = 'hover' | 'click' | 'leave';
 
-export const PathCreatedHandler = ({
+interface PathHandlerProps {
+    fabricCanvas: React.MutableRefObject<fabric.Canvas | null>;
+    setLoopPoints: (points: Point[]) => void;
+    setMenuPosition: (position: MenuPosition) => void;
+    setMenuVisible: (visible: boolean) => void;
+    loopPathRef: React.MutableRefObject<fabric.Path | null>;
+    saveLayerContent: (content: fabric.Object[]) => void;
+}
+
+export const PathCreatedHandler: React.FC<PathHandlerProps> = ({
     fabricCanvas,
-    setLoopPoints,
-    setMenuPosition,
-    setMenuVisible,
+    setLoopPoints: setParentLoopPoints,
+    setMenuPosition: setParentMenuPosition,
+    setMenuVisible: setParentMenuVisible,
     loopPathRef,
     saveLayerContent
-}: {
-    fabricCanvas: React.MutableRefObject<fabric.Canvas | null>,
-    setLoopPoints: (points: any) => void,
-    setMenuPosition: (position: { top: number; right: number }) => void,
-    setMenuVisible: (visible: boolean) => void,
-    loopPathRef: React.MutableRefObject<fabric.Path | null>,
-    saveLayerContent: any
 }) => {
-    const [loopPoints, setLocalLoopPoints] = useState<{ x: number, y: number }[]>([]);
-    const [menuPosition, setLocalMenuPosition] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
-    const [menuVisible, setLocalMenuVisible] = useState(false);
-    const [linePath, setLinePath] = useState(null)
-    const [loopPath, setloopPath] = useState(null)
-    let loopPathData: any = null
+    const [state, setState] = useState({
+        loopPoints: [] as Point[],
+        menuPosition: { top: 0, right: 0 },
+        menuVisible: false,
+        linePath: null as fabric.Path | null
+    });
+    const {prevselectedTool,setSelectedTool} = useToolContext()
 
     useEffect(() => {
-        if (!fabricCanvas.current) return;
         const canvas = fabricCanvas.current;
+        if (!canvas) return;
 
-        const handlePathCreated = (e: any) => {
+        const handlePathCreated = (e: IEvent<Event>) => {
+            console.log("path created..")
             const path = e.path;
-            const points = path.path.map((point: any) => ({ x: point[1], y: point[2] }));
-
+            const points = path.path.map(point => ({ x: point[1], y: point[2] }));
             const loopPoints = findLoop(points);
             
+            if (!loopPoints) return;
 
-            if (loopPoints) {
-                console.log("Path created and detectedd")
-                const left = Math.min(...loopPoints.map(p => p.x));
-                const top = Math.min(...loopPoints.map(p => p.y));
-                const width = Math.max(...loopPoints.map(p => p.x)) - left;
-                const height = Math.max(...loopPoints.map(p => p.y)) - top;
-                if (!left || !top || !width || !height) return;
+            const bounds = loopPoints.reduce((acc, p) => ({
+                left: Math.min(acc.left, p.x),
+                top: Math.min(acc.top, p.y),
+                right: Math.max(acc.right, p.x),
+                bottom: Math.max(acc.bottom, p.y)
+            }), { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity });
 
-                setLocalLoopPoints(loopPoints);
-                setLoopPoints(loopPoints);
-
-                // Convert loop points to path data
-                loopPathData = loopPoints.map(point => ['L', point.x, point.y]);
-                loopPathData[0][0] = 'M';  // Close the path
-
-                // Create the dotted lasso-like path
-                const loopPath = new fabric.Path(loopPathData, {
-                    fill: 'rgba(16, 125, 235, 0.3)',  // Semi-transparent red fill
-                    stroke: 'blue',                // Blue stroke color
-                    strokeWidth: 2,                // Slightly thicker stroke
-                    strokeDashArray: [5, 5],       // Dotted line style (5px line, 5px gap)
-                    selectable: true,             // Make the loop path non-selectable
-                    hasBorders: false,             // Disable borders
-                    hasControls: false,            // Disable controls (resize, rotate)
-                });
-
-                // Optionally, add the loop path to the canvas
-                // canvas.add(loopPath);
-                let dashOffset = 0;
-
-                function animateLasso() {
-                    // Create the animation effect by adjusting strokeDashArray
-                    loopPath.set({
-                        strokeDashArray: [5, 5],  // Keep the basic pattern of dashes and gaps
-                        strokeDashOffset: dashOffset
-                    });
-
-                    // Animate the dashOffset to simulate the movement of the dots
-                    fabric.util.animate({
-                        startValue: dashOffset,
-                        endValue: dashOffset + 10,  // Adjust the value to determine how far the dots move
-                        duration: 1000,  // Animation duration in milliseconds
-                        easing: fabric.util.ease.easeOutQuad,  // Easing function for smooth movement
-                        onChange: function (value) {
-                            // Update the dashOffset to make the dots move
-                            dashOffset = value;
-                            loopPath.set({ strokeDashOffset: dashOffset });
-                            canvas.renderAll();
-                        },
-                        onComplete: function () {
-                            // Loop the animation by resetting dashOffset
-                            animateLasso();
-                        }
-                    });
+            const loopPath = new fabric.Path(
+                loopPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' '), 
+                {
+                    fill: 'rgba(16, 125, 235, 0.3)',
+                    stroke: 'blue',
+                    strokeWidth: 2,
+                    strokeDashArray: [5, 5],
+                    selectable: true,
+                    hasBorders: false,
+                    hasControls: false,
                 }
-                // animateLasso();
-                setLinePath(path);
-                canvas.renderAll();
+            );
 
-                // Store reference for further usage
-                loopPathRef.current = loopPath;
+            loopPathRef.current = loopPath;
+            const menuPosition = { 
+                top: loopPoints[0].y - 10, 
+                right: loopPoints[0].x + 100 
+            };
 
-                // Position menu at the start of the loop
-                const firstPoint = loopPoints[0];
-                const menuPosition = { top: firstPoint.y - 10, right: firstPoint.x + 100 };
-                setLocalMenuPosition(menuPosition);
-                setMenuPosition(menuPosition);
-                setLocalMenuVisible(true);
-                setMenuVisible(true);
+            setState({
+                loopPoints,
+                menuPosition,
+                menuVisible: true,
+                linePath: path
+            });
 
-            }
+            setParentLoopPoints(loopPoints);
+            setParentMenuPosition(menuPosition);
+            setParentMenuVisible(true);
         };
-
 
         canvas.on('path:created', handlePathCreated);
-        return () => {
-            canvas.off('path:created', handlePathCreated);
-        };
-    }, [fabricCanvas, setLoopPoints, setMenuPosition, setMenuVisible, loopPathRef]);
 
-    return (
-        <>
-            <Menu
-                menuVisible={menuVisible}
-                menuPosition={menuPosition}
-                loopPoints={loopPoints}
-                setMenuVisible={setLocalMenuVisible}
-                fabricCanvas={fabricCanvas}
-                linePath={linePath}
-                saveLayerContent={saveLayerContent}
-                loopPathRef={loopPathRef}
+        return () => canvas.off('path:created', handlePathCreated);
 
+    }, [fabricCanvas, setParentLoopPoints, setParentMenuPosition, setParentMenuVisible, loopPathRef,prevselectedTool]);
 
-
-            />
-        </>
-    );
+    return state.menuVisible ? (
+        <Menu
+            {...state}
+            fabricCanvas={fabricCanvas}
+            loopPathRef={loopPathRef}
+            saveLayerContent={saveLayerContent}
+            setMenuVisible={(visible) => {
+                setState(prev => ({ ...prev, menuVisible: visible }));
+                setParentMenuVisible(visible);
+            }}
+        />
+    ) : null;
 };
 
-
-
-
-
-const Menu: React.FC<{
-    menuVisible: boolean;
-    menuPosition: { top: number; right: number };
-    loopPoints: { x: number; y: number }[];
-    setMenuVisible: (visible: boolean) => void;
-    fabricCanvas: any;
-    linePath: any;
-    loopPathRef: any;
-    saveLayerContent: any;
-}> = ({ 
+const Menu: React.FC<any> = ({ 
     menuVisible, 
     menuPosition, 
     loopPoints, 
@@ -178,42 +125,25 @@ const Menu: React.FC<{
     loopPathRef 
 }) => {
     const [previewShape, setPreviewShape] = useState<fabric.Object | null>(null);
+    const {prevselectedTool,setSelectedTool} = useToolContext()
     
-    // Ensure menu stays within viewport bounds
-    const adjustedPosition = React.useMemo(() => {
+    const adjustedPosition = useMemo(() => {
         if (!menuVisible) return { top: 0, left: 0 };
         
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const menuWidth = 250; // Approximate menu width
-        const menuHeight = 60; // Approximate menu height
+        const { innerWidth, innerHeight } = window;
+        const menuWidth = 250, menuHeight = 60;
         
-        let left = menuPosition.right;
-        let top = menuPosition.top;
-        
-        // Adjust horizontal position if menu would overflow viewport
-        if (left + menuWidth > viewportWidth) {
-            left = viewportWidth - menuWidth - 20;
-        }
-        
-        // Adjust vertical position if menu would overflow viewport
-        if (top + menuHeight > viewportHeight) {
-            top = viewportHeight - menuHeight - 20;
-        }
-        
-        return { top, left };
+        return {
+            top: Math.min(menuPosition.top, innerHeight - menuHeight - 20),
+            left: Math.min(menuPosition.right, innerWidth - menuWidth - 20)
+        };
     }, [menuPosition, menuVisible]);
 
-    // Handle shape preview and creation
-    const handleShapeAction = (shapeType: string, action: 'hover' | 'click' | 'leave') => {
-        if (!fabricCanvas.current || !loopPoints.length) return;
-
+    const handleShapeAction = (shapeType: 'circle' | 'square', action: ShapeAction) => {
         const canvas = fabricCanvas.current;
+        if (!canvas || !loopPoints.length) return;
         
-        // Remove existing preview if any
-        if (previewShape) {
-            canvas.remove(previewShape);
-        }
+        previewShape && canvas.remove(previewShape);
 
         if (action === 'leave') {
             canvas.add(linePath);
@@ -221,54 +151,72 @@ const Menu: React.FC<{
             return;
         }
 
-        // Calculate shape dimensions
-        const left = Math.min(...loopPoints.map(p => p.x));
-        const top = Math.min(...loopPoints.map(p => p.y));
-        const width = Math.max(...loopPoints.map(p => p.x)) - left;
-        const height = Math.max(...loopPoints.map(p => p.y)) - top;
+        const bounds = loopPoints.reduce((acc, p) => ({
+            left: Math.min(acc.left, p.x),
+            top: Math.min(acc.top, p.y),
+            right: Math.max(acc.right, p.x),
+            bottom: Math.max(acc.bottom, p.y)
+        }), { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity });
 
-        let shape;
-        if (shapeType === 'circle') {
-            const radius = Math.min(width, height) / 2;
-            shape = new fabric.Circle({
-                left: left + width / 2 - radius,
-                top: top + height / 2 - radius,
-                radius,
-                fill: 'transparent',
-                stroke: '#2563eb',
-                strokeWidth: 2
-            });
-        } else if (shapeType === 'square') {
-            const size = Math.min(width, height);
-            shape = new fabric.Rect({
-                left,
-                top,
+        const width = bounds.right - bounds.left;
+        const height = bounds.bottom - bounds.top;
+        const size = Math.min(width, height);
+
+        const shapeConfig = {
+            fill: 'transparent',
+            stroke: '#2563eb',
+            strokeWidth: 2
+        };
+
+        const shape = shapeType === 'circle' 
+            ? new fabric.Circle({
+                ...shapeConfig,
+                left: bounds.left + width / 2 - size / 2,
+                top: bounds.top + height / 2 - size / 2,
+                radius: size / 2
+            })
+            : new fabric.Rect({
+                ...shapeConfig,
+                left: bounds.left,
+                top: bounds.top,
                 width: size,
-                height: size,
-                fill: 'transparent',
-                stroke: '#2563eb',
-                strokeWidth: 2
+                height: size
             });
-        }
 
-        if (shape) {
-            canvas.remove(linePath);
-            canvas.add(shape);
-            
-            if (action === 'click') {
-                canvas.remove(loopPathRef.current);
-                setMenuVisible(false);
-                const updatedContent = canvas.getObjects();
-                saveLayerContent(updatedContent);
-            } else {
-                setPreviewShape(shape);
-            }
-            
-            canvas.renderAll();
+        canvas.remove(linePath);
+        canvas.add(shape);
+        
+        if (action === 'click') {
+            canvas.remove(loopPathRef.current);
+            setMenuVisible(false);
+            saveLayerContent(canvas.getObjects());
+            // setSelectedTool(null)
+        } else {
+            setPreviewShape(shape);
         }
+        
+        canvas.renderAll();
     };
 
-    if (!menuVisible) return null;
+    const renderButton = (icon: React.ReactNode, tooltip: string, action?: () => void, shapeType?: 'circle' | 'square') => (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className={`hover:bg-${shapeType ? 'blue' : 'pink'}-100`}
+                    {...(shapeType ? {
+                        onMouseEnter: () => handleShapeAction(shapeType, 'hover'),
+                        onClick: () => handleShapeAction(shapeType, 'click'),
+                        onMouseLeave: () => handleShapeAction(shapeType, 'leave')
+                    } : { onClick: action })}
+                >
+                    {icon}
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent>{tooltip}</TooltipContent>
+        </Tooltip>
+    );
 
     return (
         <Card className="fixed z-50 shadow-lg bg-white rounded-lg p-2" 
@@ -279,61 +227,10 @@ const Menu: React.FC<{
               }}>
             <TooltipProvider>
                 <div className="flex items-center space-x-2">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                size="icon"
-                                className="hover:bg-blue-100"
-                                onClick={() => validateAndPrepareCapture("full")}>
-                                <Images className="h-5 w-5 text-blue-600" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Capture Full Screen</TooltipContent>
-                    </Tooltip>
-
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                size="icon"
-                                className="hover:bg-pink-100"
-                                onClick={() => validateAndPrepareCapture("pdf")}>
-                                <Image className="h-5 w-5 text-pink-600" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Capture PDF</TooltipContent>
-                    </Tooltip>
-
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                size="icon"
-                                className="hover:bg-blue-100"
-                                onMouseEnter={() => handleShapeAction("circle", "hover")}
-                                onClick={() => handleShapeAction("circle", "click")}
-                                onMouseLeave={() => handleShapeAction("circle", "leave")}>
-                                <Circle className="h-5 w-5 text-blue-600" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Draw Circle</TooltipContent>
-                    </Tooltip>
-
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                size="icon"
-                                className="hover:bg-pink-100"
-                                onMouseEnter={() => handleShapeAction("square", "hover")}
-                                onClick={() => handleShapeAction("square", "click")}
-                                onMouseLeave={() => handleShapeAction("square", "leave")}>
-                                <Square className="h-5 w-5 text-pink-600" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Draw Square</TooltipContent>
-                    </Tooltip>
+                    {renderButton(<Images className="h-5 w-5 text-blue-600" />, "Capture Full Screen")}
+                    {renderButton(<Image className="h-5 w-5 text-pink-600" />, "Capture PDF")}
+                    {renderButton(<Circle className="h-5 w-5 text-blue-600" />, "Draw Circle", undefined, 'circle')}
+                    {renderButton(<Square className="h-5 w-5 text-pink-600" />, "Draw Square", undefined, 'square')}
                 </div>
             </TooltipProvider>
         </Card>
