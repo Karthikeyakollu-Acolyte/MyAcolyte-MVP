@@ -4,6 +4,8 @@ import Image from 'next/image'
 import totalpages from '@/public/totalpages.svg'
 import annotations from '@/public/annotations.svg'
 import { useSettings } from '@/context/SettingsContext'
+import { useToolContext } from '@/context/ToolContext'
+import { useEffect } from 'react'
 
 
 

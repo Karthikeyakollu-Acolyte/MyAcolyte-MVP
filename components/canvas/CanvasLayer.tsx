@@ -24,7 +24,7 @@ export const CanvasLayer: React.FC<{
             className="canvas-wrapper absolute"
             id={`canvas-wrapper-${pageIndex}-${layerIndex}`}
             style={{
-                top: rect.top -  100,
+                top: rect.top ,
                 width: rect.width - 5,
                 height: rect.height,
                 zIndex: 10 + layerIndex,

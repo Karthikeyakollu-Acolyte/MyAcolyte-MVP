@@ -28,7 +28,7 @@ export const CanvasWrapper: React.FC<CanvasWrapperProps> = ({ pageRects, isDrawi
   // Sync layers to storage
   const syncToStorage = async (layers?: any) => {
     try {
-      await syncLayers(currentDocumentId, layers);
+      // await syncLayers(currentDocumentId, layers);
       // console.log(`Layers synced for document ID: ${currentDocumentId}`);
     } catch (error) {
       console.error('Error syncing layers:', error);

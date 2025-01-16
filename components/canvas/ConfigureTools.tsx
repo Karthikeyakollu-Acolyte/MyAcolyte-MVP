@@ -16,6 +16,7 @@ import Selection from "../toolbar/Selection";
 import { ToolText } from "../toolbar/ToolText";
 import Cursors from "../toolbar/Cursors";
 import Text from "./Text"; 
+import { useToolContext } from "@/context/ToolContext";
 
 const icons = [
     { type: "image", src: "/images/sample-icon.png" },
@@ -37,8 +38,16 @@ export const ConfigureTools = ({
     setSelectedTool,
     saveLayerContent
 }: ConfigureToolsProps) => {
+    const {setPrevSelectedTool,prevselectedTool}= useToolContext()
 
     useEffect(() => {
+       if(tool){
+        setPrevSelectedTool(tool)
+        console.log("At the point changes the tools with prev ",tool)
+       }
+       if(tool === "pen"){
+        // setSelectedTool(null)
+       }
         const canvasWrapper = document.getElementById("canvas-wrapper");
         // console.log(fabricCanvas.current)
 
@@ -48,6 +57,7 @@ export const ConfigureTools = ({
         // Now TypeScript knows canvasWrapper is an HTMLElement
         (canvasWrapper as HTMLElement).style.pointerEvents = "auto";
     }, [tool]);
+
 
     return (
         <>
@@ -78,7 +88,7 @@ export const ConfigureTools = ({
                 />
             ) : null}
 
-            {tool === "pen" && (
+            {(tool === "pen" || prevselectedTool==="pen") && (
                 <>
                     <PathCreatedHandler
                         fabricCanvas={fabricCanvas}

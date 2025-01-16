@@ -33,15 +33,12 @@ export const FabricCanvas = ({
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const { selectedText, notes, setCurrentPage, scale, currentPage, isInfinite } = useSettings();
   const { rect: pageSize } = useCanvas();
-  const { brushSize, brushColor, eraserSize, setSelectedTool, selectedTool } = useToolContext()
+  const { brushSize, brushColor, eraserSize, setSelectedTool, selectedTool,prevselectedTool } = useToolContext()
   const [canvasObjects, setCanvasObjects] = useState<[]>(initialContent);
   const infiniteCanvasIndex = -1;
   let globalUpdatedObjects: any
 
 
-  useEffect(() => {
-    console.log(selectedTool)
-  }, [selectedTool])
   // Update canvas content for a specific object
   const updateCanvasContent = (objectId, objectJson) => {
     if (!objectId) return;
@@ -155,8 +152,18 @@ export const FabricCanvas = ({
         canvas.on("mouse:down", (e) => {
           const pageIndex = canvas?.lowerCanvasEl.getAttribute("data-page-index");
           setCurrentPage(parseInt(pageIndex));
-          console.log(pageIndex);
+          setSelectedTool(prevselectedTool)
+          console.log("prevoous seletd tool ",prevselectedTool)
         });
+        canvas.on('mouse:up',()=>{
+          setSelectedTool(null)
+          // setSelectedTool(prevselectedTool)
+        })
+        canvas.on('path:created',()=>{
+          // setSelectedTool(null)
+          setSelectedTool(prevselectedTool);
+          // console.log("Current tool is resetting to : ",prevselectedTool)
+        })
         canvas.on("mouse:wheel", (e) => {
           const pageIndex = canvas.lowerCanvasEl.getAttribute("data-page-index");
           setCurrentPage((prev) => parseInt(pageIndex));
@@ -175,6 +182,12 @@ export const FabricCanvas = ({
         canvas.off("object:modified", debouncedUpdateCanvasContent);
         canvas.off("object:removed");
         canvas.off("mouse:move");
+        canvas.off("mouse:down", (e) => {});
+        canvas.off('mouse:up',()=>{ })
+        canvas.off('path:created',()=>{
+          setSelectedTool(prevselectedTool);
+          console.log("Current tool is resetting to : ",prevselectedTool)
+        })
       };
 
       addListeners();

@@ -15,6 +15,7 @@ import { useRefs } from '@/context/sharedRefs'
 function Toolbar() {
   const {
     selectedTool,
+    prevselectedTool,
     setSelectedTool,
     isMenuOpen,
     setIsMenuOpen,
@@ -36,31 +37,6 @@ function Toolbar() {
   }
   const [first, setfirst] = useState(1)
 
-
-  useEffect(() => {
-
-    // console.log("object")
-
-    if (pdfViewerRef) {
-      // page.rotation=90; 
-      // rotateDocument(pdfViewerRef, 90)
-      // pdfViewerRef.current._spreadMode = ;
-
-      // 1:2page view; 2:odd page view, 3 for horizontal  scroll, -1 for vertical  scroll
-      // setSpreadMode(pdfViewerRef,3)
-      // rotatePage(pdfViewerRef,1,90)
-
-      // console.log(.pagesCount)
-      // setSpreadMode(pdfViewerRef,2)
-      // setScrollMode(pdfViewerRef,3)
-      // scrollToPage(pdfViewerRef,first)
-
-      // pdfViewerRef.current.eventBus.on("pagechanging", () => {
-      //   console.log("changing");
-      // });
-    }
-
-  }, [pdfViewerRef, first])
   const closeMenu = () => setIsMenuOpen(false)
 
   return (
