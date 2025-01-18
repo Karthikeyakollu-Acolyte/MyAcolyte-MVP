@@ -6,16 +6,20 @@ import PdfFile from "@/public/pdf-file.svg";
 import Image from "next/image";
 import { getAllPdfs } from "@/db/pdf/docs";
 import { useRouter } from "next/navigation";
+import { getAllNotes } from "@/db/note/Note";
+import FileNote from "@/public/noteplain.svg"
+
+
 
 const SubjectsFiles = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [files, setFiles] = useState([]);
   const router = useRouter();
 
+
   const fetchFilesFromIndexedDB = async () => {
-    const pdfs = await getAllPdfs();
-    setFiles(pdfs);
-    console.log(pdfs)
+    const notes = await getAllNotes();
+    setFiles(notes);
   };
 
   useEffect(() => {
@@ -25,7 +29,7 @@ const SubjectsFiles = () => {
   const dropdownOptions = ["Data Science", "Deep learning", "Natural language"];
 
   const openPdfViewer = (id) => {
-    router.push(`/pdfnote/${id}`);
+    router.push(`/note/${id}`);
   };
 
   return (
@@ -69,10 +73,10 @@ const SubjectsFiles = () => {
         {files.map((file, index) => (
           <div key={index} className="cursor-pointer hover:scale-2" onClick={() => openPdfViewer(file.documentId
           )}>
-            <Image src={PdfFile} alt="l" className="w-[102px] h-[128px]" />
+            <Image src={FileNote} alt="l" className="w-[102px] h-[128px]" />
             <div className="pb-4 pt-2">
               <p className="text-xs font-medium text-gray-900 truncate">
-                {file.name}
+                name
               </p>
               <p className="text-xs text-gray-500">{file.uploadTime}</p>
             </div>

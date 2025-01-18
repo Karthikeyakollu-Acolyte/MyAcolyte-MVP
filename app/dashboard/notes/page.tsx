@@ -199,8 +199,8 @@
 
 "use client"
 import FlashCards from '@/components/dashboard/FlashCards'
-import SubjectFolders from '@/components/dashboard/SubjectFolders'
-import SubjectsFiles from '@/components/dashboard/Subjects'
+import SubjectFolders from '@/components/note/SubjectRecentFiles'
+import SubjectsFiles from '@/components/note/SubjectFiles'
 import React from 'react'
 
 const page = () => {

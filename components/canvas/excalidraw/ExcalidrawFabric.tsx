@@ -28,7 +28,7 @@ const ExcalidrawFabric = ({saveCanvas,pageIndex,currentDocumentId}:{saveCanvas:a
     const handleChange = (elements: readonly ExcalidrawElement[], state: AppState) => {
         if (!excalidrawAPI) return;
     
-        // saveCanvas(elements, state, pageIndex);
+        saveCanvas(elements, state, pageIndex);
     
         let shouldUpdateScene = false;
         const newAppState: Partial<AppState> = { ...state };

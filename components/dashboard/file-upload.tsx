@@ -1,41 +1,68 @@
-import React, { useState, useCallback } from "react";
-import {
-  Upload,
-  MoreVertical,
-  AlertCircle,
-  X,
-  CheckCircle,
-} from "lucide-react";
+// FileList.jsx
+import { useState, useCallback, useEffect } from "react";
+import { MoreVertical, AlertCircle } from "lucide-react";
+import { Upload } from "lucide-react";
+import { addPdf, getAllPdfs } from "@/db/pdf/docs";
+const FileList = ({ files }) => {
+  return (
+    <div className="w-full py-2 px-8">
+      {files.map((file, index) => (
+        <div
+          key={index}
+          className="flex items-center justify-between px-4 py-3 hover:bg-gray-100"
+        >
+          <div className="flex items-center gap-3">
+            <div className="text-blue-500">
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900">{file.name}</p>
+              <p className="text-xs text-gray-500">{file.uploadTime}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            {file.status === "error" ? (
+              <div className="flex items-center text-red-500 text-sm">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                <span className="font-medium">Error</span>
+              </div>
+            ) : (
+              <span className="text-sm text-gray-600 font-medium">
+                {file.size}
+              </span>
+            )}
+            <button className="p-1 hover:bg-gray-200 rounded-full">
+              <MoreVertical className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+
+// FileUpload.jsx
+
+
 
 const FileUpload = () => {
   const [activeTab, setActiveTab] = useState("upload");
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState([]);
-  const [files, setFiles] = useState([
-    {
-      name: "Big data module 1.pdf",
-      uploadTime: "3m ago",
-      size: "2.20MB",
-      status: "complete",
-    },
-    {
-      name: "Big data second half.pdf",
-      uploadTime: "3 days ago",
-      size: "1.46MB",
-      status: "complete",
-    },
-    {
-      name: "Big data module 2.pdf",
-      uploadTime: "3 days ago",
-      status: "error",
-    },
-    {
-      name: "Big data.pdf",
-      uploadTime: "7 days ago",
-      size: "929KB",
-      status: "complete",
-    },
-  ]);
+  const [files, setFiles] = useState([]);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -54,13 +81,6 @@ const FileUpload = () => {
     e.stopPropagation();
   };
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -76,60 +96,103 @@ const FileUpload = () => {
     handleFiles(selectedFiles);
   };
 
-  const handleFiles = (newFiles) => {
+
+  const handleFiles = async (newFiles) => {
     const filesWithProgress = newFiles.map((file) => ({
+      id: Math.random().toString(36).substr(2, 9),
       name: file.name,
       size: formatFileSize(file.size),
       progress: 0,
       status: "uploading",
       uploadTime: "Just now",
-      id: Math.random().toString(36).substr(2, 9),
+      file, // Include the actual file object
     }));
-
+  
     setUploadingFiles((prev) => [...prev, ...filesWithProgress]);
-
-    // Simulate upload progress for each file
-    filesWithProgress.forEach((file) => {
-      simulateFileUpload(file.id);
-    });
+  
+    for (const file of filesWithProgress) {
+      await uploadFile(file);
+    }
   };
-
-  const simulateFileUpload = (fileId) => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 30;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-
-        setUploadingFiles((prev) => prev.filter((f) => f.id !== fileId));
+  
+  const uploadFile = async (file) => {
+    const reader = new FileReader();
+  
+    reader.onload = async (event) => {
+      try {
+        // Convert file to base64
+        const base64 = event.target.result;
+  
+        // Store file in IndexedDB
+        await addPdf({
+          documentId: file.id,
+          name: file.name,
+          size: file.size,
+          uploadTime: new Date().toLocaleString(),
+          base64, // Save the base64-encoded content
+          status: "complete",
+        });
+  
+        // Update state to reflect completion
+        setUploadingFiles((prev) => prev.filter((f) => f.id !== file.id));
         setFiles((prev) => [
           {
-            name:
-              uploadingFiles.find((f) => f.id === fileId)?.name ||
-              "Unknown file",
-            size: uploadingFiles.find((f) => f.id === fileId)?.size || "0 KB",
-            uploadTime: "Just now",
+            id: file.id,
+            name: file.name,
+            size: file.size,
+            uploadTime: new Date().toLocaleString(),
             status: "complete",
           },
           ...prev,
         ]);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        setUploadingFiles((prev) =>
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "error" } : f
+          )
+        );
       }
-
+    };
+  
+    reader.onerror = () => {
+      console.error("Error reading file:", reader.error);
       setUploadingFiles((prev) =>
         prev.map((f) =>
-          f.id === fileId ? { ...f, progress: Math.min(progress, 100) } : f
+          f.id === file.id ? { ...f, status: "error" } : f
         )
       );
-    }, 500);
+    };
+  
+    reader.readAsDataURL(file.file);
   };
+  
+  // Utility function for formatting file size
+  const formatFileSize = (size) => {
+    return size < 1024
+      ? size + " bytes"
+      : size < 1048576
+      ? (size / 1024).toFixed(2) + " KB"
+      : (size / 1048576).toFixed(2) + " MB";
+  };
+  
+  // Example function to fetch all files from IndexedDB
+  const fetchFilesFromIndexedDB = async () => {
+    const pdfs = await getAllPdfs();
+    setFiles(pdfs);
+  };
+
+  useEffect(()=>{
+    fetchFilesFromIndexedDB()
+  },[])
+  
 
   const clearUploads = () => {
     setUploadingFiles([]);
   };
 
   return (
-    <div className="w-[1095px] h-[456px] mx-auto p-6  ">
+    <div className="w-[1095px] h-[456px] mx-auto p-6">
       <div className="flex gap-3 mb-6">
         <button
           onClick={() => setActiveTab("upload")}
@@ -153,7 +216,7 @@ const FileUpload = () => {
         </button>
       </div>
 
-      <div className="w-[1095px] h-[398px] bg-[#F6F7F9]  rounded-xl flex flex-col items-center justify-center">
+      <div className="w-[1095px] h-[398px] bg-[#F6F7F9] rounded-xl flex flex-col items-center justify-center">
         {activeTab === "upload" && (
           <div className="">
             <input
@@ -169,7 +232,7 @@ const FileUpload = () => {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`border-2 border-dashed w-[1004px] h-[246px]  rounded-2xl p-16 flex flex-col items-center justify-center cursor-pointer transition-colors ${
+              className={`border-2 border-dashed w-[1004px] h-[246px] rounded-2xl p-16 flex flex-col items-center justify-center cursor-pointer transition-colors ${
                 isDragging
                   ? "border-emerald-500 bg-emerald-50"
                   : "border-gray-300 bg-gray-50 hover:bg-gray-100"
@@ -233,7 +296,7 @@ const FileUpload = () => {
               </div>
             )}
 
-            <div className="flex  w-full justify-end px-10 gap-3 mt-6">
+            <div className="flex w-full justify-end px-10 gap-3 mt-6">
               <button
                 onClick={clearUploads}
                 className="px-6 py-2.5 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300 text-sm font-medium"
@@ -247,55 +310,7 @@ const FileUpload = () => {
           </div>
         )}
 
-        {activeTab === "recent" && (
-          <div className="w-full py-2 px-8">
-            {files.map((file, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between px-4 py-3 hover:bg-gray-100"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="text-blue-500">
-                    <svg
-                      className="w-5 h-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {file.name}
-                    </p>
-                    <p className="text-xs text-gray-500">{file.uploadTime}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  {file.status === "error" ? (
-                    <div className="flex items-center text-red-500 text-sm">
-                      <AlertCircle className="w-4 h-4 mr-1" />
-                      <span className="font-medium">Error</span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-600 font-medium">
-                      {file.size}
-                    </span>
-                  )}
-                  <button className="p-1 hover:bg-gray-200 rounded-full">
-                    <MoreVertical className="w-5 h-5 text-gray-400" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {activeTab === "recent" && <FileList files={files} />}
       </div>
     </div>
   );

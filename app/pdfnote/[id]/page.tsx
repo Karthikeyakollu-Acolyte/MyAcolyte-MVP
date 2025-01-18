@@ -23,7 +23,6 @@ export default function page() {
 
       <div className="flex flex-col items-center pb-8   scrollbar-hide bg-[#F6F7F9] w-full">
         <ScrollableContent isExpanded={isExpanded} id={id} />
-      
       </div>
     </div>
   );

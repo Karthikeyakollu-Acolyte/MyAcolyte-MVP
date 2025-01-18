@@ -21,7 +21,7 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
     const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
     const [zoom, setZoom] = useState<number>(1)
     const { selectedTool,setSelectedTool } = useToolContext()
-    const { first } = useSettings()
+    const { setIsVisible} = useSettings()
     const {canvasChanges} = useCanvas()
 
     const [initialDataLoaded, setInitialDataLoaded] = useState(false);
@@ -64,15 +64,16 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
     // Handle changes in the Excalidraw component
     const handleChange = (elements:readonly  ExcalidrawElement[], state:  AppState, files: BinaryFiles) => {
         if (elements.length < 1) return
+        setIsVisible(false)
         console.log('Excalidraw Elements Changed:', elements);
         console.log('Current Excalidraw State:', state);
         const zoomValue = state?.zoom.value
 
         setZoom(zoomValue)
 
-
+const uploadTime =  new Date().toLocaleString();
         // Sync the updated elements to IndexedDB
-        syncNote(id, { elements, state })
+        syncNote(id, { elements, state,uploadTime })
             .then(() => {
                 console.log('Note synced successfully');
             })
@@ -370,7 +371,7 @@ function addImageToExcalidraw(pngUrl:string ="https://placehold.co/600x400",data
 
 
     return (
-        <div className='w-[100vw] h-[99%]'>
+        <div className='w-full h-full'>
             {/* <Button onClick={()=>{addImageToExcalidraw("https://placehold.co/600x400","") }}>Add Image</Button>
             <Button onClick={clearCanvas}>ClearCanvas</Button>
             <Button onClick={currentCanvasScene}>CurrentScene</Button> */}

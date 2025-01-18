@@ -67,7 +67,7 @@ export default function ScrollableContent({ isExpanded, id }: ScrollableContentP
 
       {/* This is the PDF note component, rendered when `first` is true */}
       {first && (
-        <div className="w-[100vw] h-[99%]" >
+        <div className="w-[100vw] h-[100vh]" >
           <ExcalidrawComponent id={id} />
         </div>
       )}

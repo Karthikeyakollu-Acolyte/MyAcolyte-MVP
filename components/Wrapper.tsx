@@ -13,7 +13,7 @@ import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { useSettings } from "@/context/SettingsContext";
 import SearchCompoent from "./pdfcomponents/SearchCompoent";
 import { Divide } from "lucide-react";
-import { getAllPdfs, deletePdf, getPdfById } from '@/db/pdf/docs';
+import {  getPdfById } from '@/db/pdf/docs';
 import FileUpload from "./dashboard/FileUpload";
 import { useRouter } from 'next/router';
 import ExcalidrawComponent from "./canvas/excalidraw/ExcalidrawComponent";
@@ -46,7 +46,7 @@ const Wrapper = ({ id }: { id: string }) => {
           const pdf = await getPdfById(currentDocumentId);
           if (pdf?.base64) {
             // Convert the base64 string to a data URL
-            const dataUrl = `data:application/pdf;base64,${pdf.base64}`;
+            const dataUrl = pdf.base64;
             setPdfData(dataUrl);
           }
         } catch (error) {
@@ -54,8 +54,6 @@ const Wrapper = ({ id }: { id: string }) => {
         }
       };
     
-
-
     useEffect(() => {
         if (!currentDocumentId) {
             return;

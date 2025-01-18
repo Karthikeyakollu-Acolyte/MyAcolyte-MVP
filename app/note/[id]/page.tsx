@@ -18,17 +18,17 @@ const page = () => {
   return (
     <div>
       <div className="max-h-screen w-[100vw] overflow-hidden max-w-[1920px]">
-        <div className="flex flex-col items-center pb-8 h-[calc(100vh-80px)]  scrollbar-hide bg-[#F6F7F9] w-full">
+        <div className="flex flex-col items-center  h-[100vh]  scrollbar-hide  ">
 
-          <div className='mt-10' style={{
-            height: isInfinite ? '80vh' : '1000px',
-            width: isInfinite ? '95vw' : '1000px'
+          <div className='' style={{
+            height:  '100vh',
+            width:  '100vw'
           }}
           >
             <ExcalidrawComponent id={id} />
           </div>
 
-          <ToggleInfiniteCanvas />
+          {/* <ToggleInfiniteCanvas /> */}
 
 
         </div>
