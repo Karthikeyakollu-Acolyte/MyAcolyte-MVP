@@ -11,13 +11,17 @@ import { getAllNotes } from "@/db/note/Note";
 const SubjectFolders = () => {
   const router = useRouter();
 
-  const openNotes = () => {};
+  const openNotes = (id) => {
+
+    router.push(`/note/${id}`);
+  };
 
   const [files, setFiles] = useState([]);
 
   const fetchFilesFromIndexedDB = async () => {
     const notes = await getAllNotes();
     setFiles(notes);
+
   };
 
   useEffect(() => {
@@ -50,7 +54,7 @@ const SubjectFolders = () => {
           <div
             key={index}
             className="relative group flex flex-col items-center cursor-pointer"
-            onClick={() => openNotes()}
+            onClick={() => openNotes(folder.documentId)}
           >
             {/* Folder content */}
             <div className="relative  rounded-lg  p-4 pt-8 flex flex-col items-center">
