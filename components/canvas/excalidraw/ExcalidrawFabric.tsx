@@ -5,41 +5,78 @@ import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 import { AppState, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types';
 import { useToolContext } from '@/context/ToolContext';
 import { Tool } from '@/types/pdf';
+import { getCanvasByPageIndex } from '@/db/pdf/canvas';
+import { useSettings } from '@/context/SettingsContext';
 
 const Excalidraw = dynamic(() =>
     import('@excalidraw/excalidraw').then((mod) => mod.Excalidraw),
     { ssr: false }
 );
 
-const ExcalidrawFabric = () => {
+const ExcalidrawFabric = ({saveCanvas,pageIndex,currentDocumentId}:{saveCanvas:any,pageIndex:number}) => {
     const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
     const { selectedTool } = useToolContext();
+    const {scale} = useSettings()
 
-    // Handle changes in the Excalidraw component
+    const initialAppState: AppState = {
+        zoom: { value: 1 },
+        scrollX: 0,
+        scrollY: 0,
+        // Add other default app state attributes here
+    };
+    
     const handleChange = (elements: readonly ExcalidrawElement[], state: AppState) => {
         if (!excalidrawAPI) return;
-        
-        // Reset zoom and position if user attempts to zoom or pan
-        if (state.zoom.value !== 1) {
-            excalidrawAPI.updateScene({
-                appState: {
-                    ...state,
-                    zoom: { value: 1 },
-                }
-            });
+    
+        // saveCanvas(elements, state, pageIndex);
+    
+        let shouldUpdateScene = false;
+        const newAppState: Partial<AppState> = { ...state };
+    
+        // Reset zoom if it changes, even slightly
+        if (state.zoom.value !== initialAppState.zoom.value) {
+            newAppState.zoom = { value: initialAppState.zoom.value };
+            shouldUpdateScene = true;
         }
-
-        // Reset scroll position if user attempts to pan
-        if (state.scrollX !== 0 || state.scrollY !== 0) {
+    
+        // Reset scroll positions if they change, even slightly
+        if (state.scrollX !== initialAppState.scrollX) {
+            newAppState.scrollX = initialAppState.scrollX;
+            shouldUpdateScene = true;
+        }
+    
+        if (state.scrollY !== initialAppState.scrollY) {
+            newAppState.scrollY = initialAppState.scrollY;
+            shouldUpdateScene = true;
+        }
+    
+        // Update the scene instantly if any change was detected
+        if (shouldUpdateScene) {
             excalidrawAPI.updateScene({
-                appState: {
-                    ...state,
-                    scrollX: 0,
-                    scrollY: 0,
-                }
+                appState: newAppState,
             });
         }
     };
+    
+    
+    
+
+
+    useEffect(() => {
+        async function fetchAndSetCanvas() {
+
+          const canvasData = await getCanvasByPageIndex(currentDocumentId, pageIndex);
+          if (canvasData && excalidrawAPI) {
+            excalidrawAPI.updateScene({
+              elements: canvasData.elements,
+              appState: canvasData.appState,
+            });
+          }
+        }
+      
+        fetchAndSetCanvas();
+      }, [pageIndex, currentDocumentId, excalidrawAPI]);
+
 
     function switchTool(selectedTool: Tool) {
         if (!excalidrawAPI) return;

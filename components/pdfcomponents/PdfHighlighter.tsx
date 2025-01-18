@@ -19,12 +19,6 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
 }) => {
     const [isDrawing, setIsDrawing] = useState(true);
     const [pageRects, setPageRects] = useState<DOMRect[]>([]);
-
-    const toggleDrawingMode = () => setIsDrawing(!isDrawing);
-    const [findController] = useState<any>({});
-    const [eventBus] = useState<any>({});
-    const divRef = useRef<HTMLDivElement>(null);  // Fixed ref type
-    const { scale, setScale } = useSettings();
     const containerNodeRef = useRef<HTMLDivElement>(null);  // Fixed ref type
     const contentRef = useRef<HTMLDivElement>(null);  // Fixed ref type
     const [isZoomEnable, setIsZoomEnable] = useState(true);
@@ -34,7 +28,6 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
     return (
         <div
             className=" scrollbar-hide"
-            ref={divRef}
             id="pdf-container"
             style={{
                 width: '100%',

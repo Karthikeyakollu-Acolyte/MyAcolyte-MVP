@@ -132,6 +132,7 @@ const updateScale = () => {
     }
 };
 
+
 useEffect(() => {
     updateScale(); // Update scale on changes to `isInfinite` or any other trigger
 }, [isInfinite]);

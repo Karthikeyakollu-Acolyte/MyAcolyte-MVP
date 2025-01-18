@@ -12,13 +12,9 @@ export const CanvasLayer: React.FC<{
     layerIndex: number;
     pageIndex: number;
     saveLayerContent: any;
-}> = ({ rect, layer, layerIndex, pageIndex, saveLayerContent }) => {
+}> = ({ rect, layerIndex, pageIndex, saveLayerContent }) => {
 
-    const { isInfinite } = useSettings()
-    const { containerWidth } = useCanvas()
-    useEffect(() => {
-        // console.log(containerWidth)
-    }, [containerWidth])
+
 
 
     return (
@@ -32,7 +28,15 @@ export const CanvasLayer: React.FC<{
                 zIndex: 10 + layerIndex,
             }}
         >
-            {/* <FabricCanvas
+           
+             <ExcalidrawFabric/>
+           
+        </div>
+    )
+};
+
+
+ {/* <FabricCanvas
                 rect={rect}
                 index={layerIndex}
                 pageIndex={pageIndex}
@@ -46,8 +50,3 @@ export const CanvasLayer: React.FC<{
                 }
                 initialContent={layer.content[pageIndex] || {}}
             /> */}
-             <ExcalidrawFabric/>
-           
-        </div>
-    )
-};

@@ -1,22 +1,28 @@
 "use client"
-import { Metrics } from "@/components/dashboard/metrics"
-import { StudyMaterials } from "@/components/dashboard/study-materials"
 import React, { useState } from "react"
-import FileSystem from '@/components/FileSystem';
+import TrackerDashboard from "@/components/dashboard/Tracker";
+import StudyDashboard from "@/components/dashboard/StudyDashboard";
+import TodoList from "@/components/dashboard/Todo";
+import SubjectFolders from "@/components/dashboard/SubjectFolders";
 
 
 export default function Dashboard() {
-  const [currentPath, setCurrentPath] = useState<string[]>([]);
   return (
-    <div className="flex flex-col bg-[#FFFFFF] w-full h-screen">
-      <Metrics />
-      <StudyMaterials />
-      <FileSystem
-                 currentPath={currentPath}
-                 setCurrentPath={setCurrentPath}
-                 fileType="root"
-   
-               />
+    <div className="flex flex-col h-[90vh] overflow-auto scrollbar-hidden">
+    
+<div className="mb-24">
+<TrackerDashboard /> 
+</div>
+
+<div className="mb-24">
+<SubjectFolders/>
+</div>
+
+<StudyDashboard />
+
+
+
+
     </div>
   )
 }

@@ -41,6 +41,7 @@
     "react-dropzone": "^14.3.5",
     "react-markdown": "^9.0.3",
     "react-zoom-pan-pinch": "^3.6.1",
+    "recharts": "^2.15.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.0.3"

@@ -10,6 +10,7 @@ import { SettingsProvider, useSettings } from '@/context/SettingsContext'
 import { RefsProvider } from '@/context/sharedRefs'
 import { ToolProvider } from '@/context/ToolContext'
 import TodoNotes from '@/components/dashboard/Todo'
+import TodoList from '@/components/dashboard/Todo'
 
 type Props = {}
 
@@ -21,7 +22,7 @@ const Layout = ({ children }:any) => {
                     <SettingsProvider>
 
                         <CanvasProvider>
-                            <div className="flex flex-col bg-[#FFFFFF] w-full h-screen">
+                            <div className="flex flex-col bg-[#FFFFFF] w-full h-screen overflow-hidden">
                                 <div>
                                     <DashHeader />
                                 </div>
@@ -34,11 +35,12 @@ const Layout = ({ children }:any) => {
 
                                         </div>
                                     </main>
-                                    <TodoNotes />
+                                    {/* <TodoNotes /> */}
+                                    <TodoList /> 
                                 </div>
                             </div>
 
-                            <Toolbar />
+                           
                         </CanvasProvider>
 
                     </SettingsProvider>

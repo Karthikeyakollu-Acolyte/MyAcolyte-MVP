@@ -48,7 +48,6 @@ const Wrapper = ({ id }: { id: string }) => {
             // Convert the base64 string to a data URL
             const dataUrl = `data:application/pdf;base64,${pdf.base64}`;
             setPdfData(dataUrl);
-            console.log(dataUrl)
           }
         } catch (error) {
           console.error('Error fetching PDF:', error);
