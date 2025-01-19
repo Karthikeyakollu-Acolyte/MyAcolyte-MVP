@@ -91,7 +91,7 @@ const SubjectFolders = () => {
               <div
                 className={`mt-2 text-center text-sm font-medium  rounded px-2 py-0.5`}
               >
-                {folder?.name || `Note ${index + 1}`}
+                {folder?.name}
               </div>
             </div>
           </div>

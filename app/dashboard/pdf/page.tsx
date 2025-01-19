@@ -120,7 +120,7 @@
 //                  currentPath={currentPath}
 //                  setCurrentPath={setCurrentPath}
 //                  fileType="pdf"
-   
+
 //                />
 //             </div>
 //     </div>
@@ -129,30 +129,25 @@
 
 // export default page;
 
-
-
-
-"use client"
-import FileUpload from '@/components/dashboard/file-upload'
-import { ContinueReading } from '@/components/dashboard/StudyDashboard'
-import SubjectFolders from '@/components/dashboard/SubjectFolders'
-import SubjectsFiles from '@/components/note/SubjectFiles'
-import React from 'react'
+"use client";
+import FileUpload from "@/components/dashboard/file-upload";
+import { ContinueReading } from "@/components/dashboard/StudyDashboard";
+import SubjectFolders from "@/components/dashboard/SubjectFolders";
+import SubjectsFiles from "@/components/note/SubjectFiles";
+import React from "react";
 
 const page = () => {
   return (
-    <div className='h-[85vh] overflow-auto scrollbar-hidden'>
-
-      <div className='mb-20'>
-      <FileUpload/>
+    <div className="h-[85vh] overflow-auto scrollbar-hidden">
+      <div className="mb-20">
+        <FileUpload />
       </div>
-      <div className='flex gap-8 '>
-      <SubjectsFiles fileType='pdf'/>
-      <ContinueReading/>
+      <div className="flex gap-8 ">
+        <SubjectsFiles fileType="pdf" />
+        <ContinueReading />
       </div>
-
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

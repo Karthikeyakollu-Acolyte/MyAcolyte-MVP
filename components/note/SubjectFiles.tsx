@@ -144,7 +144,7 @@ const SubjectsFiles: React.FC<SubjectsFilesProps> = ({ fileType }) => {
           <div
             key={file.id}
             className="cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => handleFileClick(file.documentId || "")}
+            onClick={() => handleFileClick(file.id || "")}
           >
 
             <Image
@@ -156,7 +156,7 @@ const SubjectsFiles: React.FC<SubjectsFilesProps> = ({ fileType }) => {
               <p className="text-xs font-medium text-gray-900 truncate">
                 {file.name || "Untitled"}
               </p>
-              <p className="text-xs text-gray-500">{file.uploadTime}</p>
+              <p className="text-xs text-gray-500">{file.uploadTime} </p>
             </div>
           </div>
         ))}

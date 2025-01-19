@@ -1,15 +1,20 @@
 "use client";
 import React from "react";
 import {
-  LineChart,
-  Line,
-  AreaChart,
   Area,
   ResponsiveContainer,
-  PieChart,
   Pie,
   Cell,
 } from "recharts";
+
+
+import dynamic from "next/dynamic";
+
+const LineChart = dynamic(() => import("recharts").then((mod) => mod.LineChart), { ssr: false });
+const AreaChart = dynamic(() => import("recharts").then((mod) => mod.AreaChart), { ssr: false });
+const PieChart = dynamic(() => import("recharts").then((mod) => mod.PieChart), { ssr: false });
+
+
 
 const TrackerDashboard = () => {
   // Generate smooth wave-like data for subject activity

@@ -1,10 +1,10 @@
 // FileList.jsx
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { MoreVertical, AlertCircle } from "lucide-react";
 import { Upload } from "lucide-react";
 import { addPdf, getAllPdfs } from "@/db/pdf/docs";
 import FileSystem from "./FileSystem";
-import {v4 as uuidv4} from "uuid"
+import { v4 as uuidv4 } from "uuid";
 const FileList = ({ files }) => {
   return (
     <div className="w-full py-2 px-8">
@@ -65,8 +65,7 @@ const FileUpload = () => {
   const [currentPath, setCurrentPath] = useState("");
   const [documentId, setDocumentId] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
-  const [file, setfile] = useState()
-
+  const [file, setfile] = useState();
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -100,7 +99,7 @@ const FileUpload = () => {
   };
 
   const handleFiles = async (newFiles) => {
-    const id = uuidv4()
+    const id = uuidv4();
     const filesWithProgress = newFiles.map((file) => ({
       id: id,
       name: file.name,
@@ -111,9 +110,9 @@ const FileUpload = () => {
       file, // Include the actual file object
     }));
 
-    setDocumentId(id)
-    setfile(filesWithProgress[0])
-    setFileName(newFiles[0].name)
+    setDocumentId(id);
+    setfile(filesWithProgress[0]);
+    setFileName(newFiles[0].name);
 
     setUploadingFiles((prev) => [...prev, ...filesWithProgress]);
 
@@ -122,10 +121,9 @@ const FileUpload = () => {
     // }
   };
 
-
-  const saveFile= async()=>{
+  const saveFile = async () => {
     await uploadFile(file);
-  }
+  };
 
   const uploadFile = async (file) => {
     const reader = new FileReader();
@@ -332,7 +330,7 @@ const FileUpload = () => {
               fileType="pdf"
               file={{
                 documentId,
-                fileName
+                fileName,
               }}
               saveFile={saveFile}
             />
@@ -344,3 +342,198 @@ const FileUpload = () => {
 };
 
 export default FileUpload;
+
+// FileUploadWrapper Component
+export const FileUploadWrapper = ({ isUploadPdf, setIsOpen, fileType }) => {
+  const [uploadingFiles, setUploadingFiles] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [currentPath, setCurrentPath] = useState("");
+  const [documentId, setDocumentId] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState(null);
+  const [showFileSystem, setShowFileSystem] = useState(false);
+  const fileInputRef = useRef(null);
+  const hasTriggeredRef = useRef(false);
+
+  const handleFileInput = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    if (selectedFiles.length > 0) {
+      handleFiles(selectedFiles);
+    }
+    // Reset the input value to allow selecting the same file again
+    e.target.value = "";
+  };
+
+  const handleFiles = async (newFiles) => {
+    const id = uuidv4();
+    const filesWithProgress = newFiles.map((file) => ({
+      id: id,
+      name: file.name,
+      size: formatFileSize(file.size),
+      progress: 0,
+      status: "uploading",
+      uploadTime: "Just now",
+      file,
+    }));
+    setShowFileSystem(true);
+
+    setDocumentId(id);
+    setFile(filesWithProgress[0]);
+
+    setFileName(newFiles[0].name);
+
+    setUploadingFiles((prev) => [...prev, ...filesWithProgress]);
+  };
+
+  const saveFile = async () => {
+    if (!file) {
+      setShowFileSystem(false);
+      setIsOpen(false);
+      return;
+    }
+    await uploadFile(file);
+    setShowFileSystem(false);
+    setIsOpen(false);
+  };
+
+  const handleOutsideClick = (e) => {
+    if (e.target.classList.contains("bg-black")) {
+      setShowFileSystem(false);
+      setUploadingFiles([]);
+      setIsOpen(false);
+    }
+  };
+
+  const uploadFile = async (file) => {
+    const reader = new FileReader();
+
+    reader.onload = async (event) => {
+      try {
+        const base64 = event.target.result;
+        await addPdf({
+          documentId: file.id,
+          name: file.name,
+          size: file.size,
+          uploadTime: new Date().toLocaleString(),
+          base64,
+          status: "complete",
+        });
+
+        setUploadingFiles((prev) => prev.filter((f) => f.id !== file.id));
+        setFiles((prev) => [
+          {
+            id: file.id,
+            name: file.name,
+            size: file.size,
+            uploadTime: new Date().toLocaleString(),
+            status: "complete",
+          },
+          ...prev,
+        ]);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        setUploadingFiles((prev) =>
+          prev.map((f) => (f.id === file.id ? { ...f, status: "error" } : f))
+        );
+      }
+    };
+
+    reader.onerror = () => {
+      console.error("Error reading file:", reader.error);
+      setUploadingFiles((prev) =>
+        prev.map((f) => (f.id === file.id ? { ...f, status: "error" } : f))
+      );
+    };
+
+    reader.readAsDataURL(file.file);
+  };
+
+  const formatFileSize = (size) => {
+    return size < 1024
+      ? size + " bytes"
+      : size < 1048576
+      ? (size / 1024).toFixed(2) + " KB"
+      : (size / 1048576).toFixed(2) + " MB";
+  };
+
+  const fetchFilesFromIndexedDB = async () => {
+    const pdfs = await getAllPdfs();
+    setFiles(pdfs);
+  };
+
+  useEffect(() => {
+    fetchFilesFromIndexedDB();
+  }, []);
+
+  // Modified effect to prevent double triggering
+  useEffect(() => {
+    if (fileType === "note") {
+      const id = uuidv4();
+      setShowFileSystem(true);
+      setFileName(id);
+      setDocumentId(id);
+      return;
+    }
+    if (
+      isUploadPdf &&
+      uploadingFiles.length === 0 &&
+      !hasTriggeredRef.current
+    ) {
+      hasTriggeredRef.current = true;
+      fileInputRef.current?.click();
+    }
+
+    // Reset the trigger state when isUploadPdf becomes false
+    if (!isUploadPdf) {
+      hasTriggeredRef.current = false;
+    }
+
+    // Cleanup function
+    return () => {
+      if (!isUploadPdf) {
+        hasTriggeredRef.current = false;
+      }
+    };
+  }, [isUploadPdf, uploadingFiles.length]);
+
+  return (
+    <div className="cursor-pointer">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileInput}
+        className="hidden"
+        accept=".pdf"
+      />
+      {showFileSystem && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center"
+          style={{ zIndex: 10 }}
+          onClick={handleOutsideClick}
+        >
+          {/* Background Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br opacity-80"></div>
+
+          {/* Main Content Container */}
+          <div className="relative w-4/5 max-w-2xl bg-white rounded-lg shadow-lg p-6 z-20">
+            <FileSystem
+              currentPath={currentPath}
+              setCurrentPath={setCurrentPath}
+              fileType={fileType}
+              file={{
+                documentId,
+                fileName,
+              }}
+              saveFile={saveFile}
+              onClose={() => {
+                setShowFileSystem(false);
+                setUploadingFiles([]);
+                setIsOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

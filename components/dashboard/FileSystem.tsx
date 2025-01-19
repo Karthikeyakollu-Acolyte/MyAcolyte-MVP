@@ -290,8 +290,9 @@ export default function FileSystem({
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <div className="text-sm text-center group absolute top-1/2 mt-1 ">
-                  <span>{item.name}</span>
+                <div className={`text-sm text-center group ${!item.fileType?"absolute":''} top-1/2 mt-1`}>
+                  
+                  <span > {item.name}</span>
                   <Button
                     variant="ghost"
                     size="icon"

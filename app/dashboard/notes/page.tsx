@@ -50,7 +50,6 @@
 //         }
 //     }, [notes]); // Fetch updatedAt every time pdfs change
 
-
 //     const createNote = async () => {
 //         console.log("creating moted")
 
@@ -67,7 +66,6 @@
 //             alert('Failed to save the PDF. Please try again.');
 //         }
 //     };
-
 
 //     // Function to handle PDF deletion
 //     const removeNote = async (documentId: string) => {
@@ -142,17 +140,14 @@
 //                 </div>
 //             </div>
 
-
 //                         <div className='h-[30vh] border-2 mt-20'>
 //                         <FileSystem
 //                              currentPath={currentPath}
 //                              setCurrentPath={setCurrentPath}
 //                              fileType="note"
-               
+
 //                            />
 //                         </div>
-
-
 
 //                         {isOverlayOpen && (
 //         <div
@@ -195,25 +190,22 @@
 
 // export default page;
 
-
-
-"use client"
-import FlashCards from '@/components/dashboard/FlashCards'
-import SubjectFolders from '@/components/note/SubjectRecentFiles'
-import SubjectsFiles from '@/components/note/SubjectFiles'
-import React from 'react'
+"use client";
+import FlashCards from "@/components/dashboard/FlashCards";
+import SubjectFolders from "@/components/note/SubjectRecentFiles";
+import SubjectsFiles from "@/components/note/SubjectFiles";
+import React from "react";
 
 const page = () => {
   return (
     <div>
-<SubjectFolders/>
-<div className='flex gap-8 mt-20 mb-20'>
-<FlashCards/>
-<SubjectsFiles fileType='note'/>
-</div>
-       
+      <SubjectFolders />
+      <div className="flex gap-8 mt-20 mb-20">
+        <FlashCards />
+        <SubjectsFiles fileType="note" />
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
