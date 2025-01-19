@@ -136,7 +136,7 @@
 import FileUpload from '@/components/dashboard/file-upload'
 import { ContinueReading } from '@/components/dashboard/StudyDashboard'
 import SubjectFolders from '@/components/dashboard/SubjectFolders'
-import SubjectsFiles from '@/components/dashboard/Subjects'
+import SubjectsFiles from '@/components/note/SubjectFiles'
 import React from 'react'
 
 const page = () => {
@@ -147,7 +147,7 @@ const page = () => {
       <FileUpload/>
       </div>
       <div className='flex gap-8 '>
-      <SubjectsFiles/>
+      <SubjectsFiles fileType='pdf'/>
       <ContinueReading/>
       </div>
 

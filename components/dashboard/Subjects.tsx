@@ -50,7 +50,7 @@ const SubjectsFiles = () => {
               )}
             </button>
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+              <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg">
                 {dropdownOptions.map((option, index) => (
                   <button
                     key={index}

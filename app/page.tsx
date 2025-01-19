@@ -1,6 +1,6 @@
 "use client";
 import TodoNotes from "@/components/dashboard/Todo";
-import FileSystem from "@/components/FileSystem";
+import FileSystem from "@/components/dashboard/FileSystem";
 import FolderTree from "@/components/dashboard/FolderTree";
 import { useState } from "react";
 import FolderTree1 from "@/components/dashboard/FolderTree-1";

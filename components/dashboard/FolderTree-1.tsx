@@ -106,11 +106,11 @@ const FolderTree = () => {
     <div className="w-full bg-white">
       <div className="flex items-center justify-between">
         <DropdownMenu>
-          {/* <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="hover:bg-gray-100 text-end">
               <Plus className="h-5 w-5" />
             </Button>
-          </DropdownMenuTrigger> */}
+          </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={handleCreatePdf}>
               <File className="mr-2 h-4 w-4" />

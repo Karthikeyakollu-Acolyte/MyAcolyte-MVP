@@ -3,6 +3,8 @@ import { useState, useCallback, useEffect } from "react";
 import { MoreVertical, AlertCircle } from "lucide-react";
 import { Upload } from "lucide-react";
 import { addPdf, getAllPdfs } from "@/db/pdf/docs";
+import FileSystem from "./FileSystem";
+import {v4 as uuidv4} from "uuid"
 const FileList = ({ files }) => {
   return (
     <div className="w-full py-2 px-8">
@@ -53,16 +55,18 @@ const FileList = ({ files }) => {
   );
 };
 
-
 // FileUpload.jsx
-
-
 
 const FileUpload = () => {
   const [activeTab, setActiveTab] = useState("upload");
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState([]);
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<any>(null);
+  const [currentPath, setCurrentPath] = useState("");
+  const [documentId, setDocumentId] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
+  const [file, setfile] = useState()
+
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -81,7 +85,6 @@ const FileUpload = () => {
     e.stopPropagation();
   };
 
-
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -96,10 +99,10 @@ const FileUpload = () => {
     handleFiles(selectedFiles);
   };
 
-
   const handleFiles = async (newFiles) => {
+    const id = uuidv4()
     const filesWithProgress = newFiles.map((file) => ({
-      id: Math.random().toString(36).substr(2, 9),
+      id: id,
       name: file.name,
       size: formatFileSize(file.size),
       progress: 0,
@@ -107,22 +110,31 @@ const FileUpload = () => {
       uploadTime: "Just now",
       file, // Include the actual file object
     }));
-  
+
+    setDocumentId(id)
+    setfile(filesWithProgress[0])
+    setFileName(newFiles[0].name)
+
     setUploadingFiles((prev) => [...prev, ...filesWithProgress]);
-  
-    for (const file of filesWithProgress) {
-      await uploadFile(file);
-    }
+
+    // for (const file of filesWithProgress) {
+    //   await uploadFile(file);
+    // }
   };
-  
+
+
+  const saveFile= async()=>{
+    await uploadFile(file);
+  }
+
   const uploadFile = async (file) => {
     const reader = new FileReader();
-  
+
     reader.onload = async (event) => {
       try {
         // Convert file to base64
         const base64 = event.target.result;
-  
+
         // Store file in IndexedDB
         await addPdf({
           documentId: file.id,
@@ -132,7 +144,7 @@ const FileUpload = () => {
           base64, // Save the base64-encoded content
           status: "complete",
         });
-  
+
         // Update state to reflect completion
         setUploadingFiles((prev) => prev.filter((f) => f.id !== file.id));
         setFiles((prev) => [
@@ -148,25 +160,21 @@ const FileUpload = () => {
       } catch (error) {
         console.error("Error uploading file:", error);
         setUploadingFiles((prev) =>
-          prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error" } : f
-          )
+          prev.map((f) => (f.id === file.id ? { ...f, status: "error" } : f))
         );
       }
     };
-  
+
     reader.onerror = () => {
       console.error("Error reading file:", reader.error);
       setUploadingFiles((prev) =>
-        prev.map((f) =>
-          f.id === file.id ? { ...f, status: "error" } : f
-        )
+        prev.map((f) => (f.id === file.id ? { ...f, status: "error" } : f))
       );
     };
-  
+
     reader.readAsDataURL(file.file);
   };
-  
+
   // Utility function for formatting file size
   const formatFileSize = (size) => {
     return size < 1024
@@ -175,17 +183,16 @@ const FileUpload = () => {
       ? (size / 1024).toFixed(2) + " KB"
       : (size / 1048576).toFixed(2) + " MB";
   };
-  
+
   // Example function to fetch all files from IndexedDB
   const fetchFilesFromIndexedDB = async () => {
     const pdfs = await getAllPdfs();
     setFiles(pdfs);
   };
 
-  useEffect(()=>{
-    fetchFilesFromIndexedDB()
-  },[])
-  
+  useEffect(() => {
+    fetchFilesFromIndexedDB();
+  }, []);
 
   const clearUploads = () => {
     setUploadingFiles([]);
@@ -312,6 +319,26 @@ const FileUpload = () => {
 
         {activeTab === "recent" && <FileList files={files} />}
       </div>
+
+      {uploadingFiles.length > 0 && (
+        <div
+          className="fixed top-0 left-0 w-full h-full bg-[#464444a0]  flex justify-center items-center"
+          style={{ zIndex: 100 }}
+        >
+          <div className="h-[30vh] w-[80%] border-2 mt-20 bg-[#F6F7F9] rounded-xl overflow-auto">
+            <FileSystem
+              currentPath={currentPath}
+              setCurrentPath={setCurrentPath}
+              fileType="pdf"
+              file={{
+                documentId,
+                fileName
+              }}
+              saveFile={saveFile}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { addPdf } from "@/db/pdf/docs";
 import { useRouter } from "next/navigation";
 import { FileUploadComponent } from "../ui/file-upload";
-import FileSystem from "@/components/FileSystem";
+import FileSystem from "@/components/dashboard/FileSystem";
 
 const FileUpload = () => {
   const router = useRouter();

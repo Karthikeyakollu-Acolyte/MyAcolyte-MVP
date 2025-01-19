@@ -209,7 +209,7 @@ const page = () => {
 <SubjectFolders/>
 <div className='flex gap-8 mt-20 mb-20'>
 <FlashCards/>
-<SubjectsFiles/>
+<SubjectsFiles fileType='note'/>
 </div>
        
     </div>
