@@ -11,20 +11,27 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchNotesFromDB, syncNotesToDB } from "@/db/Todo";
 import Image from "next/image";
-import logo from "@/public/acolytelogo.svg"
-
+import logo from "@/public/acolytelogo.svg";
 
 // Filter Dropdown Component
-const FilterDropdown = ({ filterOpen, setFilterOpen, activeFilter, setActiveFilter, filterOptions }) => {
+const FilterDropdown = ({
+  filterOpen,
+  setFilterOpen,
+  activeFilter,
+  setActiveFilter,
+  filterOptions,
+}) => {
   return (
-    <div className="relative mb-4">
+    <div className="relative  mt-10 w-[210px] h-[41px] mb-10 ">
       <motion.button
-        className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm"
+        className="flex w-full h-full items-center  border-2 justify-around gap-2 px-4 py-2 bg-white rounded-xl shadow-md"
         onClick={() => setFilterOpen(!filterOpen)}
         whileTap={{ scale: 0.98 }}
       >
-        <Filter size={16} className="text-gray-600" />
-        <span className="text-gray-600">Filter</span>
+        <div className="flex items-center gap-2">
+          <Filter size={16} className="text-gray-600" />
+          <span className="text-gray-600 text-lg">Filter</span>
+        </div>
         <motion.div
           animate={{ rotate: filterOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
@@ -39,7 +46,7 @@ const FilterDropdown = ({ filterOpen, setFilterOpen, activeFilter, setActiveFilt
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-12 left-0 bg-white rounded-xl shadow-lg p-2 z-10 min-w-[120px]"
+            className="absolute top-12 left-0 bg-white rounded-xl shadow-lg p-2 z-10 min-w-[120px] "
           >
             {filterOptions.map((option) => (
               <motion.button
@@ -199,7 +206,9 @@ const CreateTodoForm = ({ newTodo, setNewTodo, addTodo, setIsCreating }) => {
         type="text"
         placeholder="Enter sub heading"
         value={newTodo.description}
-        onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
+        onChange={(e) =>
+          setNewTodo({ ...newTodo, description: e.target.value })
+        }
         className="w-full mb-4 p-2 border-b border-gray-100 focus:outline-none focus:border-gray-300"
       />
 
@@ -278,7 +287,6 @@ const CreateTodoForm = ({ newTodo, setNewTodo, addTodo, setIsCreating }) => {
     </motion.div>
   );
 };
-
 
 const TodoList = () => {
   const [isCreating, setIsCreating] = useState(false);
@@ -371,15 +379,17 @@ const TodoList = () => {
   const filterOptions = ["All", "High", "Low"];
 
   return (
-    <div className="w-[356px] h-[873px]">
-      <div className="max-w-full mx-auto">
-        <FilterDropdown
-          filterOpen={filterOpen}
-          setFilterOpen={setFilterOpen}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
-          filterOptions={filterOptions}
-        />
+    <div className="w-[356px] h-[873px] mr-10">
+      <div className="max-w-full mx-auto ">
+        <div className="flex justify-end">
+          <FilterDropdown
+            filterOpen={filterOpen}
+            setFilterOpen={setFilterOpen}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            filterOptions={filterOptions}
+          />
+        </div>
 
         <div className="bg-[#f6f7f9] rounded-2xl p-4 w-[354px] h-[685px]">
           <div className="flex items-center justify-between mb-4">
@@ -425,18 +435,17 @@ const TodoList = () => {
           </AnimatePresence>
         </div>
 
-        <div  className="w-[354px] h-[68px] bg-[#f6f7f9] rounded-2xl mt-10 flex items-center justify-center">
-         <div className="w-[268px] h-[43px] flex items-center justify-around">
-         <Image src={logo} alt="s"  className="w-[60px] h-[43px]"/>
-         <p className=" text-[#553c9a] text-xl font-semibold">Acolyte Chat Bot</p>
-         </div>
+        <div className="w-[354px] h-[68px] bg-[#f6f7f9] rounded-2xl mt-10 flex items-center justify-center">
+          <div className="w-[268px] h-[43px] flex items-center justify-around">
+            <Image src={logo} alt="s" className="w-[60px] h-[43px]" />
+            <p className=" text-[#553c9a] text-xl font-semibold">
+              Acolyte Chat Bot
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
-
-
 
 export default TodoList;

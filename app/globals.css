@@ -479,3 +479,74 @@ html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):n
 .current-highlight{
   background-color: rgb(169, 169, 97);
 }
+
+
+
+
+/* styles.css */
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.app-content {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  transform-origin: top left;
+  transition: transform 0.3s ease;
+}
+
+/* Default mobile first approach */
+@media (max-width: 767px) {
+  .app-content {
+    transform: scale(0.26);
+    width: 384.6%; /* 100/0.26 to maintain content size */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .app-content {
+    transform: scale(0.4);
+    width: 250%; /* 100/0.4 */
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .app-content {
+    transform: scale(0.53);
+    width: 188.7%; /* 100/0.53 */
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1535px) {
+  .app-content {
+    transform: scale(0.68);
+    width: 145%; /* 100/0.8 */
+  }
+}
+
+@media (min-width: 1536px) and (max-width: 1919px) {
+  .app-content {
+    transform: scale(0.9);
+    width: 111.1%; /* 100/0.9 */
+  }
+}
+
+@media (min-width: 1920px) {
+  .app-content {
+    transform: scale(1);
+    width: 100%;
+  }
+}
+
+/* Utility classes */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -6,13 +6,6 @@ import Image from "next/image";
 import FileSystem from "./FileSystem";
 
 const SubjectFolders = () => {
-  const folders = [
-    { label: "New", section: "Introduction" },
-    { label: "Data Science", section: "Core Concepts" },
-    { label: "Data Science", section: "Machine Learning" },
-    { label: "Data Science", section: "Statistics" },
-    { label: "Data Science", section: "Deep Learning" },
-];
 
 
   const [currentPath, setCurrentPath] = useState('')

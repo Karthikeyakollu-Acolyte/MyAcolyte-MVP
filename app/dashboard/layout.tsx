@@ -14,40 +14,29 @@ import TodoList from '@/components/dashboard/Todo'
 
 type Props = {}
 
-const Layout = ({ children }:any) => {
+const Layout: React.FC = ({ children }) => {
     return (
-        <div>
-            <RefsProvider>
-                <ToolProvider>
-                    <SettingsProvider>
-
-                        <CanvasProvider>
-                            <div className="flex flex-col   w-[1920px] h-screen overflow-hidden">
-                                <div>
-                                    <DashHeader />
-                                </div>
-
-                                <div className="flex">
-                                    <SidebarNav />
-                                    <main className="w-[1229px] h-[1113px] overflow-auto scrollbar-hidden  p-10">
-                                        <div className="">
-                                            {children}
-                                        </div>
-                                    </main>
-                                    {/* <TodoNotes /> */}
-                                    <TodoList /> 
-                                </div>
-                            </div>
-
-                           
-                        </CanvasProvider>
-
-                    </SettingsProvider>
-                </ToolProvider>
-            </RefsProvider>
-
-        </div>
-    )
-}
+      <div className="app-container overflow-hidden h-screen">
+        <RefsProvider>
+          <ToolProvider>
+            <SettingsProvider>
+              <CanvasProvider>
+                <div className="app-content">
+                  <DashHeader />
+                  <div className="flex min-h-0">
+                    <SidebarNav />
+                    <main className="flex-1 overflow-auto h-screen scrollbar-hidden p-10">
+                      {children}
+                    </main>
+                    <TodoList />
+                  </div>
+                </div>
+              </CanvasProvider>
+            </SettingsProvider>
+          </ToolProvider>
+        </RefsProvider>
+      </div>
+    );
+  };
 
 export default Layout

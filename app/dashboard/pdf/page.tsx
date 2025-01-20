@@ -138,15 +138,14 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="overflow-auto h-[1113px] scrollbar-hidden">
+    <div className="">
       <div className="mb-20">
         <FileUpload />
       </div>
-      <div className="flex gap-8 ">
+      <div className="flex gap-8 mb-20">
         <SubjectsFiles fileType="pdf" />
         <ContinueReading />
       </div>
-
     </div>
   );
 };

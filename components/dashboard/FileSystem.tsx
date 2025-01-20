@@ -11,6 +11,7 @@ import Subjects from "@/public/folder.svg";
 import Image from "next/image";
 import PlainNote from "@/public/noteplain.svg";
 import PdfFile from "@/public/pdf-file.svg";
+import { useRouter } from "next/navigation";
 
 interface FileSystemItem {
   id: string;
@@ -41,6 +42,7 @@ export default function FileSystem({
   const [fileSystem, setFileSystem] = useState<FileSystemItem[]>([]);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
+  const router = useRouter();
 
   // Fetch file system data
   const fetchFileSystem = useCallback(async () => {
@@ -97,14 +99,15 @@ export default function FileSystem({
           if (item.fileType === "pdf") {
             const doc = await getPdfById(item.id);
             if (doc) {
-              console.log("PDF Document content:", doc.base64);
-              alert(`Opened PDF file: ${item.name}`);
+              router.push(`/pdfnote/${item.id}`);
+              // alert(`Opened PDF file: ${item.name}`);
             }
           } else if (item.fileType === "note") {
             const note = await getNoteById(item.id);
             if (note) {
               console.log("Note content:", note);
-              alert(`Opened Note file: ${item.name}`);
+              router.push(`/note/${item.id}`);
+              // alert(`Opened Note file: ${item.name}`);
             }
           }
         } catch (error) {
