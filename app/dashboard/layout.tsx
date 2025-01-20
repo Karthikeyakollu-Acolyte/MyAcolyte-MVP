@@ -22,17 +22,16 @@ const Layout = ({ children }:any) => {
                     <SettingsProvider>
 
                         <CanvasProvider>
-                            <div className="flex flex-col  w-[1920px] h-screen overflow-hidden">
+                            <div className="flex flex-col   w-[1920px] h-screen overflow-hidden">
                                 <div>
                                     <DashHeader />
                                 </div>
 
                                 <div className="flex">
                                     <SidebarNav />
-                                    <main className="w-[1229px]  p-10">
+                                    <main className="w-[1229px] h-[1113px] overflow-auto scrollbar-hidden  p-10">
                                         <div className="">
                                             {children}
-
                                         </div>
                                     </main>
                                     {/* <TodoNotes /> */}
