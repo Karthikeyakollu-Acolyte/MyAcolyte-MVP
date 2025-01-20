@@ -198,9 +198,9 @@ import React from "react";
 
 const page = () => {
   return (
-    <div>
+    <div className="overflow-auto h-[1113px] scrollbar-hidden">
       <SubjectFolders />
-      <div className="flex gap-8 mt-20 mb-20">
+      <div className="flex  gap-8 mt-20 mb-20  ">
         <FlashCards />
         <SubjectsFiles fileType="note" />
       </div>

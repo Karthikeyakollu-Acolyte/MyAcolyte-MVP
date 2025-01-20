@@ -10,6 +10,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchNotesFromDB, syncNotesToDB } from "@/db/Todo";
+import Image from "next/image";
+import logo from "@/public/acolytelogo.svg"
+
 
 // Filter Dropdown Component
 const FilterDropdown = ({ filterOpen, setFilterOpen, activeFilter, setActiveFilter, filterOptions }) => {
@@ -369,7 +372,7 @@ const TodoList = () => {
 
   return (
     <div className="w-[356px] h-[873px]">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-full mx-auto">
         <FilterDropdown
           filterOpen={filterOpen}
           setFilterOpen={setFilterOpen}
@@ -378,7 +381,7 @@ const TodoList = () => {
           filterOptions={filterOptions}
         />
 
-        <div className="bg-[#e5eaf4] rounded-2xl p-4 w-[354px] h-[685px]">
+        <div className="bg-[#f6f7f9] rounded-2xl p-4 w-[354px] h-[685px]">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
@@ -420,6 +423,13 @@ const TodoList = () => {
               />
             )}
           </AnimatePresence>
+        </div>
+
+        <div  className="w-[354px] h-[68px] bg-[#f6f7f9] rounded-2xl mt-10 flex items-center justify-center">
+         <div className="w-[268px] h-[43px] flex items-center justify-around">
+         <Image src={logo} alt="s"  className="w-[60px] h-[43px]"/>
+         <p className=" text-[#553c9a] text-xl font-semibold">Acolyte Chat Bot</p>
+         </div>
         </div>
       </div>
     </div>

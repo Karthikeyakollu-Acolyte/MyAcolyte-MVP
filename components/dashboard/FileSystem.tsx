@@ -9,8 +9,8 @@ import { getPdfById } from "@/db/pdf/docs";
 import { getNoteById } from "@/db/note/Note";
 import Subjects from "@/public/folder.svg";
 import Image from "next/image";
-import PlainNote from "@/public/noteplain.svg"
-import PdfFile from "@/public/pdf-file.svg"
+import PlainNote from "@/public/noteplain.svg";
+import PdfFile from "@/public/pdf-file.svg";
 
 interface FileSystemItem {
   id: string;
@@ -192,20 +192,19 @@ export default function FileSystem({
     if (item.type === "folder") {
       return <Image src={Subjects} alt="folder" />;
     }
-  
+
     if (item.type === "file") {
-      console.log(item)
-      if (item.fileType==="note") {
+      console.log(item);
+      if (item.fileType === "note") {
         return <Image src={PlainNote} alt="plainNote" />;
-      } else if (item.fileType==="pdf") {
+      } else if (item.fileType === "pdf") {
         return <Image src={PdfFile} alt="pdfFile" />;
-      } 
+      }
     }
-  
+
     // Default case (if no matching type is found)
     return null;
   };
-  
 
   return (
     <div className="flex flex-col  w-full h-full">
@@ -243,12 +242,12 @@ export default function FileSystem({
 
       <div className="flex-1 p-4 overflow-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 ">
-          
-        {!currentFolder &&  <div
-            className="flex flex-col items-center cursor-pointer  justify-center relative"
-            onClick={handleCreateFolder}
-          >
-            <Image src={Subjects} alt="s"/>
+          {!currentFolder && (
+            <div
+              className="flex flex-col items-center cursor-pointer  justify-center relative"
+              onClick={handleCreateFolder}
+            >
+              <Image src={Subjects} alt="s" />
 
               <div className="mt-1 text-sm text-center absolute group top-1/2">
                 <span>New</span>
@@ -256,16 +255,11 @@ export default function FileSystem({
                   variant="ghost"
                   size="icon"
                   className="absolute -right-6 top-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-
-                  }}
-                >
-                </Button>
+                  onClick={(e) => {}}
+                ></Button>
               </div>
-
-          </div>}
-
-
+            </div>
+          )}
 
           {getCurrentItems().map((item) => (
             <div
@@ -290,9 +284,17 @@ export default function FileSystem({
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <div className={`text-sm text-center group ${!item.fileType?"absolute":''} top-1/2 mt-1`}>
-                  
-                  <span > {item.name}</span>
+                <div
+                  className={`text-sm text-center group ${
+                    !item.fileType ? "absolute" : ""
+                  } top-1/2 mt-1`}
+                >
+                  <div className="w-28">
+                    <p className="truncate overflow-hidden whitespace-nowrap text-ellipsis">
+                      {item.name}
+                    </p>
+                  </div>
+
                   <Button
                     variant="ghost"
                     size="icon"

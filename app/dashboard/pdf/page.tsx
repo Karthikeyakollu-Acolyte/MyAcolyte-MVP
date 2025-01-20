@@ -138,7 +138,7 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="h-[85vh] overflow-auto scrollbar-hidden">
+    <div className="overflow-auto h-[1113px] scrollbar-hidden">
       <div className="mb-20">
         <FileUpload />
       </div>
@@ -146,6 +146,7 @@ const page = () => {
         <SubjectsFiles fileType="pdf" />
         <ContinueReading />
       </div>
+
     </div>
   );
 };

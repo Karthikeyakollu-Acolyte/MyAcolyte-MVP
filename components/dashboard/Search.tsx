@@ -118,7 +118,7 @@ const Search = () => {
     <div className="relative">
       <div
         ref={searchBarRef}
-        className="fixed top-0 left-0 right-0 flex justify-center z-50 mt-4"
+        className=""
       >
         <form
           className="w-[850px] relative group"
@@ -127,7 +127,7 @@ const Search = () => {
             handleSearch();
           }}
         >
-          <div className="relative w-full h-[43px] group-hover:h-[68px] bg-white rounded-[18px] shadow-lg border border-gray-300 overflow-hidden transition-all duration-300 ease-in-out">
+          <div className="relative w-full h-[46px] group-hover:h-[68px] bg-white rounded-[18px] shadow-lg border border-gray-300 overflow-hidden transition-all duration-300 ease-in-out">
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 ml-4">
               <Image src={pdfsearch} alt="Search Icon" width={16} height={16} />
             </div>

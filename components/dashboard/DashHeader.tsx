@@ -14,7 +14,7 @@ export function DashHeader() {
     // console.log("this is ckuicked");
   };
   return (
-    <header className="w-[1920px] h-[94px] border-b bg-white flex items-center justify-between px-4">
+    <header className="w-[1920px]  h-[87px] border-b flex items-center justify-between px-4">
       {/* Logo */}
       <div className="flex items-center gap-4">
         <div className="">
@@ -22,7 +22,9 @@ export function DashHeader() {
         </div>
 
         {/* Search Bar */}
-        <Search />
+        <div className="flex justify-center z-50 absolute w-[1920px]">
+          <Search />
+        </div>
       </div>
 
       {/* Right Icons and User Info */}
@@ -41,7 +43,7 @@ export function DashHeader() {
         <div
           className="flex items-center gap-3 ml-2 p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 cursor-pointer"
           onClick={handleProfileClick}
-          style={{zIndex:999}}
+          style={{ zIndex: 999 }}
           // variant={"ghost"}
         >
           {/* User Details Section */}

@@ -104,7 +104,7 @@ const SubjectsFiles: React.FC<SubjectsFilesProps> = ({ fileType }) => {
   return (
     <div className="w-[529px] h-[431px] mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-medium text-green-800">Subject</h2>
+        <h2 className="text-2xl  font-semibold text-green-700">Subject</h2>
         <div className="flex gap-3">
           <Button className="px-4 py-2 bg-[#38A169] text-white rounded-full text-sm font-medium hover:bg-green-600 transition-colors">
             New Upload

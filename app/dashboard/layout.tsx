@@ -22,15 +22,15 @@ const Layout = ({ children }:any) => {
                     <SettingsProvider>
 
                         <CanvasProvider>
-                            <div className="flex flex-col bg-[#FFFFFF] w-full h-screen overflow-hidden">
+                            <div className="flex flex-col  w-[1920px] h-screen overflow-hidden">
                                 <div>
                                     <DashHeader />
                                 </div>
 
                                 <div className="flex">
                                     <SidebarNav />
-                                    <main className="flex-1 p-10 pl-16">
-                                        <div className="max-w-6xl">
+                                    <main className="w-[1229px]  p-10">
+                                        <div className="">
                                             {children}
 
                                         </div>

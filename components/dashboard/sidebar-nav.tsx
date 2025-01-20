@@ -29,6 +29,7 @@ import { FileUploadWrapper } from "./file-upload";
 import FileNote from "@/public/noteplain.svg";
 import PdfFile from "@/public/pdf-file.svg";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 
 const menuItems = [
@@ -102,6 +103,7 @@ export function SidebarNav() {
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [fileType, setFileType] = useState<"note"| "pdf">()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchFolders = async () => {
@@ -165,6 +167,12 @@ export function SidebarNav() {
     return allFiles.slice(0, 3); // Return only the 3 most recent files
   };
 
+  const handelOpenDocs = (route) => {
+      // Relative path, navigate within the Next.js app
+      router.push(route);
+
+  };
+  
   const baseLinkStyles =
     "w-[249px] h-[39px] flex items-center gap-3 px-3 py-2 text-lg font-rubik rounded-lg";
   const activeLinkStyles = "bg-purple-50 text-purple-600";
@@ -193,9 +201,9 @@ export function SidebarNav() {
 
           {recentFiles.map((file, index) => (
             <motion.div key={file.id} custom={index} variants={itemVariants}>
-              <Link
-                href={`/${type === "pdf" ? "/pdfnote" : "/note"}/${file.id}`}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg"
+              <div
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer"
+                onClick={()=>{handelOpenDocs(`/${type === "pdf" ? "/pdfnote" : "/note"}/${file.id}`)}}
               >
                 <Image
                   className={`w-4 h-4`}
@@ -203,17 +211,18 @@ export function SidebarNav() {
                   alt="s"
                 />
                 <span className="truncate">{file.name}</span>
-              </Link>
+              </div>
             </motion.div>
           ))}
           <motion.div custom={recentFiles.length} variants={itemVariants}>
-            <Link
-              href={`/dashboard/${type === "pdf" ? "pdf" : "notes"}`}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-purple-600 hover:bg-gray-50 rounded-lg"
+            <div
+
+              onClick={()=>{handelOpenDocs(`/dashboard/${type === "pdf" ? "pdf" : "notes"}`)}}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-purple-600 hover:bg-gray-50 rounded-lg cursor-pointer"
             >
               {/* <Plus className="w-4 h-4" /> */}
               <span>View All</span>
-            </Link>
+            </div>
           </motion.div>
         </div>
       </motion.div>
@@ -229,7 +238,7 @@ export function SidebarNav() {
   }
 
   return (
-    <div className="w-[270px] min-h-screen border-r bg-white mt-3">
+    <div className="w-[275px] h-[1113px] border-r  mt-3">
 
       {isOpen && <FileUploadWrapper isUploadPdf={isOpen} setIsOpen={setIsOpen} fileType={fileType}/>}
 

@@ -6,7 +6,7 @@ const FlashCards = () => {
     <div className="w-[537px] h-[498px]  font-sans">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-emerald-700">My Flash Cards</h1>
+        <h1 className="text-2xl  font-semibold text-green-700">My Flash Cards</h1>
         <div className="flex items-center gap-2">
           <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
             <Search size={20} />

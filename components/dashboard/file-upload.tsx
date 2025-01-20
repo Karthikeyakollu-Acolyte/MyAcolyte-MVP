@@ -197,7 +197,7 @@ const FileUpload = () => {
   };
 
   return (
-    <div className="w-[1095px] h-[456px] mx-auto p-6">
+    <div className="w-[1095px] h-[456px] mx-auto">
       <div className="flex gap-3 mb-6">
         <button
           onClick={() => setActiveTab("upload")}

@@ -62,8 +62,8 @@ const SubjectFolders = () => {
   };
 
   return (
-    <div className="p-6 rounded-lg w-[1095px] h-[274px]">
-      <h2 className="text-lg font-semibold text-green-700 mb-4">My Notes</h2>
+    <div className="rounded-lg w-[1095px] h-[274px]">
+      <h2 className="text-2xl font-semibold text-green-700 mb-4">Recent Notes</h2>
       <div className="flex gap-4 bg-[#F6F7F9] rounded-xl w-[1095px] h-[231px] items-center justify-start">
         <div
           className="relative group flex flex-col items-center  cursor-pointer"
