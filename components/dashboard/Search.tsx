@@ -154,7 +154,7 @@ const Search = () => {
           searchResults.files.length > 0) && (
           <div
             ref={resultsRef}
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 w-[850px] max-h-[600px] overflow-y-auto bg-white rounded-lg shadow-xl border border-gray-200 z-40"
+            className=" absolute top-20 w-[850px] max-h-[600px] overflow-y-auto bg-white rounded-lg shadow-xl border border-gray-200 z-40"
           >
             {/* Folders Section */}
             {searchResults.folders.length > 0 && (
