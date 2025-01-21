@@ -24,8 +24,9 @@ import { LayerManagement } from "./LayerManagement";
 import ReactDOM from "react-dom";
 import ExcalidrawFabric from "./excalidraw/ExcalidrawFabric";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
-import { AppState } from "@excalidraw/excalidraw/types/types";
+import { AppState, BinaryFiles } from "@excalidraw/excalidraw/types/types";
 import { saveAppState } from "@/db/pdf/canvas";
+import ExcalidrawComponent from "./excalidraw/ExcalidrawComponent";
 
 // Types for the layer structure
 interface CanvasData {
@@ -40,19 +41,20 @@ export const CanvasWrapper: React.FC<CanvasWrapperProps> = ({
   type,
 }) => {
   const { setRect } = useCanvas();
-  const { currentDocumentId,scale } = useSettings();
+  const { currentDocumentId, scale, currentPage, scrollPdf } = useSettings();
+  const { selectedTool } = useToolContext();
 
-
-
+  useEffect(() => {
+    console.log(currentPage);
+  }, [currentPage]);
   const saveCanvas = async (
     elements: readonly ExcalidrawElement[],
     state: AppState,
-    pageIndex: number
+    pageIndex: number,
+    files
   ) => {
-    await saveAppState(currentDocumentId, elements, state, pageIndex);
-    console.log('Canvas saved:', currentDocumentId, pageIndex, elements, state);
+    // await saveAppState(currentDocumentId, elements, state,files, pageIndex);
   };
-  
 
   // Update the rect based on the first page rect
   useEffect(() => {
@@ -62,27 +64,35 @@ export const CanvasWrapper: React.FC<CanvasWrapperProps> = ({
     }
   }, [pageRects]);
 
-
-
   return (
     <>
       <div className="absolute" id="canvas-wrapper">
         {pageRects.map((rect, pageIndex) => (
-      <div
-      key={pageIndex}
-        className="canvas-wrapper absolute"
-        id={`canvas-wrapper-${pageIndex}`}
-        style={{
-          top: rect.top,
-          width: rect.width - 5,
-          height: rect.height,
-          zIndex: 10 + pageIndex,
-        }}
-      >
-        <ExcalidrawFabric pageIndex={pageIndex} saveCanvas={saveCanvas} key={pageIndex} currentDocumentId={currentDocumentId} />
-      </div>
-    ))
-    }
+          <div
+            key={pageIndex}
+            className="canvas-wrapper absolute"
+            id={`canvas-wrapper-${pageIndex}`}
+            style={{
+              top: rect.top,
+              width: rect.width - 5,
+              height: rect.height,
+              zIndex: 10 + pageIndex,
+              pointerEvents:
+                selectedTool === "texthighlighter" || scrollPdf
+                  ? "none"
+                  : "auto",
+            }}
+          >
+            <ExcalidrawFabric
+              pageIndex={pageIndex}
+              saveCanvas={saveCanvas}
+              key={pageIndex}
+              currentDocumentId={currentDocumentId}
+            />
+          </div>
+        ))}
+
+        
       </div>
     </>
   );

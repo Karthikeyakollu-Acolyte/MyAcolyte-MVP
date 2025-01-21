@@ -30,7 +30,10 @@ interface SettingsContextType {
   setIsInfinite:any;
   theme:string;
   setTheme:any;
-  isVisible:boolean; setIsVisible:any
+  isVisible:boolean;
+  setIsVisible:any;
+  scrollPdf:boolean;
+   setScrollPdf:any;
 
 
 }
@@ -65,6 +68,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const [isInfinite, setIsInfinite] = useState<boolean>(false);
   const [theme, setTheme] = useState("light")
   const [isVisible, setIsVisible] = useState(true)
+  const [scrollPdf, setScrollPdf] = useState(false)
 
   const toggleScrollMode = () => {
 
@@ -199,7 +203,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   };
 
   return (
-    <SettingsContext.Provider value={{ scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages, pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId, setcurrentDocumentId,isInfinite, setIsInfinite,theme, setTheme,isVisible, setIsVisible }}>
+    <SettingsContext.Provider value={{ scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages, pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId, setcurrentDocumentId,isInfinite, setIsInfinite,theme, setTheme,isVisible, setIsVisible,scrollPdf, setScrollPdf}}>
       {children}
     </SettingsContext.Provider>
   );

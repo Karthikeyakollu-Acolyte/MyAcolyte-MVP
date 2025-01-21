@@ -5,6 +5,7 @@ import ScrollableContent from '@/components/ScrollableContent';
 
 import { useParams } from 'next/navigation';
 import ExcalidrawFabric from '@/components/canvas/excalidraw/ExcalidrawFabric';
+import ExcalidrawComponent from '@/components/canvas/excalidraw/ExcalidrawComponent';
 export default function page() {
   const [isExpanded, setIsExpanded] = useState(true);
   const toggleExpand = () => {
@@ -23,6 +24,9 @@ export default function page() {
 
       <div className="flex flex-col items-center pb-8   scrollbar-hide bg-[#F6F7F9] w-full">
         <ScrollableContent isExpanded={isExpanded} id={id} />
+        {/* <div className="fixed inset-0 w-screen h-screen bg-transparent">
+          <ExcalidrawComponent id={id} />
+        </div> */}
       </div>
     </div>
   );

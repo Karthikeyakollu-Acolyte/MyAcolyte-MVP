@@ -1,8 +1,7 @@
-import { NonDeletedExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 import { openDB } from 'idb';
 
-const DB_NAME = 'CanvasDB';
-const STORE_NAME = 'Documents';
+const DB_NAME = 'CanvasDBInfinite';
+const STORE_NAME = 'DocumentsInfinite';
 const VERSION = 1;
 
 async function initDB() {
@@ -15,7 +14,6 @@ async function initDB() {
     },
   });
 }
-
 
 interface Document {
   id: string;

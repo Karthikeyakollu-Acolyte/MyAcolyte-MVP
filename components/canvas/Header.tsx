@@ -97,12 +97,12 @@ export default function Header({
           className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
             isVisible ? 'translate-y-0' : '-translate-y-full'
           } flex flex-wrap items-center w-full p-2 font-sans
-          ${theme === 'Dark Brown' ? 'bg-[#291D00]' :
-            theme === 'Deep Red' ? 'bg-[#390003]' :
-            theme === 'Midnight Blue' ? 'bg-[#002033]' :
-            theme === 'Deep Purple' ? 'bg-[#160039]' :
-            theme === 'Charcoal Black' ? 'bg-[#202020]' :
-            theme === 'Very Dark Purple' ? 'bg-[#090822]' : 'bg-white'
+          ${theme === 'Dark Brown' ? 'bg-[#291D00] text-white' :
+            theme === 'Deep Red' ? 'bg-[#390003] text-white' :
+            theme === 'Midnight Blue' ? 'bg-[#002033] text-white' :
+            theme === 'Deep Purple' ? 'bg-[#160039] text-white' :
+            theme === 'Charcoal Black' ? 'bg-[#202020] text-white' :
+            theme === 'Very Dark Purple' ? 'bg-[#090822] text-white' : 'bg-white text-black'
           }`}
         >
           <div className="flex w-full justify-between items-center font-rubik">

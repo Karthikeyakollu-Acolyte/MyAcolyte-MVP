@@ -18,17 +18,20 @@ const CurrentPageListner = () => {
     });
 
     if (foundPage) {
+      console.log(parseInt(foundPage.getAttribute('data-page-number')))
       setCurrentPage(parseInt(foundPage.getAttribute('data-page-number')));
     }
   };
 
   useEffect(() => {
     // Add scroll event listener
-    window.addEventListener('wheel', detectCurrentPage);
+    // window.addEventListener('wheel', detectCurrentPage);
+    document.addEventListener('mouseover', detectCurrentPage);
 
     // Clean up the event listener on component unmount
     return () => {
-      window.removeEventListener('wheel', detectCurrentPage);
+      // window.removeEventListener('wheel', detectCurrentPage);
+      document.removeEventListener('mouseover', detectCurrentPage);
     };
   }, []);
 

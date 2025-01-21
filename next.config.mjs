@@ -2,7 +2,7 @@
 const nextConfig = {
     /* config options here */
     images: {
-      domains: ['images.unsplash.com',"via.placeholder.com"],
+      domains: ['images.unsplash.com',"via.placeholder.com","unsplash.com","placehold.co"],
     },eslint: {
       ignoreDuringBuilds: true, // Disables ESLint during builds
     },
@@ -12,3 +12,5 @@ const nextConfig = {
   };
   
   export default nextConfig;
+
+ 

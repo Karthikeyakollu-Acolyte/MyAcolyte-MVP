@@ -8,6 +8,8 @@ import { PdfViewerComponent } from "./pdfViewerTest";
 
 import { useSettings } from "@/context/SettingsContext";
 import CurrentPageListner from "./CurrentPageListner";
+import { useToolContext } from "@/context/ToolContext";
+import ExcalidrawComponent from "../canvas/excalidraw/ExcalidrawComponent";
 interface PdfHighlighterProps {
     pdfDocument: PDFDocumentProxy;
     pdfScaleValue?: number;
@@ -25,6 +27,7 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
 
 
 
+
     return (
         <div
             className=" scrollbar-hide"
@@ -33,7 +36,7 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
                 width: '100%',
             }}
         >
-            <div ref={contentRef} className="h-full">
+            <div ref={contentRef} className="h-full bg-black">
                 <CurrentPageListner/>
                 <PdfViewerComponent
                     pdfDocument={pdfDocument}
@@ -42,6 +45,7 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
                     containerNodeRef={containerNodeRef}
                     isZoomEnable={isZoomEnable}
                 />
+               
 
                 <CanvasWrapper pageRects={pageRects} isDrawing={isDrawing} containerNodeRef={containerNodeRef} type="pdf" />
             </div>

@@ -196,7 +196,7 @@ useEffect(() => {
                     className="pdf-container w-full scrollbar-hide absolute "
                     id="pdf-container"
                 >
-                    <div className="pdfViewer  w-full h-full " id="pdfViewer" />
+                    <div className="pdfViewer  w-full h-full " id="pdfViewer"  style={{pointerEvents:"auto"}}/>
                 </div>
               </div>
 

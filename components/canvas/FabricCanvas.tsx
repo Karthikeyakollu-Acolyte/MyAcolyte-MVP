@@ -160,8 +160,6 @@ export const FabricCanvas = ({
         canvas.on("mouse:down", (e) => {
           const pageIndex = canvas?.lowerCanvasEl.getAttribute("data-page-index");
           setCurrentPage(parseInt(pageIndex));
-
-          
         });
         canvas.on('mouse:up',()=>{
           setSelectedTool(null)
