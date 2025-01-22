@@ -144,3 +144,22 @@ export async function getAppState(currentDocumentId, pageIndex) {
     // throw error;
   }
 }
+
+
+
+
+
+export async function getAllNoteIds(): Promise<string[]> {
+  try {
+    const db = await initDB();
+    if (!db) {
+      throw new Error('Database initialization failed');
+    }
+
+    const allKeys = await db.getAllKeys(STORE_NAME);
+    return allKeys as string[];
+  } catch (error) {
+    console.error('Failed to retrieve note IDs:', error);
+    return [];
+  }
+}

@@ -6,7 +6,6 @@
 
 
 
-
 @font-face {
   font-family: 'Virgil';
   src: url('fonts/Virgil.woff2') format('woff2'),
@@ -181,6 +180,7 @@ canvas {
   background: radial-gradient(circle, #eaeaea 2px, transparent 1px);
   background-size: 20px 20px;
   /* Adjust spacing for dots */
+  opacity: 0.5
 }
 
 .notebook {

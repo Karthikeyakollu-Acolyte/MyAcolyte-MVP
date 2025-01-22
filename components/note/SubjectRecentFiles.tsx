@@ -6,7 +6,7 @@ import Filecreate from "@/public/notecreate.svg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
-import { getAllNotes, syncNote } from "@/db/note/Note";
+import { getAllNoteIds } from "@/db/note/canvas";
 import FileSystem from '@/components/dashboard/FileSystem';
 
 const SubjectFolders = () => {
@@ -26,16 +26,12 @@ const SubjectFolders = () => {
 
 
   const createNote = async () => {
-        console.log("creating moted")
-
         const documentId = uuidv4(); // Generate a unique document ID
         setDocumentId(documentId)
         setIsOverlayOpen(false)
 
         try {
-            // Add the PDF to IndexedDB
-            await syncNote(documentId, { name: fileName });
-            // router.push(`/note/${documentId}`); // Use next/navigation to navigate
+            router.push(`/note/${documentId}`);
         } catch (error) {
             console.error('Error saving PDF:', error);
             alert('Failed to save the PDF. Please try again.');
@@ -45,8 +41,8 @@ const SubjectFolders = () => {
 
 
   const fetchFilesFromIndexedDB = async () => {
-    const notes = await getAllNotes();
-    setFiles(notes);
+    const ids = await getAllNoteIds()
+    setFiles(ids);
   };
 
   useEffect(() => {
@@ -79,19 +75,19 @@ const SubjectFolders = () => {
             </div>
           </div>
         </div>
-        {files.map((folder, index) => (
+        {files.map((id, index) => (
           <div
             key={index}
             className="relative group flex flex-col items-center cursor-pointer"
-            onClick={() => openNotes(folder.documentId)}
+            onClick={() => openNotes(id)}
           >
             {/* Folder content */}
             <div className="relative  rounded-lg  p-4 pt-8 flex flex-col items-center">
               <Image alt="folder" src={File} />
               <div
-                className={`mt-2 text-center text-sm font-medium  rounded px-2 py-0.5`}
+                className={`mt-2 text-center text-sm font-medium  rounded px-2 py-0.5 truncate overflow-hidden w-24`}
               >
-                {folder?.name}
+                {id}
               </div>
             </div>
           </div>

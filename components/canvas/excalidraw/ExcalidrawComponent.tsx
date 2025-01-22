@@ -16,10 +16,11 @@ import { Tool } from "@/types/pdf";
 import { getNoteById, syncNote } from "@/db/note/Note";
 import { useSettings } from "@/context/SettingsContext";
 import { useCanvas } from "@/context/CanvasContext";
-import { convertToExcalidrawElements } from "@excalidraw/excalidraw";
+import { convertToExcalidrawElements, restoreElements } from "@excalidraw/excalidraw";
 import { Button } from "@/components/ui/button";
 import { getAppState } from "@/db/note/canvas";
 import { saveAppState } from "@/db/note/canvas";
+import { v4 as uuidv4 } from "uuid";
 
 const Excalidraw = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw), // Adjust the import path if necessary
@@ -30,7 +31,7 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
   const [zoom, setZoom] = useState<number>(1);
   const { selectedTool, setSelectedTool } = useToolContext();
-  const { setIsVisible } = useSettings();
+  const { setIsVisible,data,setData } = useSettings();
   const { canvasChanges } = useCanvas();
 
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
@@ -41,30 +42,36 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
   }, []);
 
 
+
+
+  
+
+
   // Handle changes in the Excalidraw component
-  const handleChange = (
+   const handleChange = (
     elements: readonly ExcalidrawElement[],
     state: AppState,
     files: BinaryFiles
   ) => {
     if (elements.length < 1) return;
     setIsVisible(false);
+    
    
     const zoomValue = state?.zoom.value;
 
     setZoom(zoomValue);
 
-    save()
+     save()
     
   };
 
 
-   const save=()=>{
+   const save=async ()=>{
       const elements = excalidrawAPI?.getSceneElements()
-      const state = excalidrawAPI?.getAppState()
+      const state =  data?excalidrawAPI?.getAppState():{}
       const files  = excalidrawAPI?.getFiles()
       // saveCanvas(elements, state,files,pageIndex);
-      saveAppState(id, elements, state,files, 1);
+     await  saveAppState(id, elements, state , files, 1);
     }
   
   
@@ -86,7 +93,7 @@ useEffect(() => {
             // Then update the scene
             excalidrawAPI.updateScene({
               elements: canvasData.elements,
-              appState: canvasData.appState
+              appState: data?canvasData.appState:{}
             });
             setInitialDataLoaded(true);
           }
@@ -163,29 +170,127 @@ useEffect(() => {
     }
   }
 
+
+
   useEffect(() => {
     switchTool(selectedTool);
+    
   }, [selectedTool, excalidrawAPI]);
+
+
+  const addImageToExcalidraw = async (x:number,y:number) => {
+    if (!excalidrawAPI || !data) return;
+    console.log("adding at ",x,y)
+  
+    const imageDataURL = data.url;
+    const selectionStart = data.selection;
+    const selectionBounds = data.bounds;
+  
+    const imageId = uuidv4();
+  
+    // Create the image file object
+    const imageFile = {
+      id: imageId,
+      dataURL: imageDataURL,
+      mimeType: "image/png",
+      created: Date.now(),
+      lastRetrieved: Date.now()
+    };
+  
+    try {
+      // Add the file to Excalidraw
+      await excalidrawAPI.addFiles([imageFile]);
+  
+      // Create the image element
+      const imageElement = {
+        type: "image",
+        fileId: imageId,
+        status: "saved",
+        x: x,
+        y: y,
+        width: selectionBounds.width,
+        height: selectionBounds.height,
+        backgroundColor: "",
+        version: 1,
+        seed: Math.random(),
+        versionNonce: Date.now(),
+        isDeleted: false,
+        boundElements: null,
+        updated: Date.now(),
+        link: null,
+      };
+  
+      // Get current scene elements and add new image
+      const elements = [
+        ...excalidrawAPI.getSceneElementsIncludingDeleted(),
+        imageElement,
+      ];
+  
+      const appState = excalidrawAPI.getAppState();
+  
+      // Update the Excalidraw scene and wait for it to complete
+      await excalidrawAPI.updateScene({
+        elements: restoreElements(elements),
+        appState,
+      });
+  
+      // Reset data state after successful update
+      setTimeout(() => {
+        setData(null);
+      }, 1000);
+    } catch (error) {
+      console.error('Error adding image to Excalidraw:', error);
+      // Optionally handle the error state
+      setData(null);
+    }
+  };
+
+
+  useEffect(() => {
+    // Add a global keydown event listener
+    const handleGlobalKeyDown = (event) => {
+      if (event.ctrlKey && event.key === "v") {
+        alert("Global Ctrl+V detected!");
+      }
+    };
+
+    // Attach the event listener to the window
+    window.addEventListener("keydown", handleGlobalKeyDown);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, []);
+
 
 
 
 
   return (
-    <div className="w-full h-full">
+    <div className={`w-full h-full ${data?"canvas-dotted":""}`}>
       <Excalidraw
         onChange={handleChange}
         excalidrawAPI={(api) => setExcalidrawAPI(api)}
-        handleKeyboardGlobally={false}
+        // handleKeyboardGlobally={false}
         zenModeEnabled={false}
         // gridModeEnabled={true}
+        onPointerDown={(e,s)=>{
+          addImageToExcalidraw(s.origin.x, s.origin.y)
 
+
+        }}
+        
+        
         initialData={{
-            appState: {
-              viewBackgroundColor: "transparent",
-              currentItemStrokeColor: "#000000",
-              currentItemBackgroundColor: "transparent",
-            },
-          }}
+          appState: data?{
+            viewBackgroundColor: "transparent",
+            currentItemStrokeColor: "#000000",
+            currentItemBackgroundColor: "transparent",
+
+          }:{},
+        }}
+        
 
       />
     </div>

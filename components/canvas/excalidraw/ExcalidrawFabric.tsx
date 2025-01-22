@@ -59,7 +59,7 @@ const ExcalidrawFabric = ({
 }) => {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
   const { selectedTool, setSelectedTool } = useToolContext();
-  const { scale, currentPage, setScrollPdf } = useSettings();
+  const { scale, currentPage, setScrollPdf,setData } = useSettings();
   let selectionStart;
   const initialAppState: AppState = {
     zoom: { value: 1 },
@@ -259,6 +259,7 @@ const ExcalidrawFabric = ({
 
   useEffect(() => {
     switchTool(selectedTool);
+    // setData({})
   }, [selectedTool, excalidrawAPI]);
 
   // Update event listener effect
@@ -428,46 +429,9 @@ const addImageToExcalidraw = async (
       appState,
     });
   
-    // Save to backend storage
-    await saveImageStateToStorage(imageElement, imageFile, appState);
   };
   
-  // Function to save image state to storage
-  const saveImageStateToStorage = async (imageElement, imageFile, appState) => {
-    try {
-      // Get existing state
-      const existingState = await getAppStateInfinite(currentDocumentId, 1);
-      
-      // Handle elements
-      const existingElements = existingState?.elements || [];
-      const updatedElements = existingElements.filter(
-        elem => elem.fileId !== imageElement.fileId
-      );
-      updatedElements.push(imageElement);
-  
-      // Handle files
-      const existingFiles = existingState?.files || {};
-      const updatedFiles = {
-        ...existingFiles,
-        [imageFile.id]: imageFile
-      };
-  
-      // Get app state
-    
-  
-      // Save everything
-      await saveAppStateInfinite(
-        currentDocumentId,
-        updatedElements,
-        existingState.appState,
-        updatedFiles,
-        1
-      );
-    } catch (error) {
-      console.error('Error saving image state:', error);
-      throw error;
-    }
-  };
+
   
 
 
@@ -476,6 +440,8 @@ const addImageToExcalidraw = async (
     selection: { x: 0, y: 0 },
     bounds: { x: 0, y: 0, width: 0, height: 0 },
   };
+
+
   let added = false;
   // Usage Example
   const captureSelection = async (
@@ -502,8 +468,9 @@ const addImageToExcalidraw = async (
         selection: selectionStart,
         bounds: selectionBounds,
       };
+      setData(data)
       added = true;
-      addImageToExcalidraw(imageDataURL, selectionStart, selectionBounds);
+    // addImageToExcalidraw(imageDataURL, selectionStart, selectionBounds);
     }
   };
 
@@ -552,7 +519,7 @@ const addImageToExcalidraw = async (
   }, [excalidrawAPI]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full ">
       <Excalidraw
         onPointerDown={(e) => {
         //   handlePointerDown();

@@ -34,11 +34,29 @@ interface SettingsContextType {
   setIsVisible:any;
   scrollPdf:boolean;
    setScrollPdf:any;
+   data:Data;
+   setData:any
 
 
 }
+interface SelectionPoint {
+  x: number;
+  y: number;
+}
+
+interface SelectionBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 
+interface Data {
+  url: object | null;
+  selection: SelectionPoint;
+  bounds: SelectionBounds;
+}
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
@@ -69,6 +87,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const [theme, setTheme] = useState("light")
   const [isVisible, setIsVisible] = useState(true)
   const [scrollPdf, setScrollPdf] = useState(false)
+  const [data, setData] = useState<Data>()
 
   const toggleScrollMode = () => {
 
@@ -203,7 +222,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   };
 
   return (
-    <SettingsContext.Provider value={{ scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages, pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId, setcurrentDocumentId,isInfinite, setIsInfinite,theme, setTheme,isVisible, setIsVisible,scrollPdf, setScrollPdf}}>
+    <SettingsContext.Provider value={
+      { scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages,
+       pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId,
+       setcurrentDocumentId,isInfinite, setIsInfinite,theme, setTheme,isVisible, setIsVisible,scrollPdf, setScrollPdf,
+       data, setData
+       }}>
       {children}
     </SettingsContext.Provider>
   );
