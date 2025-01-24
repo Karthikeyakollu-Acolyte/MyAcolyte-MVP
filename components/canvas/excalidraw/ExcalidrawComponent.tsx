@@ -180,7 +180,7 @@ useEffect(() => {
 
   const addImageToExcalidraw = async (x:number,y:number) => {
     if (!excalidrawAPI || !data) return;
-    console.log("adding at ",x,y)
+    console.log("adding at ",data.url)
   
     const imageDataURL = data.url;
     const selectionStart = data.selection;

@@ -164,7 +164,6 @@ const ExcalidrawFabric = ({
     const files = excalidrawAPI?.getFiles();
     // saveCanvas(elements, state,files,pageIndex);
     saveAppState(currentDocumentId, elements, state, files, pageIndex);
-    console.log("saving the canvas ....");
   };
 
   useEffect(() => {
@@ -287,6 +286,8 @@ const ExcalidrawFabric = ({
     if (!pageElement) return;
 
     const pageRect = pageElement.getBoundingClientRect();
+
+    
     const selectionBounds = {
       x: Math.min(selectionStart.x, selectionEnd.x) - pageRect.left,
       y: Math.min(selectionStart.y, selectionEnd.y) - pageRect.top,
@@ -468,6 +469,7 @@ const addImageToExcalidraw = async (
         selection: selectionStart,
         bounds: selectionBounds,
       };
+
       setData(data)
       added = true;
     // addImageToExcalidraw(imageDataURL, selectionStart, selectionBounds);
@@ -481,7 +483,6 @@ const addImageToExcalidraw = async (
         x: e.clientX,
         y: e.clientY,
       };
-      console.log(selectionStart);
     }
   };
 
@@ -514,9 +515,9 @@ const addImageToExcalidraw = async (
     }
   }, [selectedTool, pageIndex, currentPage]);
 
-  useEffect(() => {
-    console.log(excalidrawAPI);
-  }, [excalidrawAPI]);
+//   useEffect(() => {
+//     console.log(excalidrawAPI);
+//   }, [excalidrawAPI]);
 
   return (
     <div className="w-full h-full ">
@@ -526,7 +527,7 @@ const addImageToExcalidraw = async (
         }}
         onPaste={(data, event) => {
           // Handle the paste event here
-          console.log(data, event);
+
           // Return true to indicate that the event was handled
           return true;
         }}

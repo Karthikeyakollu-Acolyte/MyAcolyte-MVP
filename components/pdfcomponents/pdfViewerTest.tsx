@@ -8,6 +8,8 @@ import * as pdfjsLib from "pdfjs-dist"
 import { updatePdf } from "@/db/pdf/docs";
 import ReactDOM from "react-dom";
 import { useCanvas } from "@/context/CanvasContext";
+import page from "@/app/pdfnote/[id]/page";
+
 
 interface PdfViewerProps {
     pdfDocument: PDFDocumentProxy;
@@ -34,10 +36,10 @@ export const PdfViewerComponent: React.FC<PdfViewerProps> = ({
     const findControllerRef = useRef<PDFFindController | null>(null);
     const initialPageDimensions = useRef<{ width: number, height: number } | null>(null); // Store initial page dimensions
 
-
+  
     let eventBus: EventBus | undefined;
     const { setPdfViewerRef } = useRefs();
-    const {setCurrentPage, setPages, scrollMode,scale,currentPage,currentDocumentId,setScale,isInfinite } = useSettings();
+    const {setCurrentPage, setPages, scrollMode,scale,currentPage,currentDocumentId,setScale,isInfinite , setIsPagesLoaded } = useSettings();
     const {setContainerWidth} = useCanvas()
 
     const initPDFViewer = async () => {
@@ -71,17 +73,65 @@ export const PdfViewerComponent: React.FC<PdfViewerProps> = ({
         findControllerRef.current.setDocument(pdfDocument);
         viewerRef.current.setDocument(pdfDocument);
         
+        
         eventBus.on("pagesinit", onPagesInit);
+
+        eventBus.on("pagerendered", (event) => {
+            console.log("Page rendered:", event.pageNumber);
+            addDiv(event.pageNumber); 
+        });
+
+       
+        
 
     };
     
 
 
+    const addDiv = (pageNumber) => {
+        const page = document.querySelector(`[data-page-number="${pageNumber}"]`);
+        if (!page) {
+            console.log(`Page ${pageNumber} not found`);
+            return;
+        }
+    
+        const existingOverlay = document.getElementById(`pageExcalidraw-${pageNumber}`);
+        if (existingOverlay) {
+            console.log(`Overlay already exists for page ${pageNumber}`);
+            return;
+        }
+    
+        const canvas = page.querySelector('canvas');
+        if (!canvas) {
+            console.log(`No canvas found for page ${pageNumber}`);
+            return;
+        }
+    
+        const { width, height } = canvas.getBoundingClientRect();
+        const overlayDiv = document.createElement('div');
+    
+        overlayDiv.style.position = 'absolute';
+        overlayDiv.style.width = `${width}px`;
+        overlayDiv.style.height = `${height}px`;
+        overlayDiv.style.top = '0';
+        overlayDiv.style.left = '0';
+        overlayDiv.style.zIndex = '999';
+        overlayDiv.id = `pageExcalidraw-${pageNumber}`;
+    
+        canvas.style.position = 'relative';
+        canvas.parentElement.appendChild(overlayDiv);
+    
+        console.log(`Overlay div added to page ${pageNumber}`);
+        setIsPagesLoaded(true);
+    };
+
 const onPagesInit = (e) => {
+   
     const pdfViewer = viewerRef.current;
     const container = containerNodeRef.current;
     if (pdfViewer && container) {
         console.log("Pages initialized!");
+
         // Store initial page dimensions if not already stored
         if (!initialPageDimensions.current) {
             storeInitialPageDimensions();
@@ -167,6 +217,8 @@ useEffect(() => {
             );
             pdfViewerInitialized.current = true; // Mark as initialized
         }
+
+
        
 
     }, [pdfDocument]); // Only run when pdfDocument changes

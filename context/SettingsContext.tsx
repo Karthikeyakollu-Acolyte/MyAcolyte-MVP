@@ -35,7 +35,9 @@ interface SettingsContextType {
   scrollPdf:boolean;
    setScrollPdf:any;
    data:Data;
-   setData:any
+   setData:any;
+   isPagesLoaded:boolean;
+   setIsPagesLoaded:any;
 
 
 }
@@ -88,6 +90,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const [isVisible, setIsVisible] = useState(true)
   const [scrollPdf, setScrollPdf] = useState(false)
   const [data, setData] = useState<Data>()
+  const [isPagesLoaded, setIsPagesLoaded] = useState(false)
 
   const toggleScrollMode = () => {
 
@@ -226,7 +229,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       { scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages,
        pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId,
        setcurrentDocumentId,isInfinite, setIsInfinite,theme, setTheme,isVisible, setIsVisible,scrollPdf, setScrollPdf,
-       data, setData
+       data, setData,isPagesLoaded, setIsPagesLoaded
        }}>
       {children}
     </SettingsContext.Provider>

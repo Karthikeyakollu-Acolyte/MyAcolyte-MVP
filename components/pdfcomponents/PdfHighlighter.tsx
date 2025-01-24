@@ -10,6 +10,7 @@ import { useSettings } from "@/context/SettingsContext";
 import CurrentPageListner from "./CurrentPageListner";
 import { useToolContext } from "@/context/ToolContext";
 import ExcalidrawComponent from "../canvas/excalidraw/ExcalidrawComponent";
+import { AddCanvasToPages } from "../canvas/AddCanvasToPages";
 interface PdfHighlighterProps {
     pdfDocument: PDFDocumentProxy;
     pdfScaleValue?: number;
@@ -24,6 +25,7 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
     const containerNodeRef = useRef<HTMLDivElement>(null);  // Fixed ref type
     const contentRef = useRef<HTMLDivElement>(null);  // Fixed ref type
     const [isZoomEnable, setIsZoomEnable] = useState(true);
+    const {isPagesLoaded} = useSettings()
 
 
 
@@ -47,7 +49,9 @@ export const PdfHighlighter: React.FC<PdfHighlighterProps> = ({
                 />
                
 
-                <CanvasWrapper pageRects={pageRects} isDrawing={isDrawing} containerNodeRef={containerNodeRef} type="pdf" />
+                {/* <CanvasWrapper pageRects={pageRects} isDrawing={isDrawing} containerNodeRef={containerNodeRef} type="pdf" /> */}
+
+                {isPagesLoaded && <AddCanvasToPages/>}
             </div>
         </div>
     );

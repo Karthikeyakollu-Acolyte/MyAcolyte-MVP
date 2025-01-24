@@ -82,12 +82,7 @@ export async function saveAppState(
       lastModified: Date.now()
     };
     
-    console.log({
-      elements: safeElements,
-      appState: safeAppState,
-      files: safeFiles,
-      lastModified: Date.now()
-    });
+  
 
     // Save the updated document back to the store
     await db.put(STORE_NAME, existingDoc);
