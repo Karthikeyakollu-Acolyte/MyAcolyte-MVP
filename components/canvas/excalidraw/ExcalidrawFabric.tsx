@@ -7,7 +7,6 @@ import {
   BinaryFiles,
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types/types";
-import { useToolContext } from "@/context/ToolContext";
 import { Tool } from "@/types/pdf";
 import { getAppState, saveAppState } from "@/db/pdf/canvas";
 import {
@@ -53,13 +52,12 @@ const ExcalidrawFabric = ({
   pageIndex,
   currentDocumentId,
 }: {
-  saveCanvas: any;
-  pageIndex: number;
-  currentDocumentId: string;
+  saveCanvas?: any;
+  pageIndex?: number;
+  currentDocumentId?: string;
 }) => {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
-  const { selectedTool, setSelectedTool } = useToolContext();
-  const { scale, currentPage, setScrollPdf,setData } = useSettings();
+  const { scale, currentPage, setScrollPdf,setData,scrollPdf,activeTool } = useSettings();
   let selectionStart;
   const initialAppState: AppState = {
     zoom: { value: 1 },
@@ -74,6 +72,7 @@ const ExcalidrawFabric = ({
   ) => {
     if (!excalidrawAPI) return;
     save();
+    console.log("changing")
 
     let shouldUpdateScene = false;
     const newAppState: Partial<AppState> = { ...state };
@@ -100,6 +99,7 @@ const ExcalidrawFabric = ({
       });
       setTimeout(() => {
         setScrollPdf(false);
+        console.log("setong scroll to false")
       }, 500);
     }
   };
@@ -241,6 +241,17 @@ const ExcalidrawFabric = ({
           },
         });
         break;
+      case "texthighlighter":
+        excalidrawAPI.setActiveTool({ type: "line" });
+        excalidrawAPI.updateScene({
+          appState: {
+            currentItemStrokeColor: "#FFD700",
+            currentItemStrokeWidth: 20,
+            currentItemOpacity: 50,
+          },
+        });
+        break;
+      
       case "text":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "text" });
@@ -250,6 +261,7 @@ const ExcalidrawFabric = ({
         excalidrawAPI.setActiveTool({ type: "selection" });
         // excalidrawAPI.setActiveTool({type:"image"})
         break;
+        
       default:
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
@@ -257,23 +269,26 @@ const ExcalidrawFabric = ({
   }
 
   useEffect(() => {
-    switchTool(selectedTool);
-    // setData({})
-  }, [selectedTool, excalidrawAPI]);
+    if(!activeTool?.id) return
+    switchTool(activeTool.id);
+  }, [activeTool?.id,excalidrawAPI]);
 
   // Update event listener effect
-  useEffect(() => {
-    if (selectedTool !== "texthighlighter") return;
+//   useEffect(() => {
+//     if (selectedTool !== "texthighlighter") return;
+//  return
+//     // Only add the event listener if this is the current page's instance
+//     if (pageIndex === currentPage - 1) {
+//       document.addEventListener("mouseup", handleTextSelection);
 
-    // Only add the event listener if this is the current page's instance
-    if (pageIndex === currentPage - 1) {
-      document.addEventListener("mouseup", handleTextSelection);
+//       return () => {
+//         document.removeEventListener("mouseup", handleTextSelection);
+//       };
+//     }
+//   }, [selectedTool, pageIndex, excalidrawAPI, currentPage]);
 
-      return () => {
-        document.removeEventListener("mouseup", handleTextSelection);
-      };
-    }
-  }, [selectedTool, pageIndex, excalidrawAPI, currentPage]);
+
+
 
   // Function 1: Capture Screenshot
   const captureScreenshot = async (selectionStart, selectionEnd) => {
@@ -283,6 +298,7 @@ const ExcalidrawFabric = ({
     const pageElement = document.querySelector(
       `[data-page-number="${currentPage}"]`
     );
+
     if (!pageElement) return;
 
     const pageRect = pageElement.getBoundingClientRect();
@@ -519,8 +535,13 @@ const addImageToExcalidraw = async (
 //     console.log(excalidrawAPI);
 //   }, [excalidrawAPI]);
 
+const [zoom, setZoom] = useState(1);
+
+
+
   return (
-    <div className="w-full h-full ">
+    <div className="w-full h-full" style={{pointerEvents:scrollPdf?"none":"auto"}}>
+      
       <Excalidraw
         onPointerDown={(e) => {
         //   handlePointerDown();
@@ -531,10 +552,16 @@ const addImageToExcalidraw = async (
           // Return true to indicate that the event was handled
           return true;
         }}
+
+        // onPointerUpdate={() => {
+        //   if (!excalidrawAPI) return;
+        //   excalidrawAPI.setActiveTool({ type: "freedraw" });
+        // }}
+
         onChange={handleChange}
         excalidrawAPI={(api) => setExcalidrawAPI(api)}
         handleKeyboardGlobally={false}
-        zenModeEnabled={true}
+        // zenModeEnabled={true}
         theme="light"
         viewModeEnabled={false}
         initialData={{
@@ -547,19 +574,19 @@ const addImageToExcalidraw = async (
             theme: "light",
           },
         }}
-        UIOptions={{
-          canvasActions: {
-            changeViewBackgroundColor: false,
-            export: false,
-            loadScene: false,
-            saveToActiveFile: false,
-            saveAsImage: false,
-            clearCanvas: false,
-          },
-          tools: {
-            image: true,
-          },
-        }}
+        // UIOptions={{
+        //   canvasActions: {
+        //     changeViewBackgroundColor: false,
+        //     export: false,
+        //     loadScene: false,
+        //     saveToActiveFile: false,
+        //     saveAsImage: false,
+        //     clearCanvas: false,
+        //   },
+        //   tools: {
+        //     image: true,
+        //   },
+        // }}
       />
 
       {/* {screenshotUrl && (

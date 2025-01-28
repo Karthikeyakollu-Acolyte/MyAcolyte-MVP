@@ -1,71 +1,125 @@
 "use client";
-
-import { AppState, ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
-import { useState } from "react";
-import { Plus, Minus } from "lucide-react";
-import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import { Plus, Minus } from "lucide-react";
+import log from "@/public/addtext.svg";
 
 const Excalidraw = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw),
   { ssr: false }
 );
 
-
 const CustomExcalidraw = () => {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
-  const [scale, setScale] = useState(1);
+  const [zoom, setZoom] = useState(1);
+  const [scrollX, setScrollX] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [initialAppState] = useState({
+    zoom: { value: 1 },
+    scrollX: 0,
+    scrollY: 0,
+  });
 
-  const handleZoom = (direction: 'in' | 'out') => {
-    const newScale = direction === 'in' ? scale + 0.2 : scale - 0.2;
-    setScale(Math.max(0.2, Math.min(3, newScale)));
+  // Zoom In Function
+  const handleZoomIn = () => {
+    const newZoom = Math.min(zoom + 0.1, 2);
+    const appState = excalidrawAPI?.getAppState();
+    if (!appState) return;
+
+    setZoom(newZoom);
+    excalidrawAPI?.updateScene({
+      appState: {
+        // zoom: { value: newZoom },
+      },
+    });
   };
 
-  const handleChange = (
-    elements: readonly ExcalidrawElement[],
-    appState: AppState,
-  ) => {
-    console.log(appState)
+  // Zoom Out Function
+  const handleZoomOut = () => {
+    const newZoom = Math.max(zoom - 0.1, 0.5);
+    const appState = excalidrawAPI?.getAppState();
+    if (!appState) return;
+
+    setZoom(newZoom);
+    excalidrawAPI?.updateScene({
+      appState: {
+        // zoom: { value: newZoom },
+      },
+    });
+  };
+
+  // OnChange handler for Excalidraw to capture scroll changes
+  const handleChange = (elements: any, appState: any) => {
+    // Update the scroll position and zoom whenever the scene changes
+    setScrollX(appState.scrollX);
+    setScrollY(appState.scrollY);
+    setZoom(appState.zoom.value); // Update zoom based on Excalidraw's appState
   };
 
   return (
-    <div 
-      className="relative w-[80vw] h-[80vh]"
-      style={{
-        transform: `scale(${scale})`,
-        transformOrigin: 'center center'
-      }}
-    >
-      <div className="absolute top-4 -right-20 z-10 flex flex-col gap-2" style={{ transform: `scale(${1/scale})` }}>
+    <div className="relative">
+      {/* Zoom Buttons */}
+      <div className="fixed top-4 right-4 flex gap-2">
         <button
-          onClick={() => handleZoom('in')}
-          className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors"
-          aria-label="Zoom in"
+          onClick={handleZoomIn}
+          className="bg-white p-2 rounded-lg shadow-md hover:bg-gray-100"
         >
-          <Plus className="w-4 h-4" />
+          <Plus size={24} />
         </button>
         <button
-          onClick={() => handleZoom('out')}
-          className="p-2 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors"
-          aria-label="Zoom out"
+          onClick={handleZoomOut}
+          className="bg-white p-2 rounded-lg shadow-md hover:bg-gray-100"
         >
-          <Minus className="w-4 h-4" />
+          <Minus size={24} />
         </button>
       </div>
-      
-      <div className="w-full h-full border m-10">
-      <Excalidraw
-        excalidrawAPI={(api) => setExcalidrawAPI(api as ExcalidrawImperativeAPI)}
-        onPointerUpdate={() => {
-          if (!excalidrawAPI) return;
-          excalidrawAPI.setActiveTool({ type: "freedraw" });
-        }}
-        onChange={handleChange}
-      />
+
+      {/* Canvas Container */}
+      <div className="w-[50vw] h-[80vh] relative border m-20 overflow-hidden" style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: "top left",
+
+          }}>
+        <div
+          className="w-full h-full flex items-center justify-center flex-col"
+          
+        >
+          <div className="max-w-[600px] mx-auto my-10 p-6 bg-white border-2 border-gray-300 shadow-md rounded-lg">
+            <h1 className="text-3xl font-semibold mb-4">PDF-Like Page</h1>
+            <p className="text-lg text-gray-700 mb-4">
+              This is some sample text that looks like content inside a PDF
+              page. The page is styled with a container that resembles a printed
+              document, including margins, padding, and shadows.
+            </p>
+            <p className="text-lg text-gray-700">
+              You can add more content here. The layout will maintain the
+              PDF-like look with a simple border and a clean background. You can
+              also adjust the size of the page or use additional Tailwind
+              utilities to tweak the layout.
+            </p>
+          </div>
+        </div>
+
+        {/* Excalidraw Component */}
+        <div className="absolute w-[60vh] h-[90vh] top-0 left-0">
+          <Excalidraw
+            excalidrawAPI={(api) => setExcalidrawAPI(api)}
+            onChange={handleChange} // Set the onChange handler to capture scroll and zoom
+            initialData={{
+              appState: {
+                ...initialAppState,
+                viewBackgroundColor: "transparent",
+                currentItemStrokeColor: "#000000",
+                currentItemBackgroundColor: "transparent",
+                theme: "light",
+              },
+            }}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
 export default CustomExcalidraw;
-

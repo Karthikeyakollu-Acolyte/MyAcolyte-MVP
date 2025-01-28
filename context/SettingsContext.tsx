@@ -1,8 +1,50 @@
 "use client";
-import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
-import { useRefs } from './sharedRefs';
-import { Note } from '@/types/pdf';
-import React from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  Dispatch,
+  SetStateAction,
+} from "react";
+import { Note } from "@/types/pdf";
+import React from "react";
+
+export interface ActiveTool {
+  id: string;
+  icon?: JSX.Element;
+  type?:
+    | "pencil"
+    | "line"
+    | "arrow"
+    | "image"
+    | "pencil"
+    | "pen"
+    | "color"
+    | "marker"
+    | "highlighter"
+    | "pixelEraser"
+    | "objectEraser"
+    | "rectangleSelection"
+    | "freeformSelection"
+    | "text"
+    | "circle"
+    | "square"
+    | "triangle"
+    | "star"
+    | "diamond"
+    | "shapes"
+    | "arrow"
+    | "texthighlighter"
+    | "line"
+    | "star"
+    | "hexagon"
+    | null;
+  style?: React.CSSProperties;
+  color?: string;
+  text?: string;
+  className?: string;
+}
 
 interface SettingsContextType {
   scrollMode: "vertical" | "horizontal" | "two-page";
@@ -12,7 +54,7 @@ interface SettingsContextType {
   rotateAllPages: () => void;
   currentPage: number;
   setCurrentPage: Dispatch<SetStateAction<number>>;
-  setPages: Dispatch<SetStateAction<number>>
+  setPages: Dispatch<SetStateAction<number>>;
   pages: number;
   updatePageRects: (pageNumber: number | null) => DOMRect[];
   pageRects: DOMRect[];
@@ -21,25 +63,35 @@ interface SettingsContextType {
   selectedText: string;
   setSelectedText: React.Dispatch<React.SetStateAction<string>>;
   first: Boolean;
-  setfirst: any,
+  setfirst: any;
   scale: number;
   setScale: any;
-  currentDocumentId:string;
-  setcurrentDocumentId:any;
-  isInfinite:boolean;
-  setIsInfinite:any;
-  theme:string;
-  setTheme:any;
-  isVisible:boolean;
-  setIsVisible:any;
-  scrollPdf:boolean;
-   setScrollPdf:any;
-   data:Data;
-   setData:any;
-   isPagesLoaded:boolean;
-   setIsPagesLoaded:any;
-
-
+  currentDocumentId: string;
+  setcurrentDocumentId: any;
+  isInfinite: boolean;
+  setIsInfinite: any;
+  theme: string;
+  setTheme: any;
+  isVisible: boolean;
+  setIsVisible: any;
+  scrollPdf: boolean;
+  setScrollPdf: any;
+  data: Data;
+  setData: any;
+  isPagesLoaded: boolean;
+  setIsPagesLoaded: any;
+  selectedView: ViewOption;
+  setSelectedView: any;
+  activeTool: ActiveTool;
+  setActiveTool: any;
+  viewMode: any;
+  setViewMode: any;
+  isHeadderVisible:boolean; setisHeadderVisible:any;
+  isDarkFilter:boolean; setisDarkFilter:any;
+  ispagesZooming:boolean,
+   setispagesZooming:any;
+   isPagesZoomingFromGesture:boolean,
+   setisPagesZoomingFromGesture:any
 }
 interface SelectionPoint {
   x: number;
@@ -52,7 +104,6 @@ interface SelectionBounds {
   width: number;
   height: number;
 }
-
 
 interface Data {
   url: object | null;
@@ -74,165 +125,90 @@ interface SettingsProviderProps {
   children: ReactNode;
 }
 
+const ViewMode = {
+  SINGLE: "single",
+  DOUBLE: "double",
+  CAROUSEL: "carousel",
+};
+
+type ViewOption = 1 | 2 | 3;
 export function SettingsProvider({ children }: SettingsProviderProps) {
-  const [scrollMode, setScrollMode] = useState<"vertical" | "horizontal" | "two-page">("vertical");
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const [pages, setPages] = useState<number>(1)
-  const { pdfViewerRef } = useRefs()
-  const [pageRects, setpageRects] = useState<DOMRect[]>([])
+  const [scrollMode, setScrollMode] = useState<
+    "vertical" | "horizontal" | "two-page"
+  >("vertical");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pages, setPages] = useState<number>(1);
+  const [pageRects, setpageRects] = useState<DOMRect[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedText, setSelectedText] = useState<string | null>(null);
-  const [first, setfirst] = useState(false)
-  const [scale, setScale] = useState<number>(0.9)
-  const [currentDocumentId, setcurrentDocumentId] = useState<string>("")
+  const [first, setfirst] = useState(false);
+  const [scale, setScale] = useState<number>(0.9);
+  const [currentDocumentId, setcurrentDocumentId] = useState<string>("");
   const [isInfinite, setIsInfinite] = useState<boolean>(false);
-  const [theme, setTheme] = useState("light")
-  const [isVisible, setIsVisible] = useState(true)
-  const [scrollPdf, setScrollPdf] = useState(false)
-  const [data, setData] = useState<Data>()
-  const [isPagesLoaded, setIsPagesLoaded] = useState(false)
-
-  const toggleScrollMode = () => {
-
-    const pdfViewer = document.querySelector('.pdfViewer');
-    if (!pdfViewer) return;
-
-    setScrollMode((prevMode) => {
-      pdfViewer.classList.remove("spread-1", "spread");
-      if (prevMode === "vertical") {
-        pdfViewer.classList.add("spread");
-        // showPage(currentPage)
-        return "horizontal";
-      }
-      if (prevMode === "horizontal") {
-        pdfViewer.classList.add("spread-1");
-        return "two-page";
-      }
-      return "vertical";
-    });
-    updatePageRects(null)
-  };
-
-  // Function to show only the current page and hide others
-  function showPage(pageNumber: number) {
-    // Ensure that pdfViewerRef is available
-    const pdfViewer = document.querySelector('.pdfViewer');
-    if (!pdfViewer) return;
-
-    // Get all pages within the viewer
-    const allPages = pdfViewer.querySelectorAll('[data-page-number]');
-
-    // Hide all pages by setting their display style to 'none'
-    allPages.forEach((page: HTMLElement) => {
-      page.style.display = 'none';
-    });
-
-    // Show the selected page
-    const pageElement = pdfViewer.querySelector(
-      `[data-page-number="${pageNumber}"]`
-    );
-
-    if (pageElement) {
-      pageElement.style.display = 'block'; // Show the selected page
-    }
-  }
-
-
-  const scrollToPage = (pageNumber: number) => {
-    // if (scrollMode === "single") {
-    //   showPage(pageNumber);
-    //   updatePageRects(null)
-    // }
-    const pageElement = document.querySelector(
-      `[data-page-number="${pageNumber}"]`
-    ) as HTMLElement;
-    if (pageElement) {
-      pageElement.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-
-
-  const rotateSinglePage = (pageNumber: number) => {
-    updatePageRects(currentPage)
-    const pageElement = document.querySelector(
-      `[data-page-number="${pageNumber}"]`
-    ) as HTMLElement;
-    if (pageElement) {
-      const currentRotation = parseInt(pageElement.getAttribute("data-main-rotation") || "0", 10);
-      const newRotation = (currentRotation + 90) % 360;
-      pageElement.setAttribute("data-main-rotation", newRotation.toString());
-      pageElement.style.transform = `rotate(${newRotation}deg)`;
-    }
-  };
-
-
-  const rotateAllPages = () => {
-    updatePageRects(null)
-    const allPages = document.querySelectorAll('[data-page-number]');
-    allPages.forEach((pageElement) => {
-      const currentRotation = parseInt(pageElement.getAttribute("data-main-rotation") || "0", 10);
-      const newRotation = (currentRotation + 90) % 360;
-      pageElement.setAttribute("data-main-rotation", newRotation.toString());
-      (pageElement as HTMLElement).style.transform = `rotate(${newRotation}deg)`;
-    });
-  };
-
-
-  const updatePageRects = (pageNumber: number | null) => {
-    if (!pdfViewerRef) return;
-    const pdfViewer = pdfViewerRef.current;
-
-    if (!pdfViewer) { return; }
-
-    // Initialize the array for page rects
-    const pageRects: DOMRect[] = [];
-
-    // Function to update a single page
-    const updateSinglePage = (pageNum: number) => {
-      const pageElement = document.querySelector(
-        `[data-page-number="${pageNum}"]`
-      ) as HTMLElement;
-      const pageWrapper = document.querySelector(
-        `#canvas-wrapper-${pageNum}`
-      ) as HTMLElement;
-
-      if (pageElement && pageWrapper) {
-        const rect = pageElement.getBoundingClientRect();
-        pageRects[pageNum - 1] = rect; // Update rects array for the specific page
-        pageWrapper.style.top = `${rect.top}px`;
-        pageWrapper.style.left = `${rect.left}px`;
-        pageWrapper.style.width = `${rect.width}px`;
-        pageWrapper.style.height = `${rect.height}px`;
-        pageWrapper.style.zIndex = "10";
-      }
-    };
-
-    if (typeof pageNumber === "number") {
-      // Update a single page if pageNumber is provided
-      updateSinglePage(pageNumber);
-    } else {
-      // Otherwise, update all pages
-      console.log("Setting all page rects");
-      for (let i = 1; i <= pages; i++) {
-        updateSinglePage(i);
-      }
-    }
-
-    // Update the state with the new rects
-    setpageRects(pageRects);
-    return pageRects;
-  };
+  const [theme, setTheme] = useState("light");
+  const [isVisible, setIsVisible] = useState(true);
+  const [scrollPdf, setScrollPdf] = useState(false);
+  const [data, setData] = useState<Data>();
+  const [isPagesLoaded, setIsPagesLoaded] = useState(false);
+  const [selectedView, setSelectedView] = useState<ViewOption>(1);
+  const [activeTool, setActiveTool] = useState<ActiveTool>();
+  const [selectedColor, setSelectedColor] = useState("#000");
+  const [viewMode, setViewMode] = useState(ViewMode.SINGLE);
+  const [isHeadderVisible, setisHeadderVisible] = useState(false);
+  const [isDarkFilter, setisDarkFilter] = useState()
+  const [ispagesZooming, setispagesZooming] = useState();
+  const [isPagesZoomingFromGesture, setisPagesZoomingFromGesture] = useState(false)
 
   return (
-    <SettingsContext.Provider value={
-      { scrollMode, toggleScrollMode, scrollToPage, rotateSinglePage, rotateAllPages, currentPage, setCurrentPage, pages, setPages,
-       pageRects, updatePageRects, notes, setNotes, selectedText, setSelectedText, first, setfirst, scale, setScale,currentDocumentId,
-       setcurrentDocumentId,isInfinite, setIsInfinite,theme, setTheme,isVisible, setIsVisible,scrollPdf, setScrollPdf,
-       data, setData,isPagesLoaded, setIsPagesLoaded
-       }}>
+    <SettingsContext.Provider
+      value={{
+        scrollMode,
+        currentPage,
+        setCurrentPage,
+        pages,
+        setPages,
+        pageRects,
+        notes,
+        setNotes,
+        selectedText,
+        setSelectedText,
+        first,
+        setfirst,
+        scale,
+        setScale,
+        currentDocumentId,
+        setcurrentDocumentId,
+        isInfinite,
+        setIsInfinite,
+        theme,
+        setTheme,
+        isVisible,
+        setIsVisible,
+        scrollPdf,
+        setScrollPdf,
+        data,
+        setData,
+        isPagesLoaded,
+        setIsPagesLoaded,
+        selectedView,
+        setSelectedView,
+        activeTool,
+        setActiveTool,
+        selectedColor,
+        setSelectedColor,
+        viewMode,
+        setViewMode,
+        isHeadderVisible,
+        setisHeadderVisible,
+        isDarkFilter,
+        setisDarkFilter,
+        ispagesZooming,
+        setispagesZooming,
+        isPagesZoomingFromGesture,
+        setisPagesZoomingFromGesture
+      }}
+    >
       {children}
     </SettingsContext.Provider>
   );
 }
-

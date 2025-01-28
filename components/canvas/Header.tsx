@@ -28,7 +28,7 @@ export default function Header({
   const [lastUpdate, setLastUpdate] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const {theme,isVisible,setIsVisible} = useSettings()
+  const {theme,isVisible,setIsVisible,isHeadderVisible} = useSettings()
 
   const searchBarRef = useRef(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
@@ -89,14 +89,13 @@ export default function Header({
       searchInputRef.current.focus()
     }
   }, [isSearchVisible])
-
+  // !isHeadderVisible/ ${// false ? 'translate-y-0' : '-translate-y-full'}
   return (
     <div>
-      {!first && (
+      { (
         <header 
-          className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
-            isVisible ? 'translate-y-0' : '-translate-y-full'
-          } flex flex-wrap items-center w-full p-2 font-sans
+          className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300
+           flex flex-wrap items-center w-full p-2 font-sans h-[100px]
           ${theme === 'Dark Brown' ? 'bg-[#291D00] text-white' :
             theme === 'Deep Red' ? 'bg-[#390003] text-white' :
             theme === 'Midnight Blue' ? 'bg-[#002033] text-white' :

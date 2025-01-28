@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import ScrollableContent from '@/components/ScrollableContent';
+import PdfViewerComponent from '@/components/PdfViewerComponent';
 
 import { useParams } from 'next/navigation';
 import ExcalidrawFabric from '@/components/canvas/excalidraw/ExcalidrawFabric';
@@ -24,8 +24,8 @@ export default function page() {
 
     <div className="max-h-screen w-[100vw] overflow-hidden max-w-[1920px]">
 
-      <div className="flex flex-col items-center pb-8   scrollbar-hide bg-[#F6F7F9] w-full">
-        <ScrollableContent isExpanded={isExpanded} id={id} />
+      <div className="flex flex-col items-center pb-8 pt-[100px]  scrollbar-hide" id="scrollPad">
+        <PdfViewerComponent isExpanded={isExpanded} id={id} />
 
         { data && <div className="fixed inset-0  w-full h-full bg-transparent">
           <ExcalidrawComponent id={id} />

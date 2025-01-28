@@ -125,14 +125,15 @@ const FileUpload = () => {
     await uploadFile(file);
   };
 
+
   const uploadFile = async (file) => {
     const reader = new FileReader();
-
+  
     reader.onload = async (event) => {
       try {
         // Convert file to base64
         const base64 = event.target.result;
-
+  
         // Store file in IndexedDB
         await addPdf({
           documentId: file.id,
@@ -142,7 +143,28 @@ const FileUpload = () => {
           base64, // Save the base64-encoded content
           status: "complete",
         });
-
+  
+        // Upload file to the external backend
+        const response = await fetch("http://localhost:5000/upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            documentId: file.id,
+            name: file.name,
+            size: file.size,
+            base64, // Send the base64-encoded content
+          }),
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to upload file to backend");
+        }
+  
+        const result = await response.json();
+        console.log("File uploaded successfully:", result);
+  
         // Update state to reflect completion
         setUploadingFiles((prev) => prev.filter((f) => f.id !== file.id));
         setFiles((prev) => [
@@ -162,16 +184,66 @@ const FileUpload = () => {
         );
       }
     };
-
+  
     reader.onerror = () => {
       console.error("Error reading file:", reader.error);
       setUploadingFiles((prev) =>
         prev.map((f) => (f.id === file.id ? { ...f, status: "error" } : f))
       );
     };
-
+  
     reader.readAsDataURL(file.file);
   };
+  
+  
+
+  // const uploadFile = async (file) => {
+  //   const reader = new FileReader();
+
+  //   reader.onload = async (event) => {
+  //     try {
+  //       // Convert file to base64
+  //       const base64 = event.target.result;
+
+  //       // Store file in IndexedDB
+  //       await addPdf({
+  //         documentId: file.id,
+  //         name: file.name,
+  //         size: file.size,
+  //         uploadTime: new Date().toLocaleString(),
+  //         base64, // Save the base64-encoded content
+  //         status: "complete",
+  //       });
+
+  //       // Update state to reflect completion
+  //       setUploadingFiles((prev) => prev.filter((f) => f.id !== file.id));
+  //       setFiles((prev) => [
+  //         {
+  //           id: file.id,
+  //           name: file.name,
+  //           size: file.size,
+  //           uploadTime: new Date().toLocaleString(),
+  //           status: "complete",
+  //         },
+  //         ...prev,
+  //       ]);
+  //     } catch (error) {
+  //       console.error("Error uploading file:", error);
+  //       setUploadingFiles((prev) =>
+  //         prev.map((f) => (f.id === file.id ? { ...f, status: "error" } : f))
+  //       );
+  //     }
+  //   };
+
+  //   reader.onerror = () => {
+  //     console.error("Error reading file:", reader.error);
+  //     setUploadingFiles((prev) =>
+  //       prev.map((f) => (f.id === file.id ? { ...f, status: "error" } : f))
+  //     );
+  //   };
+
+  //   reader.readAsDataURL(file.file);
+  // };
 
   // Utility function for formatting file size
   const formatFileSize = (size) => {

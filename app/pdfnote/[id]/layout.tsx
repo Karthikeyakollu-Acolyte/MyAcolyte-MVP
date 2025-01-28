@@ -2,16 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Header from '@/components/canvas/Header';
-import ScrollableContent from '@/components/ScrollableContent';
-import { CanvasProvider } from '@/context/CanvasContext'
 import { SettingsProvider } from '@/context/SettingsContext'
-import { RefsProvider } from '@/context/sharedRefs'
-import { ToolProvider } from '@/context/ToolContext'
-import Toolbar from '@/components/toolbar/Toolbar';
+import Toolbar from '@/components/Toolbar';
 
 import PDFViewSelector from '@/components/pdfcomponents/pdf-view-selector';
 import PDFCounter from '@/components/pdfcomponents/pdf-page-counter';
 import page from './page';
+import Sidebar from '@/app/test/sidebar';
 
 export default function Layout({ children }: any) {
     const [isExpanded, setIsExpanded] = useState(true);
@@ -28,29 +25,24 @@ export default function Layout({ children }: any) {
 
     return (
 
-        <div className="max-h-screen w-[100vw] overflow-hidden max-w-[1920px]">
+        <div className="max-h-screen w-[100vw] overflow-hidden ">
 
 
 
 
-            <RefsProvider>
-                <ToolProvider>
                     <SettingsProvider>
 
-                        <CanvasProvider>
                             < Header />
-                            <PDFViewSelector/>
-                            <PDFCounter/>
+                            {/* <PDFViewSelector/> */}
+                            
 
                             {children}
                             
                            
                             <Toolbar/>
-                        </CanvasProvider>
+                            <Sidebar/>
 
                     </SettingsProvider>
-                </ToolProvider>
-            </RefsProvider>
 
         </div>
     );

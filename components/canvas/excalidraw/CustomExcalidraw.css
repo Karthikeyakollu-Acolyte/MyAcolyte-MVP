@@ -1,4 +1,4 @@
-.custom-excalidraw-wrapper {
+ .custom-excalidraw-wrapper {
     width: 100%;
     height: 100%;
     position: relative;
@@ -34,4 +34,9 @@
   /* Make sure the canvas area is transparent */
   .custom-excalidraw-wrapper .excalidraw .canvas-background {
     background: transparent !important;
+  } 
+
+
+  .App-toolbar{
+    display: none !important;
   }
