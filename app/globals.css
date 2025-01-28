@@ -17,8 +17,8 @@
 
 @font-face {
   font-family: 'Rubik';
-  src: url('/app//fonts/Rubik-Regular.woff2') format('woff2'),
-    url('/app/fonts//Rubik-Regular.woff') format('woff');
+  src: url('fonts/Rubik-Regular.woff2') format('woff2'),
+    url('fonts/Rubik-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
 }
@@ -107,6 +107,8 @@ body {
 }
 
 
+
+
 .textLayer :is(span, br) {
 
   /* color: green; */
@@ -114,6 +116,7 @@ body {
   white-space: pre;
   cursor: text;
   transform-origin: 0% 0%;
+
 }
 
 /* .textLayer > div { 
@@ -124,9 +127,7 @@ body {
   background-color: black;
 } */
 
-.App-toolbar{
-  display: none !important;
-}
+
 
 /* .App-menu.App-menu_top {
   display: none !important;
@@ -154,6 +155,14 @@ body {
   /* background-color: aqua;opacity: 0.2; */
 }
 
+.selectable-text {
+  user-select: text !important;
+  pointer-events: all !important;
+}
+.App-menu{
+  display: none !important;
+}
+
 canvas {
   /* background-color: aqua;opacity: 0.2; */
 }
@@ -174,6 +183,7 @@ canvas {
   background: radial-gradient(circle, #eaeaea 2px, transparent 1px);
   background-size: 20px 20px;
   /* Adjust spacing for dots */
+  opacity: 0.5
 }
 
 .notebook {
@@ -252,6 +262,7 @@ canvas {
 html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):not(.Highlight__emoji) {
   opacity: 1;
   mix-blend-mode: multiply;
+  
 }
 
 .textLayer ::selection {
@@ -364,12 +375,28 @@ html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):n
 
 
 
-.spread-1 {
+/* Default two-page spread */
+.spread-two {
   display: grid;
-  grid-template-columns: repeat(2, 0.3fr);
-  /* grid-gap: -16px; 
-  padding: 16px; */
+  grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+  grid-gap: 16px; /* Space between columns */
+  padding: 16px;
 }
+
+/* Horizontal scrolling view */
+.spread-horizontal {
+  display: flex;
+  gap: 16px; /* Space between cards */
+  padding: 16px;
+
+}
+
+.spread-horizontal > * {
+  flex: 0 0 auto; /* Prevents cards from shrinking and ensures they stay their natural size */
+}
+
+
+
 
 
 /* canvas{
@@ -461,3 +488,87 @@ html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):n
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+
+
+
+
+
+
+
+
+.current-highlight{
+  background-color: rgb(169, 169, 97);
+}
+
+
+
+
+/* styles.css */
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.app-content {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  transform-origin: top left;
+  transition: transform 0.3s ease;
+}
+
+/* Default mobile first approach */
+/* @media (max-width: 767px) {
+  .app-content {
+    transform: scale(0.26);
+    width: 384.6%; 
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .app-content {
+    transform: scale(0.4);
+    width: 250%;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .app-content {
+    transform: scale(0.53);
+    width: 188.7%;
+  }
+} */
+
+@media (min-width: 1280px) and (max-width: 1535px) {
+  .app-content {
+    transform: scale(0.68);
+    width: 145%; /* 100/0.8 */
+  }
+}
+
+@media (min-width: 1536px) and (max-width: 1919px) {
+  .app-content {
+    transform: scale(0.9);
+    width: 111.1%; /* 100/0.9 */
+  }
+}
+
+@media (min-width: 1920px) {
+  .app-content {
+    transform: scale(1);
+    width: 100%;
+  }
+}
+
+/* Utility classes */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

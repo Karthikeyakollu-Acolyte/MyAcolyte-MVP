@@ -98,7 +98,7 @@ export interface MenuProps {
 
 export interface ToolContextType {
   selectedTool: Tool
-  setSelectedTool: (tool: Tool) => void
+  setSelectedTool: (tool: Tool | null) => void
   isMenuOpen: boolean
   setIsMenuOpen: (isOpen: boolean) => void
   brushSize: number
@@ -107,6 +107,8 @@ export interface ToolContextType {
   setEraserSize: (size: number) => void
   brushColor: string
   setBrushColor: (color: string) => void,
+  prevselectedTool:string,
+  setPrevSelectedTool:(tool: Tool | null ) => void
 
 }
 
