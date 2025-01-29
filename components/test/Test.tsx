@@ -256,7 +256,7 @@ const PDFViewer = ({ url }) => {
             className="w-40"
           />
         </div>
-        <div ref={containerRef} className="flex-1 overflow-auto p-4">
+        <div ref={containerRef} className="flex-1 overflow-auto p-4" id="doc">
           <Document
             file={url}
             onLoadSuccess={handleDocumentLoadSuccess}

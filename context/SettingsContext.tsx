@@ -44,6 +44,10 @@ export interface ActiveTool {
   color?: string;
   text?: string;
   className?: string;
+  strokeWidth?:number;
+  opacity?:number;
+  fillColor?:string;
+  strokeColor?:string;
 }
 
 interface SettingsContextType {
