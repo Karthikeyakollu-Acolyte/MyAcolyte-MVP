@@ -544,14 +544,14 @@ html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):n
 @media (min-width: 1280px) and (max-width: 1535px) {
   .app-content {
     transform: scale(0.68);
-    width: 145%; /* 100/0.8 */
+    width: 145%; 
   }
 }
 
 @media (min-width: 1536px) and (max-width: 1919px) {
   .app-content {
     transform: scale(0.9);
-    width: 111.1%; /* 100/0.9 */
+    width: 111.1%; 
   }
 }
 

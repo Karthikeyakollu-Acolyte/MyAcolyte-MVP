@@ -6,6 +6,7 @@ import acolyte from "@/public/acolyte.png";
 import Search from "./Search";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
+import ToggleButton from "../DarkModeToggle";
 
 export function DashHeader() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export function DashHeader() {
 
       {/* Right Icons and User Info */}
       <div className="flex items-center mr-9 gap-4">
+        <ToggleButton/>
         <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-50">
           <Calendar className="w-5 h-5 text-gray-600" />
         </button>

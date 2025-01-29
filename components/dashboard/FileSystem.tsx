@@ -12,6 +12,10 @@ import Image from "next/image";
 import PlainNote from "@/public/noteplain.svg";
 import PdfFile from "@/public/pdf-file.svg";
 import { useRouter } from "next/navigation";
+import newfolder from '@/public/newfolder.svg';
+import edit from '@/public/editicon.svg'
+import expand from '@/public/subjectexpand.svg'
+import close from '@/public/subjectclose.svg'
 
 interface FileSystemItem {
   id: string;
@@ -30,6 +34,7 @@ interface FileSystemProps {
   };
   fileType?: "pdf" | "note" | "root";
   saveFile?: () => void;
+  isSubjectFolderView?: boolean;
 }
 
 export default function FileSystem({
@@ -38,11 +43,17 @@ export default function FileSystem({
   file,
   fileType = "root",
   saveFile,
+  isSubjectFolderView = false,
 }: FileSystemProps) {
   const [fileSystem, setFileSystem] = useState<FileSystemItem[]>([]);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   // Fetch file system data
   const fetchFileSystem = useCallback(async () => {
@@ -193,7 +204,10 @@ export default function FileSystem({
 
   const getFileIcon = (item: FileSystemItem) => {
     if (item.type === "folder") {
-      return <Image src={Subjects} alt="folder" />;
+      if (item.name === "New Folder") {
+        return <Image src={newfolder} alt="new-folder" className="text-black" />;
+      }
+      return <Image src={Subjects} alt="folder" className="w-[169px] h-[133px]" />;
     }
 
     if (item.type === "file") {
@@ -210,19 +224,27 @@ export default function FileSystem({
   };
 
   return (
-    <div className="flex flex-col  w-full h-full">
+    <div className="w-full h-full bg-[#EEF1F5] rounded-lg flex flex-col">
       <div className=" p-2 flex items-center justify-between">
         <div className="flex items-center">
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleBackClick}
+            onClick={() => setCurrentFolder(null)}
             disabled={!currentFolder}
           >
             <ChevronRight className="rotate-180" />
           </Button>
-          <div className="ml-2">
+          <div className="w-[1024px] flex justify-between">
             {currentPath.length > 0 ? currentPath[0] : "Subjects"}
+            {!isSubjectFolderView && (
+              <Image
+                src={isExpanded ? close : expand}
+                onClick={toggleExpand}
+                className="cursor-pointer"
+                alt="toggle"
+              />
+            )}
           </div>
         </div>
         <div className="flex items-center">
@@ -243,23 +265,20 @@ export default function FileSystem({
         </div>
       </div>
 
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 ">
+      <div
+        className={`p-6 overflow-y-auto scrollbar-hidden transition-all duration-300 ${
+          isExpanded ? "h-[780px]" : "h-[200px]"
+        }`}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {!currentFolder && (
             <div
-              className="flex flex-col items-center cursor-pointer  justify-center relative"
+              className="flex flex-col items-center cursor-pointer justify-center relative"
               onClick={handleCreateFolder}
             >
-              <Image src={Subjects} alt="s" />
-
+              <Image src={newfolder} alt="new-folder" />
               <div className="mt-1 text-sm text-center absolute group top-1/2">
                 <span>New</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute -right-6 top-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {}}
-                ></Button>
               </div>
             </div>
           )}
@@ -267,7 +286,7 @@ export default function FileSystem({
           {getCurrentItems().map((item) => (
             <div
               key={item.id}
-              className="flex flex-col items-center cursor-pointer relative  justify-center"
+              className="flex flex-col items-center cursor-pointer relative justify-center"
               onClick={() => handleItemClick(item)}
             >
               {getFileIcon(item)}
@@ -282,32 +301,27 @@ export default function FileSystem({
                     }
                   }}
                   autoFocus
-                  className=" text-sm text-center  editing-input absolute top-1/2"
+                  className="text-sm text-center editing-input absolute top-1/2"
                   data-id={item.id}
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <div
-                  className={`text-sm text-center group ${
-                    !item.fileType ? "absolute" : ""
-                  } top-1/2 mt-1`}
-                >
-                  <div className="w-28">
+                <div className="text-sm text-center group mt-1">
+                  <div className="w-28 absolute top-1/2 right-5">
                     <p className="truncate overflow-hidden whitespace-nowrap text-ellipsis">
                       {item.name}
                     </p>
                   </div>
-
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute  -right-6 top-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -right-6 top-0 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingItem(item.id);
                     }}
                   >
-                    <Edit2 className="h-4 w-4" />
+                    <Image src={edit} alt="edit" className="w-[39px]" />
                   </Button>
                 </div>
               )}

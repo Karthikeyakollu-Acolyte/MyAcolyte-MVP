@@ -20,8 +20,6 @@ import ExcalidrawFabric from "@/components/canvas/excalidraw/test/ExcalidrawFabr
 import { getPdfById } from "@/db/pdf/docs";
 import { useSettings } from "@/context/SettingsContext";
 import { Slider } from "../ui/slider";
-import { Tldraw } from "tldraw";
-import "tldraw/tldraw.css";
 import { Excalidraw } from "@excalidraw/excalidraw";
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
