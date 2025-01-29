@@ -275,7 +275,7 @@ const FileUpload = () => {
           onClick={() => setActiveTab("upload")}
           className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors ${
             activeTab === "upload"
-              ? "bg-emerald-500 text-white"
+              ? "bg-[#38A169] text-white"
               : "bg-white text-gray-700 hover:bg-gray-50"
           }`}
         >
