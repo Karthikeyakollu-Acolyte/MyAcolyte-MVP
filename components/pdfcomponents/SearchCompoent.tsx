@@ -1,105 +1,177 @@
-"use client";
 import { useSettings } from '@/context/SettingsContext';
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import pdfsearch from '@/public/pdfsearch.svg';
-import { ChevronUp, ChevronDown } from 'lucide-react'; // Import navigation icons
+import { ChevronUp, ChevronDown } from 'lucide-react';
+import _ from 'lodash';
 
 const SearchComponent = () => {
     const [searchText, setSearchText] = useState('');
     const [currentMatch, setCurrentMatch] = useState(0);
     const [totalMatches, setTotalMatches] = useState(0);
+    const [highlights, setHighlights] = useState([]);
     const searchInputRef = useRef(null);
     const searchBarRef = useRef(null);
     const { pages } = useSettings();
 
     const clearHighlights = () => {
-        document.querySelectorAll('.matched-highlight, .current-highlight').forEach(el => {
-            const parent = el.parentNode;
-            if (parent) {
-                parent.replaceChild(document.createTextNode(el.textContent || ''), el);
-            }
+        document.querySelectorAll('.pdf-search-highlight').forEach(el => {
+            el.remove();
         });
+        setHighlights([]);
     };
 
-    const highlightText = (textLayer, searchStr) => {
-        const textNodes = Array.from(textLayer.querySelectorAll('span, div'));
+    const createHighlightElement = (node, startOffset, endOffset, matchIndex, pageNumber) => {
+        const range = document.createRange();
+        const textNode = node.firstChild;
+        
+        if (!textNode) return null;
+        
+        range.setStart(textNode, startOffset);
+        range.setEnd(textNode, endOffset);
+        
+        const rects = range.getClientRects();
+        if (rects.length === 0) return null;
+
+        const pdfPage = node.closest('.react-pdf__Page');
+        if (!pdfPage) return null;
+
+        const pageRect = pdfPage.getBoundingClientRect();
+        const highlights = [];
+
+        // Create highlight for each rect (handles multi-line text)
+        for (let i = 0; i < rects.length; i++) {
+            const rect = rects[i];
+            const highlight = document.createElement('div');
+            highlight.classList.add('pdf-search-highlight');
+            
+            highlight.style.position = 'absolute';
+            highlight.style.left = `${rect.left - pageRect.left}px`;
+            highlight.style.top = `${rect.top - pageRect.top}px`;
+            highlight.style.width = `${rect.width}px`;
+            highlight.style.height = `${rect.height}px`;
+            highlight.style.backgroundColor = '#FFEB3B80';
+            highlight.style.mixBlendMode = 'multiply';
+            highlight.style.pointerEvents = 'none';
+            highlight.dataset.highlightIndex = matchIndex;
+            highlight.dataset.pageNumber = pageNumber;
+
+            pdfPage.appendChild(highlight);
+            highlights.push(highlight);
+        }
+
+        return highlights;
+    };
+
+    const highlightText = (textLayer, searchStr, pageNumber) => {
+        if (!searchStr.trim()) return 0;
+        
+        const textNodes = Array.from(textLayer.querySelectorAll('span'));
         let matchCount = 0;
+        const newHighlights = [];
 
         textNodes.forEach(node => {
-            const text = node.textContent || '';
+            const text = node.textContent;
             const lowerText = text.toLowerCase();
             const lowerSearch = searchStr.toLowerCase();
             let position = 0;
 
             while ((position = lowerText.indexOf(lowerSearch, position)) !== -1) {
-                if (node.firstChild) {
-                    const range = document.createRange();
-                    const span = document.createElement('span');
-                    span.classList.add('matched-highlight');
-                    span.style.backgroundColor = 'yellow';
+                const highlightElements = createHighlightElement(
+                    node,
+                    position,
+                    position + searchStr.length,
+                    matchCount,
+                    pageNumber
+                );
 
-                    try {
-                        range.setStart(node.firstChild, position);
-                        range.setEnd(node.firstChild, position + searchStr.length);
-                        range.surroundContents(span);
-                    } catch (error) {
-                        console.warn('Failed to highlight text:', error);
-                    }
-
+                if (highlightElements) {
+                    highlightElements.forEach(element => {
+                        newHighlights.push({
+                            element,
+                            pageNumber,
+                            index: matchCount,
+                            text: text.substr(position, searchStr.length)
+                        });
+                    });
                     matchCount++;
                 }
                 position += searchStr.length;
             }
         });
 
+        setHighlights(prev => [...prev, ...newHighlights]);
         return matchCount;
     };
 
-    const handleSearch = () => {
-        if (!searchText) return;
+    // Debounced search function
+    const debouncedSearch = useRef(
+        _.debounce((searchText) => {
+            clearHighlights();
+            setCurrentMatch(0);
+            setTotalMatches(0);
 
-        setTotalMatches(0);
-        clearHighlights();
-        setCurrentMatch(0);
+            let totalMatchCount = 0;
 
-        let totalMatchCount = 0;
 
-        for (let i = 1; i <= pages; i++) {
-            const textLayer = document.querySelector(`[data-page-number="${i}"] .textLayer`);
-            if (textLayer) {
-                totalMatchCount += highlightText(textLayer, searchText);
+            for (let i = 1; i <= pages; i++) {
+                const textLayer = document.querySelector(`[data-page-number="${i}"] .react-pdf__Page__textContent`);
+                console.log(textLayer,pages)
+                if (textLayer) {
+                    totalMatchCount += highlightText(textLayer, searchText, i);
+                }
             }
-        }
 
-        setTotalMatches(totalMatchCount);
-        if (totalMatchCount > 0) {
-            scrollToHighlight(0);
-        }
+            setTotalMatches(totalMatchCount);
+            if (totalMatchCount > 0) {
+                setTimeout(() => scrollToHighlight(0), 100);
+            }
+        }, 300)
+    ).current;
+
+    const handleSearch = (e) => {
+        e?.preventDefault();
+        if (!searchText) return;
+        debouncedSearch(searchText);
     };
 
     const scrollToHighlight = (index) => {
-        const highlights = document.querySelectorAll('.matched-highlight');
-        if (highlights.length === 0) return;
+        const highlightElements = document.querySelectorAll('.pdf-search-highlight');
+        if (highlightElements.length === 0) return;
 
-        // Handle wrapping around
-        if (index >= highlights.length) index = 0;
-        if (index < 0) index = highlights.length - 1;
+        // Handle wrapping
+        if (index >= highlightElements.length) index = 0;
+        if (index < 0) index = highlightElements.length - 1;
 
-        // Clear previous current highlight
-        document.querySelectorAll('.current-highlight').forEach(el => {
+        // Reset all highlights to default color
+        highlightElements.forEach(el => {
+            el.style.backgroundColor = '#FFEB3B80';
             el.classList.remove('current-highlight');
-            el.style.backgroundColor = 'yellow';
         });
 
-        // Highlight the current match
-        const currentHighlight = highlights[index];
-        currentHighlight.classList.add('current-highlight');
-        currentHighlight.style.backgroundColor = 'orange';
+        // Highlight current match
+        const currentElement = highlightElements[index];
+        if (currentElement) {
+            currentElement.style.backgroundColor = '#FF980080';
+            currentElement.classList.add('current-highlight');
 
-        // Scroll to the current match
-        currentHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setCurrentMatch(index + 1);
+            // Get the page containing the highlight
+            const pageNumber = currentElement.dataset.pageNumber;
+            const pdfPage = document.querySelector(`[data-page-number="${pageNumber}"]`);
+            
+            if (pdfPage) {
+                // Calculate scroll position to center the highlight
+                const elementRect = currentElement.getBoundingClientRect();
+                const scrollTop = window.pageYOffset + elementRect.top - (window.innerHeight / 2);
+
+                window.scrollTo({
+                    top: scrollTop,
+                    behavior: 'smooth'
+                });
+            }
+
+            setCurrentMatch(index + 1);
+        }
     };
 
     const handleNext = () => {
@@ -117,6 +189,29 @@ const SearchComponent = () => {
         clearHighlights();
     };
 
+    useEffect(() => {
+        return () => {
+            clearHighlights();
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
+
+    // Handle window resize
+    useEffect(() => {
+        const handleResize = _.debounce(() => {
+            if (highlights.length > 0) {
+                clearHighlights();
+                handleSearch();
+            }
+        }, 300);
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            handleResize.cancel();
+        };
+    }, [highlights, searchText]);
+
     return (
         <div>
             <div
@@ -125,7 +220,7 @@ const SearchComponent = () => {
             >
                 <form
                     className="w-[850px] relative group"
-                    onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
+                    onSubmit={handleSearch}
                 >
                     <div className="relative w-full h-[43px] group-hover:h-[68px] bg-white rounded-[18px] shadow-lg border border-gray-300 overflow-hidden transition-all duration-300 ease-in-out">
                         {/* Search Icon */}
@@ -138,10 +233,16 @@ const SearchComponent = () => {
                             ref={searchInputRef}
                             type="text"
                             value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
+                            onChange={(e) => {
+                                setSearchText(e.target.value);
+                                if (e.target.value) {
+                                    debouncedSearch(e.target.value);
+                                } else {
+                                    clearSearch();
+                                }
+                            }}
                             placeholder="Search in PDF..."
                             className="w-full py-2 pl-16 pr-32 font-rubik text-[20px] text-black focus:outline-none h-[43px] transition-colors duration-300"
-                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                         />
 
                         {/* Navigation Controls */}
@@ -176,6 +277,22 @@ const SearchComponent = () => {
                     </div>
                 </form>
             </div>
+
+            {/* Add global styles for highlights */}
+            <style jsx global>{`
+                .pdf-search-highlight {
+                    position: absolute;
+                    pointer-events: none;
+                    transition: background-color 0.2s ease;
+                    z-index: 1;
+                }
+                .current-highlight {
+                    box-shadow: 0 0 4px rgba(255, 152, 0, 0.5);
+                }
+                .react-pdf__Page {
+                    position: relative;
+                }
+            `}</style>
         </div>
     );
 };

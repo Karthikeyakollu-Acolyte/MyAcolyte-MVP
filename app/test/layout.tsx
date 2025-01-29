@@ -3,11 +3,7 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/canvas/Header';
 import ScrollableContent from '@/components/PdfViewerComponent';
-import { CanvasProvider } from '@/context/CanvasContext'
 import { SettingsProvider } from '@/context/SettingsContext'
-import { RefsProvider } from '@/context/sharedRefs'
-import { ToolProvider } from '@/context/ToolContext'
-import Toolbar from '@/components/toolbar/Toolbar';
 
 import PDFViewSelector from '@/components/pdfcomponents/pdf-view-selector';
 import PDFCounter from '@/components/pdfcomponents/pdf-page-counter';
@@ -34,22 +30,14 @@ export default function Layout({ children }: any) {
 
 
 
-            <RefsProvider>
-                <ToolProvider>
                     <SettingsProvider>
-
-                        <CanvasProvider>
 
                             {children}
                             
                            
                             {/* <Toolbar/> */}
                            
-                        </CanvasProvider>
-
                     </SettingsProvider>
-                </ToolProvider>
-            </RefsProvider>
 
         </div>
     );

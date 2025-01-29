@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { Plus, Minus } from "lucide-react";
-import log from "@/public/addtext.svg";
 
 const Excalidraw = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw),
