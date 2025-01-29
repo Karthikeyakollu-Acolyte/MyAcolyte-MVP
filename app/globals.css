@@ -541,7 +541,7 @@ html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):n
   }
 } */
 
-@media (min-width: 1280px) and (max-width: 1535px) {
+/* @media (min-width: 1280px) and (max-width: 1535px) {
   .app-content {
     transform: scale(0.68);
     width: 145%; 
@@ -560,7 +560,7 @@ html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):n
     transform: scale(1);
     width: 100%;
   }
-}
+} */
 
 /* Utility classes */
 .scrollbar-hidden::-webkit-scrollbar {

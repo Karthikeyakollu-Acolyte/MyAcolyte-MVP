@@ -121,7 +121,7 @@ const Search = () => {
         className=""
       >
         <form
-          className="  w-[850px] relative group"
+          className="  w-[453px] relative group"
           onSubmit={(e) => {
             e.preventDefault();
             handleSearch();

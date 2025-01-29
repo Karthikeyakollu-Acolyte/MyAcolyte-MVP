@@ -269,11 +269,11 @@ export default function FileSystem({
         className={`p-6 overflow-y-auto scrollbar-hidden transition-all duration-300 ${
           isExpanded ? "h-[780px]" : "h-[200px]"
         }`}
-      >
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      > {isExpanded}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {!currentFolder && (
             <div
-              className="flex flex-col items-center cursor-pointer justify-center relative"
+              className={`flex flex-col items-center cursor-pointer justify-center relative ${ isExpanded ? "border-black border-2" : "" } `}
               onClick={handleCreateFolder}
             >
               <Image src={newfolder} alt="new-folder" />
@@ -307,8 +307,8 @@ export default function FileSystem({
                 />
               ) : (
                 <div className="text-sm text-center group mt-1">
-                  <div className="w-28 absolute top-1/2 right-5">
-                    <p className="truncate overflow-hidden whitespace-nowrap text-ellipsis">
+                  <div className="w-full absolute top-1/2 right-0">
+                    <p className="truncate text-center overflow-hidden whitespace-nowrap text-ellipsis">
                       {item.name}
                     </p>
                   </div>

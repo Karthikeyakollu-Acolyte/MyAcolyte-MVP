@@ -6,59 +6,47 @@ import acolyte from "@/public/acolyte.png";
 import Search from "./Search";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
-import ToggleButton from "../DarkModeToggle";
+import DarkToggleButton from "../DarkModeToggle";
 
 export function DashHeader() {
   const router = useRouter();
   const handleProfileClick = () => {
     router.push("/dashboard/profile");
-    // console.log("this is ckuicked");
   };
-  return (
-    <header className="w-[1920px]  h-[87px] border-b flex items-center justify-between px-4">
-      {/* Logo */}
-      <div className="flex items-center gap-4">
-        <div className="">
-          <Image src={acolyte} alt="Logo" />
-        </div>
 
-        {/* Search Bar */}
-        <div className="flex justify-center z-50 absolute w-[1920px]">
+  return (
+    <header className="w-full h-[87px] border-b flex items-center justify-between px-4 md:px-6 lg:px-8">
+      {/* Logo & Search */}
+      <div className="flex items-center justify-between w-[60vw] gap-4">
+        <Image src={acolyte} alt="Logo" className="w-16 h-16" />
+        <div className="hidden md:block w-full max-w-md">
           <Search />
         </div>
       </div>
 
       {/* Right Icons and User Info */}
-      <div className="flex items-center mr-9 gap-4">
-        <ToggleButton/>
-        <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-50">
+      <div className="flex items-center gap-4">
+        <DarkToggleButton />
+        <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100">
           <Calendar className="w-5 h-5 text-gray-600" />
         </button>
-        <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-50">
+        <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100">
           <Clock className="w-5 h-5 text-gray-600" />
         </button>
-        <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-50">
+        <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100">
           <Bell className="w-5 h-5 text-gray-600" />
         </button>
-
+        
         {/* User Info */}
         <div
-          className="flex items-center gap-3 ml-2 p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 cursor-pointer"
           onClick={handleProfileClick}
-          style={{ zIndex: 999 }}
-          // variant={"ghost"}
         >
-          {/* User Details Section */}
-          <div className="text-right">
-            <div className="text-md font-medium font-rubik">Anima Agrawal</div>
+          <div className="text-right hidden sm:block">
+            <div className="text-md font-medium">Anima Agrawal</div>
             <div className="text-sm text-gray-500">U.P, India</div>
           </div>
-
-          {/* Profile Picture Section */}
-          <div
-            className="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0"
-            aria-label="User Profile Picture"
-          />
+          <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
         </div>
       </div>
     </header>

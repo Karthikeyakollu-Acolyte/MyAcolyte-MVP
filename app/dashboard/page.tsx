@@ -9,7 +9,7 @@ import FileSystem from "@/components/dashboard/FileSystem";
 
 export default function Dashboard() {
   return (
-    <div className="flex flex-col   h-full">
+    <div className="flex flex-col h-full">
       <div className="mb-24">
         <TrackerDashboard />
       </div>

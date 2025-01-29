@@ -113,8 +113,8 @@ const SubjectFolders = () => {
             style={{
               backgroundColor: "white",
               borderRadius: "8px",
-              width: "80%",
-              maxHeight: "80%",
+              width: "full",
+              maxHeight: "full",
               overflowY: "auto",
             }}
           >
