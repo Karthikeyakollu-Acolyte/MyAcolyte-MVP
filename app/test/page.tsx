@@ -18,6 +18,9 @@ import Toolbar from "@/components/Toolbar";
 import { getPdfById } from "@/db/pdf/docs";
 import { useSettings } from "@/context/SettingsContext";
 import ShapeMuenu from "@/components/toolbar/ShapeMenu"
+import PenMenu from "@/components/toolbar/PenMenu";
+import TextMenu from "@/components/toolbar/TextMenu";
+import ShapeSelector from "@/components/toolbar/ShapeSelector";
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
@@ -476,7 +479,11 @@ const PdfViewer = ({ id }) => {
       {/* <PDFViewer url={pdfData} /> */}
       {/* <Toolbar/> */}
       <Toolbar />
-      <ShapeMuenu/>
+      <ShapeMuenu />
+      <PenMenu/>
+      <TextMenu/>
+      <ShapeSelector/>
+      
     </div>
   );
 };

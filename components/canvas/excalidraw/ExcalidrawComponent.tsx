@@ -31,7 +31,14 @@ const Excalidraw = dynamic(
 const ExcalidrawComponent = ({ id }: { id: string }) => {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
   const [zoom, setZoom] = useState<number>(1);
-  const { setIsVisible, data, setData,activeTool ,selectedColor,setActiveTool } = useSettings();
+  const {
+    setIsVisible,
+    data,
+    setData,
+    activeTool,
+    selectedColor,
+    setActiveTool,
+  } = useSettings();
 
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
@@ -95,7 +102,10 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
 
   const switchTool = (selectedTool: ActiveTool["type"]) => {
     if (!excalidrawAPI) return;
-    console.log("this is from the switch tool", selectedTool);
+    
+    console.log("Switching tool:", selectedTool);
+  
+    // Reset tool properties
     const resetToolProperties = () => {
       excalidrawAPI.updateScene({
         appState: {
@@ -105,114 +115,115 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
         },
       });
     };
-
+  
+    // Define active tool properties with safe defaults
+    const toolProperties = activeTool || {
+      strokeColor: "#000000",
+      strokeWidth: 1,
+      opacity: 100,
+      fillColor: "transparent",
+      color: "#000000",
+    };
+  
     switch (selectedTool) {
       case "pen":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "freedraw" });
-        excalidrawAPI.updateScene({
-          appState: {
-            currentItemStrokeColor: activeTool?.color,
-          },
-        });
-        break;
       case "pencil":
+      case "highlighter":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "freedraw" });
         excalidrawAPI.updateScene({
           appState: {
-            currentItemStrokeColor: activeTool?.color,
-            currentItemStrokeWidth: 2,
-            currentItemOpacity: 90,
+            currentItemStrokeColor: toolProperties.color,
+            currentItemOpacity: toolProperties.opacity,
+            currentItemStrokeWidth: toolProperties.strokeWidth,
           },
         });
         break;
+  
       case "image":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "image" });
         break;
+  
       case "arrow":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "arrow" });
-        break;
       case "line":
         resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "line" });
-        break;
-      case "objectEraser":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "eraser" });
-        break;
-      case "circle":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "ellipse" });
-        break;
-      case "square":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "rectangle" });
-        break;
-      case "diamond":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "diamond" });
-        break;
-      case "highlighter":
-        excalidrawAPI.setActiveTool({ type: "freedraw" });
+        excalidrawAPI.setActiveTool({ type: selectedTool });
         excalidrawAPI.updateScene({
           appState: {
-            currentItemStrokeColor: activeTool?.color,
-            currentItemStrokeWidth: 4,
-            currentItemOpacity: 50,
+            currentItemStrokeColor: toolProperties.strokeColor,
+            currentItemStrokeWidth: toolProperties.strokeWidth,
+            currentItemOpacity: toolProperties.opacity,
           },
         });
-
         break;
+  
+      case "circle":
+      case "square":
+      case "diamond":
+        resetToolProperties();
+        console.log(activeTool)
+        excalidrawAPI.setActiveTool({ type: selectedTool === "circle" ? "ellipse" : selectedTool });
+        excalidrawAPI.updateScene({
+          appState: {
+            currentItemStrokeColor: toolProperties.strokeColor || "#000000",
+            currentItemStrokeWidth: toolProperties.strokeWidth|| 2,
+            currentItemOpacity: toolProperties.opacity || 100,
+            currentItemBackgroundColor: toolProperties?.fillColor || "transparent",
+          },
+        });
+        break;
+  
       case "texthighlighter":
         excalidrawAPI.setActiveTool({ type: "line" });
         excalidrawAPI.updateScene({
           appState: {
-            currentItemStrokeColor: activeTool?.color,
+            currentItemStrokeColor: toolProperties.color,
             currentItemStrokeWidth: 20,
             currentItemOpacity: 50,
           },
         });
-
         break;
+  
       case "text":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "text" });
         excalidrawAPI.updateScene({
           appState: {
-            currentItemStrokeColor: activeTool?.color,
+            currentItemStrokeColor: toolProperties.color,
           },
         });
         break;
+  
+      case "objectEraser":
+        resetToolProperties();
+        excalidrawAPI.setActiveTool({ type: "eraser" });
+        break;
+  
       case "rectangleSelection":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
         break;
-
-      case "undo":
-        resetToolProperties();
-        undo();
-        break;
-
-      case "redo":
-        resetToolProperties();
-        excalidrawAPI.history.redoOnce();
-        break;
-
+  
       default:
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
     }
   };
-
+  
   useEffect(() => {
-    if(!activeTool?.id) return
+    if (!activeTool?.id) return;
     switchTool(activeTool.id);
-    console.log(activeTool.id)
-  }, [activeTool?.id,activeTool?.color, excalidrawAPI]);
-
+    console.log(activeTool.id);
+  }, [
+    activeTool?.id,
+    activeTool?.color,
+    excalidrawAPI,
+    activeTool?.opacity,
+    activeTool?.fillColor,
+    activeTool?.strokeColor,
+    activeTool?.strokeWidth,
+  ]);
 
   const addImageToExcalidraw = async (x: number, y: number) => {
     if (!excalidrawAPI || !data) return;

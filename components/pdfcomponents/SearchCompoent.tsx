@@ -44,7 +44,7 @@ const SearchComponent = () => {
             const rect = rects[i];
             const highlight = document.createElement('div');
             highlight.classList.add('pdf-search-highlight');
-            
+            // rect.style.position='relative'
             highlight.style.position = 'absolute';
             highlight.style.left = `${rect.left - pageRect.left}px`;
             highlight.style.top = `${rect.top - pageRect.top}px`;
@@ -163,8 +163,10 @@ const SearchComponent = () => {
                 // Calculate scroll position to center the highlight
                 const elementRect = currentElement.getBoundingClientRect();
                 const scrollTop = window.pageYOffset + elementRect.top - (window.innerHeight / 2);
+                const doc = document.getElementById('doc');
+                console.log(doc)
 
-                window.scrollTo({
+                doc.scrollTo({
                     top: scrollTop,
                     behavior: 'smooth'
                 });

@@ -195,10 +195,12 @@ const ExcalidrawFabric = ({
     fetchAndSetCanvas();
   }, [pageIndex, currentDocumentId, excalidrawAPI]);
 
-  // Tool switching logic remains the same
-  function switchTool(selectedTool: Tool) {
+  const switchTool = (selectedTool: ActiveTool["type"]) => {
     if (!excalidrawAPI) return;
-
+    
+    console.log("Switching tool:", selectedTool);
+  
+    // Reset tool properties
     const resetToolProperties = () => {
       excalidrawAPI.updateScene({
         appState: {
@@ -208,70 +210,116 @@ const ExcalidrawFabric = ({
         },
       });
     };
-
-    // ... rest of your switchTool implementation ...
+  
+    // Define active tool properties with safe defaults
+    const toolProperties = activeTool || {
+      strokeColor: "#000000",
+      strokeWidth: 1,
+      opacity: 100,
+      fillColor: "transparent",
+      color: "#000000",
+    };
+  
     switch (selectedTool) {
       case "pen":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "freedraw" });
-        break;
-      case "objectEraser":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "eraser" });
-        break;
-      case "circle":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "ellipse" });
-        break;
-      case "square":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "rectangle" });
-        break;
-      case "diamond":
-        resetToolProperties();
-        excalidrawAPI.setActiveTool({ type: "diamond" });
-        break;
+      case "pencil":
       case "highlighter":
+        resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "freedraw" });
         excalidrawAPI.updateScene({
           appState: {
-            currentItemStrokeColor: "#FFD700",
-            currentItemStrokeWidth: 4,
-            currentItemOpacity: 50,
+            currentItemStrokeColor: toolProperties.color,
+            currentItemOpacity: toolProperties.opacity,
+            currentItemStrokeWidth: toolProperties.strokeWidth,
           },
         });
         break;
+  
+      case "image":
+        resetToolProperties();
+        excalidrawAPI.setActiveTool({ type: "image" });
+        break;
+  
+      case "arrow":
+      case "line":
+        resetToolProperties();
+        excalidrawAPI.setActiveTool({ type: selectedTool });
+        excalidrawAPI.updateScene({
+          appState: {
+            currentItemStrokeColor: toolProperties.strokeColor,
+            currentItemStrokeWidth: toolProperties.strokeWidth,
+            currentItemOpacity: toolProperties.opacity,
+          },
+        });
+        break;
+  
+      case "circle":
+      case "square":
+      case "diamond":
+        resetToolProperties();
+        console.log(activeTool)
+        excalidrawAPI.setActiveTool({ type: selectedTool === "circle" ? "ellipse" : selectedTool });
+        excalidrawAPI.updateScene({
+          appState: {
+            currentItemStrokeColor: toolProperties.strokeColor || "#000000",
+            currentItemStrokeWidth: toolProperties.strokeWidth|| 2,
+            currentItemOpacity: toolProperties.opacity || 100,
+            currentItemBackgroundColor: toolProperties?.fillColor || "transparent",
+          },
+        });
+        break;
+  
       case "texthighlighter":
         excalidrawAPI.setActiveTool({ type: "line" });
         excalidrawAPI.updateScene({
           appState: {
-            currentItemStrokeColor: "#FFD700",
+            currentItemStrokeColor: toolProperties.color,
             currentItemStrokeWidth: 20,
             currentItemOpacity: 50,
           },
         });
         break;
-      
+  
       case "text":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "text" });
+        excalidrawAPI.updateScene({
+          appState: {
+            currentItemStrokeColor: toolProperties.color,
+          },
+        });
         break;
+  
+      case "objectEraser":
+        resetToolProperties();
+        excalidrawAPI.setActiveTool({ type: "eraser" });
+        break;
+  
       case "rectangleSelection":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
-        // excalidrawAPI.setActiveTool({type:"image"})
         break;
-        
+  
       default:
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
     }
-  }
-
+  };
+  
   useEffect(() => {
-    if(!activeTool?.id) return
+    if (!activeTool?.id) return;
     switchTool(activeTool.id);
-  }, [activeTool?.id,excalidrawAPI]);
+    console.log(activeTool.id);
+  }, [
+    activeTool?.id,
+    activeTool?.color,
+    excalidrawAPI,
+    activeTool?.opacity,
+    activeTool?.fillColor,
+    activeTool?.strokeColor,
+    activeTool?.strokeWidth,
+  ]);
+
 
   // Update event listener effect
 //   useEffect(() => {
