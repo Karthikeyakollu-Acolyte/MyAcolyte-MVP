@@ -30,32 +30,37 @@ import FileNote from "@/public/noteplain.svg";
 import PdfFile from "@/public/pdf-file.svg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import home from '@/public/home.svg'
+import mypdf from '@/public/mypdf.svg'
+import notes from '@/public/mynotes.svg'
+import community from '@/public/community.svg'
+import acolytechat from '@/public/acolytechat.svg'
 
 
 const menuItems = [
-  { id: "home", label: "Home", href: "/dashboard", Icon: Home },
-  {
-    id: "notes",
-    label: "Notes",
-    href: "/dashboard/notes",
-    Icon: MessageSquare,
-    hasDropdown: true,
-    type: "note",
-  },
+  { id: "home", label: "Home", href: "/dashboard", Icon: home },
   {
     id: "PdfNotes",
-    label: "PDFNotes",
+    label: "My Pdf",
     href: "/dashboard/pdf",
-    Icon: ListTodo,
+    Icon: mypdf,
     hasDropdown: true,
     type: "pdf",
   },
-  { id: "chat", label: "Chat", href: "/chat", Icon: Users2 },
   {
-    id: "settings",
-    label: "Settings",
-    href: "/dashboard/settings",
-    Icon: Settings,
+    id: "notes",
+    label: "My Notes",
+    href: "/dashboard/notes",
+    Icon: notes,
+    hasDropdown: true,
+    type: "note",
+  },
+  { id: "community", label: "Community", href: "/dashboard/settings", Icon: community },
+  {
+    id: "chat",
+    label: "Acolyte",
+    href: "/chat",
+    Icon: acolytechat,
   },
 ];
 
@@ -259,7 +264,7 @@ export function SidebarNav() {
                     : inactiveLinkStyles
                 }`}
               >
-                <item.Icon className="w-5 h-5" />
+                <Image src={item.Icon} className="w-5 h-5" alt={""} />
                 {item.label}
               </Link>
               <AnimatePresence>

@@ -7,7 +7,7 @@ import dark from '@/public/darkmode.svg'
 import darkbg from '@/public/darkmodebg.svg'
 import { useSettings } from '@/context/SettingsContext';
 
-const ToggleButton = () => {
+const DarkToggleButton = () => {
   const [isDark, setIsDark] = useState(false);
   const {setisDarkFilter} = useSettings()
   return (
@@ -20,13 +20,13 @@ const ToggleButton = () => {
           <Image
             src={lightbg}
             alt=""
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700
               ${isDark ? 'opacity-0' : 'opacity-100'}`}
           />
           <Image
             src={darkbg}
             alt=""
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700
               ${isDark ? 'opacity-100' : 'opacity-0'}`}
           />
         </div>
@@ -38,20 +38,20 @@ const ToggleButton = () => {
 
         >
           <div
-            className={`absolute w-[22px] h-[22px] rounded-full shadow-lg transform transition-transform duration-300 ease-in-out flex items-center justify-center
+            className={`absolute w-[22px] h-[22px] rounded-full shadow-lg transform transition-transform duration-700 ease-in-out flex items-center justify-center
               ${isDark ? 'translate-x-10' : 'translate-x-1'}`}
           >
             <div className="relative w-full h-full bottom-2.5">
             <Image
                 src={light}
                 alt="Light mode"
-                className={`absolute inset-0 w-full h-full transition-opacity duration-300
+                className={`absolute inset-0 w-full h-full transition-opacity duration-700
                   ${isDark ? 'opacity-0' : 'opacity-100'}`}
               />
               <Image
                 src={dark}
                 alt="Dark mode"
-                className={`absolute inset-0 w-full h-full transition-opacity duration-300
+                className={`absolute inset-0 w-full h-full transition-opacity duration-700
                   ${isDark ? 'opacity-100' : 'opacity-0'}`}
               />
             </div>
@@ -62,4 +62,4 @@ const ToggleButton = () => {
   );
 };
 
-export default ToggleButton;
+export default DarkToggleButton;

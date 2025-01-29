@@ -5,9 +5,10 @@ import { Upload } from "lucide-react";
 import { addPdf, getAllPdfs } from "@/db/pdf/docs";
 import FileSystem from "./FileSystem";
 import { v4 as uuidv4 } from "uuid";
+
 const FileList = ({ files }) => {
   return (
-    <div className="w-full py-2 px-8">
+    <div className="w-full h-full py-2 px-8">
       {files.map((file, index) => (
         <div
           key={index}
@@ -270,13 +271,13 @@ const FileUpload = () => {
 
   return (
     <div className="w-[1095px] h-[456px] mx-auto">
-      <div className="flex gap-3 mb-6">
+      <div className="flex gap-2 bg-[#F6F7F9] w-fit p-2 rounded-full mb-6">
         <button
           onClick={() => setActiveTab("upload")}
           className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors ${
             activeTab === "upload"
-              ? "bg-emerald-500 text-white"
-              : "bg-white text-gray-700 hover:bg-gray-50"
+              ? "bg-[#38A169] text-white"
+              : "bg-white text-gray-700 hover:bg-gray-200"
           }`}
         >
           New Upload
@@ -285,8 +286,8 @@ const FileUpload = () => {
           onClick={() => setActiveTab("recent")}
           className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors ${
             activeTab === "recent"
-              ? "bg-emerald-500 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#38A169] text-white"
+              : "bg-white text-gray-700 hover:bg-gray-200"
           }`}
         >
           Recent
@@ -321,11 +322,11 @@ const FileUpload = () => {
                 }`}
               />
               <p
-                className={`text-sm ${
+                className={`text-lg text-center font-bold ${
                   isDragging ? "text-emerald-500" : "text-gray-400"
                 }`}
               >
-                Click to browse or drag and drop your files
+                Click to browse or<br/> drag and drop your files
               </p>
             </label>
 
@@ -376,11 +377,11 @@ const FileUpload = () => {
             <div className="flex w-full justify-end px-10 gap-3 mt-6">
               <button
                 onClick={clearUploads}
-                className="px-6 py-2.5 rounded-lg bg-gray-200 text-gray-600 hover:bg-gray-300 text-sm font-medium"
+                className="px-6 py-2.5 rounded-lg bg-[#c7c7c7] text-gray-600 hover:bg-gray-300 text-sm font-medium"
               >
                 Clear Upload
               </button>
-              <button className="px-6 py-2.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 text-sm font-medium">
+              <button className="px-6 py-2.5 rounded-lg bg-gradient-to-b from-emerald-700 to-[#38a169] text-white hover:bg-emerald-600 text-sm font-medium">
                 Upload Pdf
               </button>
             </div>
@@ -392,10 +393,10 @@ const FileUpload = () => {
 
       {uploadingFiles.length > 0 && (
         <div
-          className="fixed top-0 left-0 w-full h-full bg-[#464444a0]  flex justify-center items-center"
+          className="fixed top-0 left-0 w-full h-full bg-[#464444a0]  backdrop-blur-sm flex justify-center items-center"
           style={{ zIndex: 100 }}
         >
-          <div className="h-[30vh] w-[80%] border-2 mt-20 bg-[#F6F7F9] rounded-xl overflow-auto">
+          <div className="max-w-[1095px] max-h-[917px] w-full mb-[15vw] rounded-xl overflow-auto">
             <FileSystem
               currentPath={currentPath}
               setCurrentPath={setCurrentPath}
@@ -587,7 +588,7 @@ export const FileUploadWrapper = ({ isUploadPdf, setIsOpen, fileType }) => {
           <div className="absolute inset-0 bg-gradient-to-br opacity-80"></div>
 
           {/* Main Content Container */}
-          <div className="relative w-4/5 max-w-2xl bg-white rounded-lg shadow-lg p-6 z-20">
+          <div className="relative w-4/5 max-w-2xl rounded-lg shadow-lg p-6 z-20">
             <FileSystem
               currentPath={currentPath}
               setCurrentPath={setCurrentPath}

@@ -12,8 +12,12 @@ import ExcalidrawFabric from "@/components/canvas/excalidraw/test/ExcalidrawFabr
 import { getPdfById } from "@/db/pdf/docs";
 import { useSettings } from "@/context/SettingsContext";
 import { Slider } from "../ui/slider";
+<<<<<<< HEAD
+import { Excalidraw } from "@excalidraw/excalidraw";
+=======
 import { ThumbnailDiv } from "./ThumbnailDiv";
 import { TouchGestureHandler } from "./TouchGestureHandler";
+>>>>>>> d7c0506cb124c75affe724bde31a1aaad3d4118b
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
 // Loading and Error Component
