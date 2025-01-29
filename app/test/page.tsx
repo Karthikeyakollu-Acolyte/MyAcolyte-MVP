@@ -1,18 +1,23 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut ,Rows, Columns ,Layout} from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  Rows,
+  Columns,
+  Layout,
+} from "lucide-react";
 import { Document, Page, pdfjs, Thumbnail } from "react-pdf";
 import { useInView } from "react-intersection-observer";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import ExcalidrawFabric from "@/components/canvas/excalidraw/test/ExcalidrawFabric";
 import Toolbar from "@/components/Toolbar";
-import Sidebar from "./sidebar";
 import { getPdfById } from "@/db/pdf/docs";
-import ScrollableContent from "@/components/PdfViewerComponent";
-import ScrollableTransform from "@/components/pdfcomponents/ScrollabalComponent";
 import { useSettings } from "@/context/SettingsContext";
-import ExcalidrawComponent from "@/components/canvas/excalidraw/ExcalidrawComponent";
+import ShapeMuenu from "@/components/toolbar/ShapeMenu"
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
@@ -30,14 +35,13 @@ const ErrorComponent = ({ message }) => (
 );
 
 // PDF Page Component with Excalidraw Overlay
-const PDFPage = ({ pageNumber, isVisible,zoom, setZoom }) => {
+const PDFPage = ({ pageNumber, isVisible, zoom, setZoom }) => {
   const containerRef = useRef(null);
   const { ref: inViewRef, inView } = useInView({
     threshold: 0.1,
     triggerOnce: true,
   });
-  const {isDarkFilter} = useSettings()
-
+  const { isDarkFilter } = useSettings();
 
   // Combine both refs using callback ref pattern
   const setRefs = (element) => {
@@ -45,7 +49,6 @@ const PDFPage = ({ pageNumber, isVisible,zoom, setZoom }) => {
     inViewRef(element);
   };
 
-  
   const [scale, setScale] = useState(1);
 
   const handleLoadSuccess = (page) => {
@@ -66,38 +69,40 @@ const PDFPage = ({ pageNumber, isVisible,zoom, setZoom }) => {
   }, []);
 
   return (
-    <div 
-      ref={setRefs} 
-      className="relative mb-4 px-4 w-[850px]"
-    >
+    <div ref={setRefs} className="relative mb-4 px-4 w-[850px]">
       {(inView || isVisible) && (
         <>
-          <div  style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: "top left",
-            filter: isDarkFilter ? "invert(1)":"",
-
-          }}>
-          <Page
-            pageNumber={pageNumber}
-            scale={scale}
-            onLoadSuccess={handleLoadSuccess} // This will trigger when the page is loaded
-            className="shadow-lg mx-auto mt-6 rounded-md overflow-hidden "
-            renderTextLayer={true}
-            renderAnnotationLayer={false}
-            loading={`Loading page ${pageNumber}...`}
-            error={`Error loading page ${pageNumber}`}
-          />
+          <div
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: "top left",
+              filter: isDarkFilter ? "invert(1)" : "",
+            }}
+          >
+            <Page
+              pageNumber={pageNumber}
+              scale={scale}
+              onLoadSuccess={handleLoadSuccess} // This will trigger when the page is loaded
+              className="shadow-lg mx-auto mt-6 rounded-md overflow-hidden "
+              renderTextLayer={true}
+              renderAnnotationLayer={false}
+              loading={`Loading page ${pageNumber}...`}
+              error={`Error loading page ${pageNumber}`}
+            />
           </div>
           <div className="absolute top-0 left-0 w-full h-full pointer-events-auto">
-          <ExcalidrawFabric pageIndex={pageNumber} currentDocumentId="aaad8775-bf0e-4f35-8dc6-0dedea7db1a2" zoom={zoom} setZoom={setZoom}/>
+            <ExcalidrawFabric
+              pageIndex={pageNumber}
+              currentDocumentId="aaad8775-bf0e-4f35-8dc6-0dedea7db1a2"
+              zoom={zoom}
+              setZoom={setZoom}
+            />
           </div>
         </>
       )}
     </div>
   );
 };
-
 
 // Thumbnail Scrollbar Component
 const ThumbnailDiv = ({
@@ -110,40 +115,34 @@ const ThumbnailDiv = ({
   const scrollbarRef = useRef(null);
   const [draggedPage, setDraggedPage] = useState(currentPage);
   const [page, setpage] = useState(1);
-  const {currentDocumentId} = useSettings()
+  const { currentDocumentId } = useSettings();
   const [pdfData, setPdfData] = useState<string | null>(null);
 
-  useEffect(()=>{
-    setpage(currentPage)
-  },[currentPage])
+  useEffect(() => {
+    setpage(currentPage);
+  }, [currentPage]);
 
-  useEffect(()=>{
-    scrollToPage(currentPage)
-  },[draggedPage])
-
-
- 
+  useEffect(() => {
+    scrollToPage(currentPage);
+  }, [draggedPage]);
 
   const handleFetchPdf = async () => {
-        try {
-          // d97e169c-ea97-4de6-a2fe-68e3547498e6
-          const pdf = await getPdfById(currentDocumentId);
-          if (pdf?.base64) {
-            // Convert the base64 string to a data URL
-            const dataUrl = pdf.base64;
-            setPdfData(dataUrl);
-          }
-        } catch (error) {
-          console.error('Error fetching PDF:', error);
-        }
-      };
-    
-    useEffect(() => {
-       
-        handleFetchPdf()
-    }, [currentDocumentId])
+    try {
+      // d97e169c-ea97-4de6-a2fe-68e3547498e6
+      const pdf = await getPdfById(currentDocumentId);
+      if (pdf?.base64) {
+        // Convert the base64 string to a data URL
+        const dataUrl = pdf.base64;
+        setPdfData(dataUrl);
+      }
+    } catch (error) {
+      console.error("Error fetching PDF:", error);
+    }
+  };
 
-  
+  useEffect(() => {
+    handleFetchPdf();
+  }, [currentDocumentId]);
 
   const handleDrag = (e) => {
     if (!isDragging || !scrollbarRef.current) return;
@@ -204,12 +203,15 @@ const ThumbnailDiv = ({
               }}
             >
               <div>
-              {page}/ <span className="text-slate-500">{totalPages}</span>
+                {page}/ <span className="text-slate-500">{totalPages}</span>
               </div>
-              <Document file={pdfData}  className={" shadow-lg rounded-md overflow-hidden"} >
-             <div>
-             <Thumbnail pageNumber={page} scale={0.2} />
-             </div>
+              <Document
+                file={pdfData}
+                className={" shadow-lg rounded-md overflow-hidden"}
+              >
+                <div>
+                  <Thumbnail pageNumber={page} scale={0.2} />
+                </div>
               </Document>
             </div>
             <div
@@ -234,13 +236,10 @@ const ViewMode = {
   CAROUSEL: "carousel",
 };
 
-
-
-
 const PDFViewer = ({ url }) => {
   const [numPages, setNumPages] = useState(null);
   const [scale, setScale] = useState(1);
-  const {viewMode, setViewMode,currentPage, setCurrentPage} = useSettings()
+  const { viewMode, setViewMode, currentPage, setCurrentPage } = useSettings();
   const containerRef = useRef(null);
 
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -274,10 +273,11 @@ const PDFViewer = ({ url }) => {
 
   const handleCarouselScroll = (direction) => {
     if (isTransitioning) return;
-    
-    const newPage = direction === 'next' 
-      ? Math.min(currentPage + 1, numPages)
-      : Math.max(currentPage - 1, 1);
+
+    const newPage =
+      direction === "next"
+        ? Math.min(currentPage + 1, numPages)
+        : Math.max(currentPage - 1, 1);
 
     if (newPage !== currentPage) {
       setIsTransitioning(true);
@@ -297,16 +297,17 @@ const PDFViewer = ({ url }) => {
   useEffect(() => {
     if (viewMode === ViewMode.CAROUSEL) {
       const handleKeyPress = (e) => {
-        if (e.key === 'ArrowRight') handleCarouselScroll('next');
-        if (e.key === 'ArrowLeft') handleCarouselScroll('prev');
+        if (e.key === "ArrowRight") handleCarouselScroll("next");
+        if (e.key === "ArrowLeft") handleCarouselScroll("prev");
       };
-      window.addEventListener('keydown', handleKeyPress);
-      return () => window.removeEventListener('keydown', handleKeyPress);
+      window.addEventListener("keydown", handleKeyPress);
+      return () => window.removeEventListener("keydown", handleKeyPress);
     }
   }, [viewMode, currentPage, isTransitioning]);
 
   const scrollToPage = (pageNumber) => {
-    const pages = containerRef.current.getElementsByClassName("react-pdf__Page");
+    const pages =
+      containerRef.current.getElementsByClassName("react-pdf__Page");
     if (pages[pageNumber - 1]) {
       pages[pageNumber - 1].scrollIntoView({ behavior: "smooth" });
     }
@@ -315,31 +316,37 @@ const PDFViewer = ({ url }) => {
 
   const renderPages = () => {
     if (!numPages) return null;
-  
+
     switch (viewMode) {
       case ViewMode.SINGLE:
         return (
-          <div className="flex flex-col gap-4 items-center transition-all duration-300" >
+          <div className="flex flex-col gap-4 items-center transition-all duration-300">
             {Array.from(new Array(numPages), (_, index) => (
-              <div className="transform transition-transform duration-300" key={index}>
+              <div
+                className="transform transition-transform duration-300"
+                key={index}
+              >
                 <PDFPage
                   key={`page-${index + 1}`}
                   pageNumber={index + 1}
-                  scale={1}  // Scale for single view mode (850x956)
+                  scale={1} // Scale for single view mode (850x956)
                   isVisible={index + 1 === currentPage}
-                  zoom={zoom} setZoom={setZoom}
-
+                  zoom={zoom}
+                  setZoom={setZoom}
                 />
               </div>
             ))}
           </div>
         );
-  
+
       case ViewMode.DOUBLE:
         return (
           <div className="flex flex-col gap-4 transition-all duration-300">
             {Array.from(new Array(Math.ceil(numPages / 2)), (_, index) => (
-              <div key={`spread-${index}`} className="flex gap-4 justify-center transform transition-transform duration-300">
+              <div
+                key={`spread-${index}`}
+                className="flex gap-4 justify-center transform transition-transform duration-300"
+              >
                 <PDFPage
                   pageNumber={index * 2 + 1}
                   scale={0.75} // Scale for double view mode (645x939)
@@ -356,20 +363,20 @@ const PDFViewer = ({ url }) => {
             ))}
           </div>
         );
-  
+
       case ViewMode.CAROUSEL:
         const prevPage = currentPage > 1 ? currentPage - 1 : null;
         const nextPage = currentPage < numPages ? currentPage + 1 : null;
         return (
           <div className="flex gap-4 justify-center mt-6 items-center min-h-full relative">
             <button
-              onClick={() => handleCarouselScroll('prev')}
+              onClick={() => handleCarouselScroll("prev")}
               disabled={currentPage === 1 || isTransitioning}
               className="absolute left-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white transition-colors duration-200"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
-            
+
             <div className="flex gap-8 transition-transform duration-300 ease-in-out">
               {prevPage && (
                 <div className="opacity-50 transform scale-90 transition-all duration-300">
@@ -397,9 +404,9 @@ const PDFViewer = ({ url }) => {
                 </div>
               )}
             </div>
-  
+
             <button
-              onClick={() => handleCarouselScroll('next')}
+              onClick={() => handleCarouselScroll("next")}
               disabled={currentPage === numPages || isTransitioning}
               className="absolute right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white transition-colors duration-200"
             >
@@ -409,16 +416,16 @@ const PDFViewer = ({ url }) => {
         );
     }
   };
-  
 
   return (
     <div className="flex h-screen">
       <div className="flex-1 flex flex-col">
-
-        <div 
-          ref={containerRef} 
+        <div
+          ref={containerRef}
           className={`flex-1 overflow-auto scrollbar-hide  p-4 ${
-            viewMode === ViewMode.CAROUSEL ? 'overflow-x-auto whitespace-nowrap' : 'overflow-y-auto'
+            viewMode === ViewMode.CAROUSEL
+              ? "overflow-x-auto whitespace-nowrap"
+              : "overflow-y-auto"
           }`}
         >
           <Document
@@ -430,7 +437,6 @@ const PDFViewer = ({ url }) => {
             {renderPages()}
           </Document>
         </div>
-
       </div>
       <div className="overflow-y-auto">
         <ThumbnailDiv
@@ -443,41 +449,36 @@ const PDFViewer = ({ url }) => {
     </div>
   );
 };
-const PdfViewer = ({id}) => {
 
+const PdfViewer = ({ id }) => {
   const [pdfData, setPdfData] = useState<string | null>(null);
 
-    const handleFetchPdf = async () => {
-          try {
-            // d97e169c-ea97-4de6-a2fe-68e3547498e6
-            const pdf = await getPdfById(id);
-            if (pdf?.base64) {
-              // Convert the base64 string to a data URL
-              const dataUrl = pdf.base64;
-              setPdfData(dataUrl);
-            }
-          } catch (error) {
-            console.error('Error fetching PDF:', error);
-          }
-        };
-      
-      useEffect(() => {
-         
-          handleFetchPdf()
-      }, [])
-  
+  const handleFetchPdf = async () => {
+    try {
+      // d97e169c-ea97-4de6-a2fe-68e3547498e6
+      const pdf = await getPdfById(id);
+      if (pdf?.base64) {
+        // Convert the base64 string to a data URL
+        const dataUrl = pdf.base64;
+        setPdfData(dataUrl);
+      }
+    } catch (error) {
+      console.error("Error fetching PDF:", error);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchPdf();
+  }, []);
+
   return (
-    <div>
-
-     <PDFViewer url={pdfData} />
-     {/* <Toolbar/> */}
-
-   
-    
-
+    <div className="w-full h-screen bg-black">
+      {/* <PDFViewer url={pdfData} /> */}
+      {/* <Toolbar/> */}
+      <Toolbar />
+      <ShapeMuenu/>
     </div>
   );
 };
-
 
 export default PdfViewer;

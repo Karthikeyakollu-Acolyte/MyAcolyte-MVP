@@ -4,26 +4,14 @@ import React, { useState, useEffect } from "react";
 import { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import {
   AppState,
-  BinaryFiles,
   ExcalidrawImperativeAPI,
 } from "@excalidraw/excalidraw/types/types";
-import { Tool } from "@/types/pdf";
 import { getAppState, saveAppState } from "@/db/pdf/canvas";
-import {
-  getAppState as getAppStateInfinite,
-  saveAppState as saveAppStateInfinite,
-} from "@/db/note/canvas";
+
 import { useSettings } from "@/context/SettingsContext";
 import type { ActiveTool } from "@/context/SettingsContext";
-import {
-  convertToExcalidrawElements,
-  restoreElements,
-} from "@excalidraw/excalidraw";
 import html2canvas from "html2canvas";
-import { X, Plus, Minus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { v4 as uuidv4 } from "uuid";
-// import ExcalidrawComponent from "./ExcalidrawComponent";
+import { X} from "lucide-react";
 import "@/components/canvas/excalidraw/CustomExcalidraw.css";
 
 interface SelectionPoint {
@@ -50,27 +38,20 @@ const ExcalidrawFabric = ({
   pageIndex,
   currentDocumentId,
   zoom,
-  setZoom,
 }: {
   pageIndex?: number;
   currentDocumentId?: string;
 }) => {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI>();
   const {
-    scale,
     currentPage,
     setScrollPdf,
     setData,
-    scrollPdf,
     activeTool,
-    selectedColor,
     setActiveTool,
-    setfirst,
     setisHeadderVisible,
     setispagesZooming,
-    ispagesZooming,
     setisPagesZoomingFromGesture,
-    isPagesZoomingFromGesture,
   } = useSettings();
   const initialAppState: AppState = {
     zoom: { value: zoom },
@@ -435,7 +416,7 @@ const ExcalidrawFabric = ({
         };
 
         captureSelection(selectionStart, selectionEnd);
-        setSelectedTool(null);
+        setActiveTool(null)
         selectionStart = null;
       }
     }
