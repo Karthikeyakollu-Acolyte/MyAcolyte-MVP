@@ -379,7 +379,7 @@ const TodoList = () => {
   const filterOptions = ["All", "High", "Low"];
 
   return (
-    <div className="w-[356px] h-[873px] mr-10">
+    <div className="w-[356px] h-[873px]">
       <div className="max-w-full mx-auto ">
         <div className="flex justify-end">
           <FilterDropdown

@@ -1,8 +1,13 @@
 "use client";
-import { Plus, ChevronDown, ArrowLeft } from 'lucide-react';
+import { Plus, ChevronDown, ArrowLeft, Divide } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import RecentChats from './recent-chats';
+import RecentChats from "./recent-chats";
+import home from "@/public/nav/home.svg";
+import pdf from "@/public/nav/pdf.svg";
+import note from "@/public/nav/note.svg";
+import chat from "@/public/nav/chat.svg";
+import Image from "next/image";
 
 interface SidebarProps {
   resetChat: () => void;
@@ -17,36 +22,34 @@ export function Sidebar({ resetChat }: SidebarProps) {
 
   return (
     <div
-      className={`flex pt-5 pb-5 h-[991px] flex-col justify-between items-center border-r border-gray-200 bg-gradient-to-b from-[#E5E5E5] to-[#D0D0D0] transition-all duration-300 ease-in-out ${
-        isOpen ? "w-[421px] opacity-100" : "w-0 opacity-0 pointer-events-none"
+      className={`flex pt-5 pb-5 h-screen flex-col  items-center border-r border-gray-200 bg-[#E2E9F3] transition-all duration-300 ease-in-out ${
+        isOpen ? "w-[299px] opacity-100" : "w-0 opacity-0 pointer-events-none"
       }`}
     >
       {isOpen && (
-        <div>
-          <h2 className='text-center text-xl pb-5 mb-5 p-1'>Pdf Name</h2>
-          <div className="w-[359px] flex flex-col gap-10">
+        <div className="mb-10">
+          <h2 className="text-center text-xl pb-5  p-1">Pdf Name</h2>
+          <div className="w-[255px] flex flex-col gap-10 mt-10 ">
             <Button
-              className="justify-between hover:border-2 bg-white font-rubik text-gray-900 text-xl hover:bg-gray-50 h-[54px] px-6 rounded-xl border border-[#553C9A] shadow-sm"
-              variant={'default'}
+              className="justify-between hover:border-2 bg-white font-rubik text-gray-900 text-md hover:bg-gray-50 h-[54px] px-6 rounded-xl border  shadow-sm"
+              variant={"default"}
               onClick={() => {
                 resetChat(); // Reset chat on new chat click
               }}
             >
               New Chat
-              <Plus className="icon p-1.5 rounded-lg bg-[#553C9A] text-white" />
+              <Plus className="icon p-1.5 rounded-lg  bg-[#553C9A] text-white " />
             </Button>
-
             <RecentChats />
           </div>
         </div>
       )}
-
-      <div className="flex w-[357px] h-[485px] overflow-scroll scrollbar-hidden">
+      <div className="flex w-[254px] h-[365px] overflow-scroll scrollbar-hidden ">
         <div className="grid grid-cols-3 gap-5">
           {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="aspect-[0.7] w-[105px] h-[153px] rounded-lg bg-gray-100 border border-gray-200 shadow-sm flex items-center justify-center"
+              className="aspect-[0.7] w-[75px] h-[109px] rounded-lg bg-gray-100 border border-gray-200 shadow-sm flex items-center justify-center"
             >
               <span className="text-gray-400">Placeholder</span>
             </div>
@@ -54,17 +57,13 @@ export function Sidebar({ resetChat }: SidebarProps) {
         </div>
       </div>
 
-      {isOpen && (
-        <div className="p-4">
-          <Button
-            variant="outline"
-            className="justify-between w-[357px] bg-white font-rubik text-gray-900 text-xl hover:bg-gray-50 h-[54px] px-6 rounded-xl border-[#553C9A] shadow-sm"
-          >
-            Back to notes
-            <ArrowLeft className="icon p-1.5 rounded-lg bg-[#553C9A] text-white" />
-          </Button>
-        </div>
-      )}
+      <div className="w-[236px] flex  gap-4 mt-5">
+        {[home, pdf, note, chat].map((icon) => (
+          <div className="">
+            <Image src={icon} alt="" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

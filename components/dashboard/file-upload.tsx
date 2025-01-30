@@ -270,7 +270,7 @@ const FileUpload = () => {
   };
 
   return (
-    <div className="w-[1095px] h-[456px] mx-auto">
+    <div className="w-[1095px] h-[456px]">
       <div className="flex gap-2 bg-[#F6F7F9] w-fit p-2 rounded-full mb-6">
         <button
           onClick={() => setActiveTab("upload")}
@@ -585,10 +585,10 @@ export const FileUploadWrapper = ({ isUploadPdf, setIsOpen, fileType }) => {
           onClick={handleOutsideClick}
         >
           {/* Background Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br opacity-80"></div>
+          <div className="absolute inset-0 bg-gradient-to-br opacity-80 "></div>
 
           {/* Main Content Container */}
-          <div className="relative w-4/5 max-w-2xl rounded-lg shadow-lg p-6 z-20">
+          <div className="relative w-4/5 max-w-2xl rounded-lg shadow-lg p-6 z-20 ">
             <FileSystem
               currentPath={currentPath}
               setCurrentPath={setCurrentPath}

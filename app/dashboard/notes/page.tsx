@@ -198,7 +198,7 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="">
+    <div className="mt-32">
       <SubjectFolders />
       <div className="flex  gap-8 mt-20 mb-20  ">
         <FlashCards />

@@ -11,7 +11,7 @@ import { getAppState, saveAppState } from "@/db/pdf/canvas";
 import { useSettings } from "@/context/SettingsContext";
 import type { ActiveTool } from "@/context/SettingsContext";
 import html2canvas from "html2canvas";
-import { X} from "lucide-react";
+import { X } from "lucide-react";
 import "@/components/canvas/excalidraw/CustomExcalidraw.css";
 
 interface SelectionPoint {
@@ -53,11 +53,16 @@ const ExcalidrawFabric = ({
     setispagesZooming,
     setisPagesZoomingFromGesture,
   } = useSettings();
+
   const initialAppState: AppState = {
     zoom: { value: zoom },
     scrollX: 0,
     scrollY: 0,
   };
+  // const initialAppState1: AppState = {
+  //   zoom: { value: 1 },
+
+  // };
   const [screenshotUrl, setScreenshotUrl] = useState(null);
 
   const handleChange = (
@@ -67,7 +72,7 @@ const ExcalidrawFabric = ({
     if (!excalidrawAPI) return;
     let shouldUpdateScene = false;
     const newAppState: Pick<AppState, keyof AppState> = { ...state };
-    const appstate = excalidrawAPI.getAppState()
+    const appstate = excalidrawAPI.getAppState();
 
     if (state.zoom.value !== initialAppState.zoom.value) {
       newAppState.zoom = { value: initialAppState.zoom.value };
@@ -84,11 +89,11 @@ const ExcalidrawFabric = ({
       shouldUpdateScene = true;
     }
 
-     if (shouldUpdateScene) {
+    if (shouldUpdateScene) {
       excalidrawAPI.updateScene({
         appState: {
           ...appstate,
-          ...newAppState
+          ...newAppState,
         },
       });
 
@@ -181,9 +186,9 @@ const ExcalidrawFabric = ({
 
   const switchTool = (selectedTool: ActiveTool["type"]) => {
     if (!excalidrawAPI) return;
-    
+
     console.log("Switching tool:", selectedTool);
-  
+
     // Reset tool properties
     const resetToolProperties = () => {
       excalidrawAPI.updateScene({
@@ -194,7 +199,7 @@ const ExcalidrawFabric = ({
         },
       });
     };
-  
+
     // Define active tool properties with safe defaults
     const toolProperties = activeTool || {
       strokeColor: "#000000",
@@ -203,7 +208,7 @@ const ExcalidrawFabric = ({
       fillColor: "transparent",
       color: "#000000",
     };
-  
+
     switch (selectedTool) {
       case "pen":
       case "pencil":
@@ -218,12 +223,12 @@ const ExcalidrawFabric = ({
           },
         });
         break;
-  
+
       case "image":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "image" });
         break;
-  
+
       case "arrow":
       case "line":
         resetToolProperties();
@@ -236,23 +241,26 @@ const ExcalidrawFabric = ({
           },
         });
         break;
-  
+
       case "circle":
       case "square":
       case "diamond":
         resetToolProperties();
-        console.log(activeTool)
-        excalidrawAPI.setActiveTool({ type: selectedTool === "circle" ? "ellipse" : selectedTool });
+        console.log(activeTool);
+        excalidrawAPI.setActiveTool({
+          type: selectedTool === "circle" ? "ellipse" : selectedTool,
+        });
         excalidrawAPI.updateScene({
           appState: {
             currentItemStrokeColor: toolProperties.strokeColor || "#000000",
-            currentItemStrokeWidth: toolProperties.strokeWidth|| 2,
+            currentItemStrokeWidth: toolProperties.strokeWidth || 2,
             currentItemOpacity: toolProperties.opacity || 100,
-            currentItemBackgroundColor: toolProperties?.fillColor || "transparent",
+            currentItemBackgroundColor:
+              toolProperties?.fillColor || "transparent",
           },
         });
         break;
-  
+
       case "texthighlighter":
         excalidrawAPI.setActiveTool({ type: "line" });
         excalidrawAPI.updateScene({
@@ -263,7 +271,7 @@ const ExcalidrawFabric = ({
           },
         });
         break;
-  
+
       case "text":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "text" });
@@ -273,23 +281,23 @@ const ExcalidrawFabric = ({
           },
         });
         break;
-  
+
       case "objectEraser":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "eraser" });
         break;
-  
+
       case "rectangleSelection":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
         break;
-  
+
       default:
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
     }
   };
-  
+
   useEffect(() => {
     if (!activeTool?.id) return;
     switchTool(activeTool.id);
@@ -303,7 +311,6 @@ const ExcalidrawFabric = ({
     activeTool?.strokeColor,
     activeTool?.strokeWidth,
   ]);
-
 
   let imageBounds;
 
@@ -322,20 +329,20 @@ const ExcalidrawFabric = ({
 
       const pageRect = pageElement.getBoundingClientRect();
 
-     // Adjust selection bounds based on zoom
-     const selectionBounds = {
-      x: Math.max(
-        0,
-        (Math.min(selectionStart.x, selectionEnd.x)) + pageRect.left
-      ),
-      y: Math.max(
-        0,
-        (Math.min(selectionStart.y, selectionEnd.y)) + pageRect.top
-      ),
-      width: Math.abs(selectionEnd.x - selectionStart.x) ,
-      height: Math.abs(selectionEnd.y - selectionStart.y),
-    };
-      const scale =  1;
+      // Adjust selection bounds based on zoom
+      const selectionBounds = {
+        x: Math.max(
+          0,
+          Math.min(selectionStart.x, selectionEnd.x) + pageRect.left
+        ),
+        y: Math.max(
+          0,
+          Math.min(selectionStart.y, selectionEnd.y) + pageRect.top
+        ),
+        width: Math.abs(selectionEnd.x - selectionStart.x),
+        height: Math.abs(selectionEnd.y - selectionStart.y),
+      };
+      const scale = 1;
 
       const scaledBounds = {
         x: selectionBounds.x / scale,
@@ -392,6 +399,9 @@ const ExcalidrawFabric = ({
   }) => {
     save();
     if (!(activeTool?.id === "rectangleSelection")) return;
+    
+
+    excalidrawAPI?.updateScene({ appState: {  zoom: { value: 1 } } });
     const { pointer, button } = payload;
     const pageElement = document.querySelector(
       `[data-page-number="${pageIndex}"]`
@@ -416,7 +426,7 @@ const ExcalidrawFabric = ({
         };
 
         captureSelection(selectionStart, selectionEnd);
-        setActiveTool(null)
+        setActiveTool(null);
         selectionStart = null;
       }
     }
@@ -457,11 +467,10 @@ const ExcalidrawFabric = ({
         onPointerDown={(e) => {}}
         onPointerUpdate={handlePointerUpdate}
         onChange={handleChange}
-
         excalidrawAPI={(api) => setExcalidrawAPI(api)}
         handleKeyboardGlobally={false}
         objectsSnapModeEnabled={false}
-        gridModeEnabled={true}
+        // gridModeEnabled={true}
         theme="light"
         viewModeEnabled={false}
         initialData={{

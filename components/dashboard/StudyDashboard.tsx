@@ -3,7 +3,7 @@ import { FileText } from 'lucide-react';
 
 const StudyDashboard = () => {
   return (
-    <div className="flex gap-8 ">
+    <div className="flex gap-8">
       {/* Collaborative Study Section */}
       <div className="w-[529px] h-[476px]">
         <h2 className="text-2xl font-semibold text-emerald-700 mb-6">

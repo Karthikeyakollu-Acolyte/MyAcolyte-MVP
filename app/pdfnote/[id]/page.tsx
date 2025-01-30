@@ -27,7 +27,7 @@ export default function page() {
       <div className="flex flex-col items-center pb-8 pt-[100px]  scrollbar-hide" id="scrollPad">
         <PdfViewerComponent isExpanded={isExpanded} id={id} />
 
-        { data && <div className="fixed inset-0  w-full h-full bg-transparent">
+        { data && <div className="fixed inset-0  w-full h-full bg-transparent" style={{zIndex:50}}>
           <ExcalidrawComponent id={id} />
         </div> }
 

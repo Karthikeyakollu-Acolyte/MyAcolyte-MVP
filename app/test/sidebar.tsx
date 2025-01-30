@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import home from "@/public/homesidebar.svg";
 import chat from "@/public/chat.svg";
@@ -15,6 +15,7 @@ import write from "@/public/write.svg";
 import { useSettings } from "@/context/SettingsContext";
 import PDFCounter from "@/components/pdfcomponents/pdf-page-counter";
 import ToggleButton from "@/components/DarkModeToggle";
+import { useRouter } from "next/navigation";
 
 const NavButton = ({ active, onClick, icon, label }) => (
   <div className="relative group inline-flex items-center">
@@ -71,6 +72,7 @@ export default function Sidebar() {
   const [activeView, setActiveView] = useState("");
   const [activeTool, setActiveTool] = useState("read");
   const { setfirst, setViewMode } = useSettings();
+  const router = useRouter()
 
   return (
     <div
@@ -82,25 +84,25 @@ export default function Sidebar() {
         <div className="flex flex-col items-center gap-2.5">
           <NavButton
             active={activeNav === "home"}
-            onClick={() => setActiveNav("home")}
+            onClick={() => {setActiveNav("home"); router.push('/dashboard') }}
             icon={home}
             label="Home"
           />
           <NavButton
             active={activeNav === "pdf"}
-            onClick={() => setActiveNav("pdf")}
+            onClick={() => {setActiveNav("pdf");router.push('/dashboard/pdf')}}
             icon={pdfviewer}
             label="PDF Viewer"
           />
           <NavButton
             active={activeNav === "notes"}
-            onClick={() => setActiveNav("notes")}
+            onClick={() => {setActiveNav("notes"); router.push('/dashboard/notes')}}
             icon={notes}
             label="Notes"
           />
           <NavButton
             active={activeNav === "chat"}
-            onClick={() => setActiveNav("chat")}
+            onClick={() => {setActiveNav("chat");router.push('/chat')}}
             icon={chat}
             label="Chat"
           />
@@ -164,9 +166,9 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <div className="mt-36 ml-5">
+      <div className="ml-5 mt-8">
         <ToggleButton/>
-        <PDFCounter />
+        {/* <PDFCounter /> */}
       </div>
     </div>
   );

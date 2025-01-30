@@ -243,12 +243,12 @@ export function SidebarNav() {
   }
 
   return (
-    <div className="w-[275px] h-[1113px] border-r  mt-3">
+    <div className="w-[275px] h-[1113px]   mt-3  bg-white">
 
       {isOpen && <FileUploadWrapper isUploadPdf={isOpen} setIsOpen={setIsOpen} fileType={fileType}/>}
 
       <div className="px-3 py-4">
-        <nav className="space-y-2 font-medium">
+        <nav className="space-y-2 font-medium ">
           {menuItems.map((item) => (
             <div
               key={item.id}
