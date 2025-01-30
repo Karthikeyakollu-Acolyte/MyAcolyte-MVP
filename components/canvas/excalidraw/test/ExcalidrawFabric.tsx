@@ -59,11 +59,32 @@ const ExcalidrawFabric = ({
     scrollX: 0,
     scrollY: 0,
   };
-  // const initialAppState1: AppState = {
-  //   zoom: { value: 1 },
-
-  // };
+  const initialAppState1: AppState = {
+    zoom: { value: 1 },
+    scrollX: 0,
+    scrollY: 0,
+  };
   const [screenshotUrl, setScreenshotUrl] = useState(null);
+
+  const hideAllElements = () => {
+    const excalidraw = excalidrawAPI?.getSceneElements();
+    const hiddenElements = excalidraw?.map((el) => {
+      el.isDeleted = true; // Set isDeleted to true to hide
+      return el;
+    });
+    excalidrawAPI?.updateScene({ elements: hiddenElements });
+  };
+
+
+   // Function to enable all elements
+   const enableAllElements = () => {
+    const excalidraw = excalidrawAPI?.getSceneElements();
+    const enabledElements = excalidraw?.map((el) => {
+      el.isDeleted = false; // Set isDeleted to false to show
+      return el;
+    });
+    excalidrawAPI?.updateScene({ elements: enabledElements });
+  };
 
   const handleChange = (
     elements: readonly ExcalidrawElement[],
@@ -73,10 +94,18 @@ const ExcalidrawFabric = ({
     let shouldUpdateScene = false;
     const newAppState: Pick<AppState, keyof AppState> = { ...state };
     const appstate = excalidrawAPI.getAppState();
+    console.log(elements)
 
-    if (state.zoom.value !== initialAppState.zoom.value) {
+    if (activeTool?.id === "rectangleSelection") {
+      if (state.zoom.value !== initialAppState1.zoom.value) {
+        newAppState.zoom = { value: initialAppState1.zoom.value };
+        // hideAllElements()
+        shouldUpdateScene = true;
+      }
+    } else if (state.zoom.value !== initialAppState.zoom.value) {
       newAppState.zoom = { value: initialAppState.zoom.value };
       shouldUpdateScene = true;
+
     }
 
     if (state.scrollX !== initialAppState.scrollX) {
@@ -399,9 +428,8 @@ const ExcalidrawFabric = ({
   }) => {
     save();
     if (!(activeTool?.id === "rectangleSelection")) return;
-    
 
-    excalidrawAPI?.updateScene({ appState: {  zoom: { value: 1 } } });
+    excalidrawAPI?.updateScene({ appState: { zoom: { value: 1 } } });
     const { pointer, button } = payload;
     const pageElement = document.querySelector(
       `[data-page-number="${pageIndex}"]`
