@@ -27,7 +27,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="flex w-full h-[89px] justify-between items-center px-5 bg-white shadow-sm">
+    <div className="flex fixed w-full h-[89px] justify-between items-center px-5 bg-white shadow-sm" style={{zIndex:20}}>
       {/* Logo Section */}
       <div className="flex justify-center items-center">
         <Image

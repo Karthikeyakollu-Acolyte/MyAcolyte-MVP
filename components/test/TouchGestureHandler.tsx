@@ -108,7 +108,7 @@ export const TouchGestureHandler = ({ onZoomChange }) => {
   
     return (
       <div
-        className="absolute top-0 left-0 w-full h-full bg-pink-900 opacity-30"
+        className="absolute top-0 left-0 w-full h-full opacity-30"
         id="scrollPad"
         style={{ zIndex: 10 }}
       />

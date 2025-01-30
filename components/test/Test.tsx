@@ -12,12 +12,8 @@ import ExcalidrawFabric from "@/components/canvas/excalidraw/test/ExcalidrawFabr
 import { getPdfById } from "@/db/pdf/docs";
 import { useSettings } from "@/context/SettingsContext";
 import { Slider } from "../ui/slider";
-<<<<<<< HEAD
-import { Excalidraw } from "@excalidraw/excalidraw";
-=======
 import { ThumbnailDiv } from "./ThumbnailDiv";
 import { TouchGestureHandler } from "./TouchGestureHandler";
->>>>>>> d7c0506cb124c75affe724bde31a1aaad3d4118b
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
 // Loading and Error Component
@@ -63,11 +59,11 @@ const PDFPage = ({
     setZoom((prev: number) => prev + 0.1);
     const timeoutId = setTimeout(() => {
       setZoom((prev: number) => prev - 0.1);
-    }, 200);
+    }, 300);
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [viewMode]);
+  }, [viewMode,pageWidth]);
 
   useEffect(() => {
     if (!isPageLoaded) return;
@@ -99,7 +95,7 @@ const PDFPage = ({
     });
   }, []);
   return (
-    <div ref={setRefs} className="relative border-2 border-pink-200">
+    <div ref={setRefs} className="relative overflow-auto max-w-full">
       {  inView && 
         <div>
           <div
@@ -249,7 +245,7 @@ const PDFViewer = ({ url }) => {
         <div className="fixed top-4 right-4 z-50">
           <Slider
             min={0.5}
-            max={5}
+            max={4}
             step={0.1}
             value={[zoom]}
             onValueChange={handleZoomChange}
@@ -267,6 +263,9 @@ const PDFViewer = ({ url }) => {
           </Document>
         </div>
       </div>
+     <div className="">
+     <ThumbnailDiv currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={numPages} scrollToPage={()=>{}}/>
+     </div>
     </div>
   );
 };
@@ -292,6 +291,7 @@ const PdfViewer = ({ id }) => {
     <div>
       <PDFViewer url={pdfData} />
       {/* <Toolbar/> */}
+     
     </div>
   );
 };

@@ -138,7 +138,7 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="">
+    <div className="mt-32">
       <div className="mb-20">
         <FileUpload />
       </div>

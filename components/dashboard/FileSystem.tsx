@@ -211,7 +211,6 @@ export default function FileSystem({
     }
 
     if (item.type === "file") {
-      console.log(item);
       if (item.fileType === "note") {
         return <Image src={PlainNote} alt="plainNote" />;
       } else if (item.fileType === "pdf") {
@@ -266,14 +265,14 @@ export default function FileSystem({
       </div>
 
       <div
-        className={`p-6 overflow-y-auto scrollbar-hidden transition-all duration-300 ${
-          isExpanded ? "h-[780px]" : "h-[200px]"
+        className={`p-6 overflow-y-auto  scrollbar-hidden transition-all duration-300 ${
+          isExpanded ? "h-[600px]" : "h-[200px]"
         }`}
       > {isExpanded}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {!currentFolder && (
             <div
-              className={`flex flex-col items-center cursor-pointer justify-center relative ${ isExpanded ? "border-black border-2" : "" } `}
+              className={`flex flex-col items-center cursor-pointer justify-center relative ${ isExpanded ? "border-slate-300 border-2 rounded-lg p-2" : "" } `}
               onClick={handleCreateFolder}
             >
               <Image src={newfolder} alt="new-folder" />
@@ -286,7 +285,7 @@ export default function FileSystem({
           {getCurrentItems().map((item) => (
             <div
               key={item.id}
-              className="flex flex-col items-center cursor-pointer relative justify-center"
+              className={`flex flex-col items-center cursor-pointer relative justify-center  ${ isExpanded ? "border-slate-300 border-2 rounded-lg p-2" : "" }`}
               onClick={() => handleItemClick(item)}
             >
               {getFileIcon(item)}

@@ -18,13 +18,13 @@ export default function RecentChats() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="w-[359px]">
+    <div className="w-[255px]">
       {/* Single container for both button and chat items */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden relative border border-[#553C9A]">
+      <div className="bg-white rounded-xl shadow-md overflow-hidden relative border">
         {/* Button to toggle the state */}
         <Button
           variant="default"
-          className="relative z-10 justify-between bg-white font-rubik text-gray-900 text-xl hover:bg-gray-50 h-[54px] px-6 w-full"
+          className="relative z-10 justify-between bg-white font-rubik text-gray-900 text-md hover:bg-gray-50 h-[54px] px-6 w-full"
           onClick={() => setIsOpen(!isOpen)}
         >
           Recent Chat

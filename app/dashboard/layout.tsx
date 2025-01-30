@@ -1,76 +1,61 @@
-"use client"
-import React from 'react'
-import { useState } from 'react'
-import { MenuIcon, ListIcon } from 'lucide-react'
-import { DashHeader } from "@/components/dashboard/DashHeader"
-import { SidebarNav } from "@/components/dashboard/sidebar-nav"
-import { TasksSidebar } from "@/components/dashboard/tasks-sidebar"
-import ScrollableContent from '@/components/PdfViewerComponent';
-import { SettingsProvider, useSettings } from '@/context/SettingsContext'
-import TodoNotes from '@/components/dashboard/Todo'
-import TodoList from '@/components/dashboard/Todo'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+"use client";
+import React, { useState } from "react";
+import { MenuIcon, ListIcon, PanelLeft,PanelRight } from "lucide-react";
+import { DashHeader } from "@/components/dashboard/DashHeader";
+import { SidebarNav } from "@/components/dashboard/sidebar-nav";
+import { SettingsProvider } from "@/context/SettingsContext";
+import TodoList from "@/components/dashboard/Todo";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import acolyte from "@/public/acolyte.png";
 
-type Props = {}
 
-const Layout: React.FC = ({ children }) => {
-  const [sidebarVisible, setSidebarVisible] = useState(false);
-  const [todoVisible, setTodoVisible] = useState(false);
-  const toggleSidebar = () => setSidebarVisible(prev => !prev);
-  const toggleTodo = () => setTodoVisible(prev => !prev);
-
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="w-screen overflow-hidden h-screen">
+    <div className="w-screen h-screen overflow-hidden">
       <SettingsProvider>
-        <div className="">
-          <DashHeader />
-          {/* Grid Layout for Main Content */}
-          <div className="grid grid-cols-12 gap-4 min-h-screen">
-            {/* Mobile Toggle Buttons Container */}
-            <div className="col-span-12 p-2 flex justify-between items-center">
-              {/* Sidebar Toggle Button - Left Side */}
-              <div className="xl:hidden col-span-12 flex items-center">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <button onClick={toggleSidebar} className="p-2 bg-gray-800 rounded-full text-white">
-                      <MenuIcon />
-                    </button>
-                  </SheetTrigger>
-                  <SheetContent side="left">
-                    <SidebarNav />
-                  </SheetContent>
-                </Sheet>
-              </div>
-
-              {/* Todo List Toggle Button - Right Side */}
-              <div className="lg:hidden col-span-12 flex items-center">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <button onClick={toggleTodo} className="p-2 bg-gray-800 rounded-full text-white">
-                      <ListIcon />
-                    </button>
-                  </SheetTrigger>
-                  <SheetContent side="right">
-                    <TodoList />
-                  </SheetContent>
-                </Sheet>
-              </div>
-            </div>
-
-            {/* Sidebar (always visible on larger screens) */}
-            <div className="xl:block col-span-2 hidden top-16 left-0 h-full">
-              <SidebarNav />
-            </div>
-
-            {/* Main Content */}
-            <main className="col-span-12 md:col-span-12 lg:col-span-7 overflow-auto h-screen scrollbar-hidden p-10">
-              {children}
-            </main>
-
-            {/* Todo List (always visible on larger screens) */}
-            <div className="lg:block col-span-3 hidden top-16 right-0 h-full">
-              <TodoList />
-            </div>
+        <DashHeader />
+        {/* Sidebar Toggle (Left) */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button className="p-2 fixed top-20 left-2 xl:hidden" variant={"ghost"}>
+              <PanelLeft />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[275px] -p-2">
+          <Image src={acolyte} alt="Logo" className="w-24 h-24" />
+            <SidebarNav />
+          </SheetContent>
+        </Sheet>
+        {/* Todo List Toggle (Right) */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button className="p-1 fixed top-20 right-2 xl:hidden" variant={"ghost"}>
+              <PanelRight />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-full p-3">
+            <TodoList />
+          </SheetContent>
+        </Sheet>
+        
+        <div className="grid grid-cols-12 gap-4 min-h-screen">
+          {/* Sidebar (Visible on Large Screens) */}
+          <div className="hidden xl:block col-span-2 text-white p-4">
+            <SidebarNav />
+          </div>
+          {/* Main Content */}
+          <main className="col-span-12 xl:col-span-7 p-4 overflow-auto scrollbar-hide h-screen flex w-full items-center justify-center">
+            {children}
+          </main>
+          {/* Todo List (Visible on Large Screens) */}
+          <div className="hidden lg:block col-span-3 p-4 text-white">
+            <TodoList />
           </div>
         </div>
       </SettingsProvider>
@@ -78,4 +63,4 @@ const Layout: React.FC = ({ children }) => {
   );
 };
 
-export default Layout
+export default Layout;

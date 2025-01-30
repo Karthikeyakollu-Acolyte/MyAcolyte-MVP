@@ -18,14 +18,14 @@ export function DashHeader() {
     <header className="w-full h-[87px] border-b flex items-center justify-between px-4 md:px-6 lg:px-8">
       {/* Logo & Search */}
       <div className="flex items-center justify-between w-[60vw] gap-4">
-        <Image src={acolyte} alt="Logo" className="w-16 h-16" />
+        <Image src={acolyte} alt="Logo" className="w-24 h-24" />
         <div className="hidden md:block w-full max-w-md">
           <Search />
         </div>
       </div>
 
       {/* Right Icons and User Info */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 ml-2">
         <DarkToggleButton />
         <button className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-100">
           <Calendar className="w-5 h-5 text-gray-600" />
@@ -42,10 +42,6 @@ export function DashHeader() {
           className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 cursor-pointer"
           onClick={handleProfileClick}
         >
-          <div className="text-right hidden sm:block">
-            <div className="text-md font-medium">Anima Agrawal</div>
-            <div className="text-sm text-gray-500">U.P, India</div>
-          </div>
           <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
         </div>
       </div>
