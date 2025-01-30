@@ -276,7 +276,7 @@ export default function FileSystem({
               onClick={handleCreateFolder}
             >
               <Image src={newfolder} alt="new-folder" />
-              <div className="mt-1 text-sm text-center absolute group top-1/2">
+              <div className="mt-1 text-md text-center absolute group top-1/2">
                 <span>New</span>
               </div>
             </div>
@@ -305,7 +305,7 @@ export default function FileSystem({
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <div className="text-sm text-center group mt-1">
+                <div className="text-md text-center group mt-1">
                   <div className="w-full absolute top-1/2 right-0">
                     <p className="truncate text-center overflow-hidden whitespace-nowrap text-ellipsis">
                       {item.name}
