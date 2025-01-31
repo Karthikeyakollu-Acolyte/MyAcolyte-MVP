@@ -34,7 +34,7 @@ const PenMenu = () => {
   };
 
   return (
-    <div className="bg-white rounded-full py-1.5 px-3 flex items-center gap-4 w-64 relative">
+    <div className="bg-white rounded-full py-1.5 px-3 flex items-center gap-4 w-full relative">
       {/* Stroke Width */}
       <div className="flex items-center gap-1.5">
         <span className="text-gray-700 text-xs">Stroke</span>
@@ -58,7 +58,7 @@ const PenMenu = () => {
       <div className="h-5 w-px bg-gray-200"/>
 
       {/* Opacity */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+      <div className="flex items-center gap-2 flex-1 w-32 ">
         <span className="text-gray-700 text-xs">Opacity</span>
         <div className="flex-1">
           <Slider
