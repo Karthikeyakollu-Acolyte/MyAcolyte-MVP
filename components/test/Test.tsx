@@ -114,7 +114,7 @@ const PDFPage = ({
               error={`Error loading page ${pageNumber}`}
             />
           </div>
-          {ispagesZooming && (
+          {/* {ispagesZooming && (
             <TouchGestureHandler onZoomChange={handleZoomChange} />
           )}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-auto">
@@ -124,7 +124,7 @@ const PDFPage = ({
               zoom={zoom / 5} // Sync zoom here for Excalidraw canvas
               setZoom={setZoom}
             />
-          </div>
+          </div> */}
         </div>
       }
     </div>
@@ -240,7 +240,7 @@ const PDFViewer = ({ url }) => {
     setisPagesZoomingFromGesture(true);
   };
   return (
-    <div className="flex h-full">
+    <div className="flex h-full max-w-full">
       <div className="flex-1 flex flex-col">
         <div className="fixed top-4 right-4 z-50">
           <Slider

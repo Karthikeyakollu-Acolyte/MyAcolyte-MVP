@@ -160,15 +160,10 @@ const SearchComponent = () => {
             const pdfPage = document.querySelector(`[data-page-number="${pageNumber}"]`);
             
             if (pdfPage) {
-                // Calculate scroll position to center the highlight
-                const elementRect = currentElement.getBoundingClientRect();
-                const scrollTop = window.pageYOffset + elementRect.top - (window.innerHeight / 2);
-                const doc = document.getElementById('doc');
-                console.log(doc)
-
-                doc.scrollTo({
-                    top: scrollTop,
-                    behavior: 'smooth'
+                // Approach 2: Use scrollIntoView
+                currentElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
                 });
             }
 
