@@ -1,10 +1,12 @@
 "use client";
+import { useSettings } from "@/context/SettingsContext";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
 export const TouchGestureHandler = ({ onZoomChange }) => {
     const initialDistance = useRef(null);
     const currentScale = useRef(1);
     const lastScale = useRef(1);
+    const {scale} = useSettings()
   
     useEffect(() => {
       const scrollPad = document.getElementById("scrollPad");
@@ -33,26 +35,24 @@ export const TouchGestureHandler = ({ onZoomChange }) => {
             event.touches[0],
             event.touches[1]
           );
-  
+      
           const scale = currentDistance / initialDistance.current;
           let targetScale = lastScale.current * scale;
-  
+      
           // Step adjustment (rounded to nearest 0.1)
           targetScale = Math.round(targetScale * 10) / 10;
-  
-          // Clamp the scale
-          const newScale = Math.max(0.5, Math.min(3, targetScale));
-  
-          // Apply the change only if there's a meaningful difference
-          if (Math.abs(currentScale.current - newScale) >= 0.1) {
-            currentScale.current = newScale;
-            onZoomChange(newScale);
-            console.log("Current scale (touch):", newScale);
+      
+          // Apply the change if there's a meaningful difference
+          if (Math.abs(currentScale.current - targetScale) >= 0.1) {
+            currentScale.current = targetScale;
+            onZoomChange(targetScale,event);
+            console.log("Current scale (touch):", targetScale);
           }
-  
+      
           event.preventDefault();
         }
       };
+      
   
       const handleTouchEnd = () => {
         initialDistance.current = null;
@@ -66,20 +66,19 @@ export const TouchGestureHandler = ({ onZoomChange }) => {
           const delta = event.deltaY || event.deltaX; // Trackpad delta (vertical or horizontal)
           const scaleChange = delta > 0 ? -0.1 : 0.1; // Adjust zoom direction
           const targetScale = currentScale.current + scaleChange;
-  
+      
           // Step adjustment (rounded to nearest 0.1)
           const newScale = Math.round(targetScale * 10) / 10;
-  
-          // Clamp the scale
-          if (newScale >= 0.5 && newScale <= 3) {
-            currentScale.current = newScale;
-            onZoomChange(newScale);
-            console.log("Current scale (trackpad):", newScale);
-          }
-  
+      
+          // Apply the change
+          currentScale.current = newScale;
+          onZoomChange(newScale,event);
+          console.log("Current scale (trackpad):", newScale);
+      
           event.preventDefault();
         }
       };
+      
   
       // Adding event listeners for touch events
       if (scrollPad) {
@@ -108,9 +107,9 @@ export const TouchGestureHandler = ({ onZoomChange }) => {
   
     return (
       <div
-        className="absolute top-0 left-0 w-full h-full opacity-30 bg-blue-300"
+        className="absolute top-0 left-0 w-full h-full  bg-blue-900"
         id="scrollPad"
-        style={{ zIndex: 10 }}
+        style={{ zIndex: 100 }}
       />
     );
   };

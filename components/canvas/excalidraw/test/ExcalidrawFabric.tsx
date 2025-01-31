@@ -52,6 +52,7 @@ const ExcalidrawFabric = ({
     setisHeadderVisible,
     setispagesZooming,
     setisPagesZoomingFromGesture,
+    ispagesZooming
   } = useSettings();
 
   const initialAppState: AppState = {
@@ -490,7 +491,7 @@ const ExcalidrawFabric = ({
   }, [zoom]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full" style={{pointerEvents:ispagesZooming?"none":"auto"}}>
       <Excalidraw
         onPointerDown={(e) => {}}
         onPointerUpdate={handlePointerUpdate}

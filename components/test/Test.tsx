@@ -1,9 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useInView } from "react-intersection-observer";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -14,6 +11,7 @@ import { useSettings } from "@/context/SettingsContext";
 import { Slider } from "../ui/slider";
 import { ThumbnailDiv } from "./ThumbnailDiv";
 import { TouchGestureHandler } from "./TouchGestureHandler";
+import { debounce } from "lodash";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
 
@@ -28,68 +26,6 @@ const ErrorComponent = ({ message }) => (
   <div className="text-red-500 text-center">{message}</div>
 );
 
-const PDFPage = ({
-  pageNumber,
-  isVisible,
-  zoom,
-  setZoom,
-  pageWidth,
-  viewMode,
-  fitToWidth,
-  setFitToWidth,
-  isExpanded,
-}) => {
-  const containerRef = useRef(null);
-  const { ref: inViewRef, inView } = useInView({ threshold: 0.1, triggerOnce: true });
-  const [pageView, setPageView] = useState();
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
-
-  const setRefs = (element) => {
-    containerRef.current = element;
-    inViewRef(element);
-  };
-
-  const handleLoadSuccess = (page) => {
-    setPageView(page);
-    setIsPageLoaded(true);
-  };
-
-  useEffect(() => {
-    if (!isPageLoaded || !containerRef.current) return;
-    
-    const container = containerRef.current;
-    const targetWidth = isExpanded ? pageWidth : container.offsetWidth;
-    const newScale = targetWidth / pageView.view[2];
-
-    if (fitToWidth) {
-      setZoom(newScale);
-    }
-  }, [isPageLoaded, pageView, fitToWidth, isExpanded]);
-
-  return (
-    <div 
-      ref={setRefs} 
-      className={`relative overflow-auto max-w-full ${viewMode === "single" && !isExpanded ? "w-[50vw]" : ""}`} 
-    >
-      {inView && (
-        <div className="w-full">
-          <div style={{ filter: false ? "invert(1)" : "" }}>
-            <Page
-              pageNumber={pageNumber}
-              scale={zoom}
-              onLoadSuccess={handleLoadSuccess}
-              className="mx-auto"
-              renderTextLayer={true}
-              renderAnnotationLayer={false}
-              loading={<Loading message={`Loading page ${pageNumber}...`} />}
-              error={<ErrorComponent message={`Error loading page ${pageNumber}`} />}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 
 const ViewMode = {
@@ -102,13 +38,9 @@ const PDFViewer = ({ url }) => {
   const [numPages, setNumPages] = useState(null);
   const [zoom, setZoom] = useState(1);
   const [fitToWidth, setFitToWidth] = useState(true);
-  const {
-    viewMode,
-    currentPage,
-    setCurrentPage,
-    isExpanded,
-    setisExpanded,
-  } = useSettings();
+  const { viewMode, currentPage, setCurrentPage, isExpanded, setisExpanded,setScale } =
+    useSettings();
+    const [zoomOrigin, setZoomOrigin] = useState({ x: "50%", y: "50%" });
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -120,7 +52,10 @@ const PDFViewer = ({ url }) => {
 
   const handleZoomChange = (value) => {
     setZoom(value[0]);
+    setScale(value[0])
   };
+
+
 
   const toggleExpand = () => {
     setisExpanded((prev) => !prev);
@@ -183,10 +118,13 @@ const PDFViewer = ({ url }) => {
     </div>
   );
 
+
+
+
   return (
     <div className="flex h-full max-w-full">
       <div className="flex-1 flex flex-col">
-        <div className="fixed top-4 right-4 z-50 flex gap-2">
+        {/* <div className="fixed top-4 right-4 z-50 flex gap-2">
           <button
             onClick={toggleExpand}
             className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300"
@@ -201,8 +139,9 @@ const PDFViewer = ({ url }) => {
             onValueChange={handleZoomChange}
             className="w-40"
           />
-        </div>
-        <div ref={containerRef} className="flex-1 overflow-auto p-4">
+        </div> */}
+        <div ref={containerRef} className="flex-1 overflow-auto p-4 scrollbar-hidden"
+        >
           <Document
             file={url}
             onLoadSuccess={(doc) => setNumPages(doc.numPages)}
@@ -216,6 +155,99 @@ const PDFViewer = ({ url }) => {
     </div>
   );
 };
+
+
+
+
+const PDFPage = ({
+  pageNumber,
+  isVisible,
+  zoom,
+  setZoom,
+  pageWidth,
+  viewMode,
+  fitToWidth,
+  setFitToWidth,
+  isExpanded,
+}) => {
+  const containerRef = useRef(null);
+  const { ref: inViewRef, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+  const [pageView, setPageView] = useState();
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const { ispagesZooming, currentDocumentId } = useSettings();
+
+  const setRefs = (element) => {
+    containerRef.current = element;
+    inViewRef(element);
+  };
+
+  const handleLoadSuccess = (page) => {
+    setPageView(page);
+    setIsPageLoaded(true);
+  };
+  const handleZoomChange = (zoom,event) => {
+    console.log(zoom);
+    // if(zoom<1 && zoom> 5) return
+    setZoom(zoom)
+  };
+let targetWidth
+  useEffect(() => {
+    if (!isPageLoaded) return;
+    if(viewMode===ViewMode.SINGLE){
+     targetWidth = isExpanded ? pageWidth : 800;
+    }else{
+      targetWidth = isExpanded ? pageWidth : pageWidth;
+    }
+    // const targetWidth = isExpanded ? pageWidth : pageWidth;
+    const newScale = targetWidth / pageView.view[2];
+
+    if (fitToWidth) {
+      setZoom(newScale);
+    }
+  }, [isPageLoaded, pageView, fitToWidth, isExpanded]);
+
+  return (
+    <div ref={setRefs} className={`relative overflow-auto max-w-full `}>
+      {inView && (
+        <div className="w-full" >
+          <div style={{ filter: false ? "invert(1)" : "" }}>
+            <Page
+              pageNumber={pageNumber}
+              scale={zoom}
+              onLoadSuccess={handleLoadSuccess}
+              className="mx-auto"
+              renderTextLayer={true}
+              renderAnnotationLayer={false}
+              loading={<Loading message={`Loading page ${pageNumber}...`} />}
+              error={
+                <ErrorComponent message={`Error loading page ${pageNumber}`} />
+              }
+            />
+          
+          </div>
+          {true && (
+            <div className="w-[100vw] absolute top-0 left-0">
+              <TouchGestureHandler onZoomChange={handleZoomChange} />
+            </div>
+          )}
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-auto">
+            <ExcalidrawFabric
+              pageIndex={pageNumber}
+              currentDocumentId={currentDocumentId}
+              zoom={zoom / 5} // Sync zoom here for Excalidraw canvas
+              setZoom={setZoom}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 
 
 const PdfViewer = ({ id }) => {
