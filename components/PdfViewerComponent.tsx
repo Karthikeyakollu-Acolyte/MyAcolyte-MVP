@@ -29,7 +29,7 @@ export default function PdfViewerComponent({ isExpanded, id }: PdfViewerComponen
 
   return (
     <div
-    className={`transition-all h-[100vh] w-[100vw] flex justify-center overflow-auto duration-300 ease-in-out 
+    className={`transition-all h-[100vh] w-[100vw] flex justify-center  scrollbar-hidden overflow-auto duration-300 pt-10 ease-in-out 
       ${theme === 'Dark Brown' ? 'bg-[#413F3A]' :
       theme === 'Deep Red' ? 'bg-[#3E2C2D]' :
       theme === 'Midnight Blue' ? 'bg-[#3B454B]' :
@@ -41,7 +41,7 @@ export default function PdfViewerComponent({ isExpanded, id }: PdfViewerComponen
     >
       {/* Conditional rendering based on `first` state */}
       {!first && (
-        <div className="w-[100vw] h-screen">
+        <div className="w-[100vw] h-screen pt-10">
           <PdfViewer id={id}/>
         </div>
       )}

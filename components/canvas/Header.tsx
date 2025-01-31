@@ -11,6 +11,8 @@ import kebabmenu from '@/public/kebabmenu.svg'
 import { useSettings } from '@/context/SettingsContext'
 import PdfThemes from '../PdfThemes'
 import SearchCompoent from '../pdfcomponents/SearchCompoent'
+import { useRouter } from 'next/navigation'
+
 
 interface HeaderProps {
   title?: string
@@ -27,6 +29,7 @@ export default function Header({
   const [searchQuery, setSearchQuery] = useState('')
   const [lastUpdate, setLastUpdate] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const router = useRouter()
 
   const {theme,isVisible,setIsVisible,isHeadderVisible} = useSettings()
 
@@ -105,7 +108,7 @@ export default function Header({
           }`}
         >
           <div className="flex w-full justify-between items-center font-rubik">
-            <div className='flex justify-center w-full sm:w-auto ml-3'>
+            <div className='flex justify-center w-full sm:w-auto ml-3' onClick={()=>{router.push('/dashboard')}}>
               <Image alt="acolyte" src={acolyte} className="h-28 w-28" />
             </div>
 

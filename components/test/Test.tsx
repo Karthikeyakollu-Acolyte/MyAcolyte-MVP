@@ -38,7 +38,7 @@ const PDFViewer = ({ url }) => {
   const [numPages, setNumPages] = useState(null);
   const [zoom, setZoom] = useState(1);
   const [fitToWidth, setFitToWidth] = useState(true);
-  const { viewMode, currentPage, setCurrentPage, isExpanded, setisExpanded,setScale } =
+  const { viewMode, currentPage, setCurrentPage, isExpanded, setisExpanded,setScale,setPages } =
     useSettings();
     const [zoomOrigin, setZoomOrigin] = useState({ x: "50%", y: "50%" });
   const containerRef = useRef(null);
@@ -144,7 +144,7 @@ const PDFViewer = ({ url }) => {
         >
           <Document
             file={url}
-            onLoadSuccess={(doc) => setNumPages(doc.numPages)}
+            onLoadSuccess={(doc) => {setNumPages(doc.numPages); setPages(doc.numPages)}}
             loading={<Loading message="Loading PDF..." />}
             error={<ErrorComponent message="Failed to load PDF" />}
           >
@@ -210,7 +210,7 @@ let targetWidth
   }, [isPageLoaded, pageView, fitToWidth, isExpanded]);
 
   return (
-    <div ref={setRefs} className={`relative overflow-auto max-w-full `}>
+    <div ref={setRefs} className={`relative overflow-auto scrollbar-hidden max-w-full `}>
       {inView && (
         <div className="w-full" >
           <div style={{ filter: false ? "invert(1)" : "" }}>
@@ -218,7 +218,7 @@ let targetWidth
               pageNumber={pageNumber}
               scale={zoom}
               onLoadSuccess={handleLoadSuccess}
-              className="mx-auto"
+              className="mx-auto overflow-hidden rounded-md"
               renderTextLayer={true}
               renderAnnotationLayer={false}
               loading={<Loading message={`Loading page ${pageNumber}...`} />}

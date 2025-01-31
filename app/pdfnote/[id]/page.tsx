@@ -24,7 +24,7 @@ export default function page() {
 
     <div className="max-h-screen w-[100vw] overflow-hidden max-w-[1920px]">
 
-      <div className="flex flex-col items-center pb-8 pt-[100px] scrollbar-hide" id="scrollPad">
+      <div className="flex flex-col items-center pb-8  scrollbar-hide" id="scrollPad">
         <PdfViewerComponent isExpanded={isExpanded} id={id} />
 
         { data && <div className="fixed inset-0  w-full h-full bg-transparent" style={{zIndex:50}}>
