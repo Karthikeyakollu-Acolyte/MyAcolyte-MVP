@@ -22,7 +22,7 @@ export default function Layout({ children }: any) {
   }, []);
 
   return (
-    <div className="max-h-screen w-[100vw] overflow-hidden ">
+    <div className="max-h-screen w-[100vw] overflow-hidden">
       <SettingsProvider>
         <Header />
         {/* <PDFViewSelector/> */}

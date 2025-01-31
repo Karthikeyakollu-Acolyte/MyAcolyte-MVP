@@ -5,6 +5,7 @@ import { Upload } from "lucide-react";
 import { addPdf, getAllPdfs } from "@/db/pdf/docs";
 import FileSystem from "./FileSystem";
 import { v4 as uuidv4 } from "uuid";
+import {useRouter} from "next/navigation";
 
 const FileList = ({ files }) => {
   return (
@@ -67,6 +68,8 @@ const FileUpload = () => {
   const [documentId, setDocumentId] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
   const [file, setfile] = useState();
+
+  const router = useRouter();
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -146,25 +149,27 @@ const FileUpload = () => {
         });
   
         // Upload file to the external backend
-        const response = await fetch("http://localhost:5000/upload", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            documentId: file.id,
-            name: file.name,
-            size: file.size,
-            base64, // Send the base64-encoded content
-          }),
-        });
+        // const response = await fetch("http://localhost:5000/upload", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({
+        //     documentId: file.id,
+        //     name: file.name,
+        //     size: file.size,
+        //     base64, // Send the base64-encoded content
+        //   }),
+        // });
   
-        if (!response.ok) {
-          throw new Error("Failed to upload file to backend");
-        }
+        // if (!response.ok) {
+        //   throw new Error("Failed to upload file to backend");
+        // }
   
-        const result = await response.json();
-        console.log("File uploaded successfully:", result);
+        // const result = await response.json();
+        // console.log("File uploaded successfully:", result);
+
+        router.push(`/pdfnote/${file.id}`)
   
         // Update state to reflect completion
         setUploadingFiles((prev) => prev.filter((f) => f.id !== file.id));

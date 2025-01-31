@@ -39,7 +39,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <PanelRight />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-full p-3">
+          <SheetContent side="right" className="flex justify-center pt-10 pr-2">
             <TodoList />
           </SheetContent>
         </Sheet>
