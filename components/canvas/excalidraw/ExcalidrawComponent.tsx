@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { getAppState } from "@/db/note/canvas";
 import { saveAppState } from "@/db/note/canvas";
 import { v4 as uuidv4 } from "uuid";
+import { useRouter } from "next/navigation";
+
 
 const Excalidraw = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw), // Adjust the import path if necessary
@@ -38,7 +40,9 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
     activeTool,
     selectedColor,
     setActiveTool,
+    setfirst
   } = useSettings();
+const router = useRouter()
 
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
@@ -280,10 +284,13 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
         elements: restoreElements(elements),
         appState,
       });
+      
+      
 
       // Reset data state after successful update
       setTimeout(() => {
         setData(null);
+        setfirst(true)
       }, 1000);
     } catch (error) {
       console.error("Error adding image to Excalidraw:", error);

@@ -71,9 +71,15 @@ export default function Sidebar() {
   const [activeNav, setActiveNav] = useState("");
   const [activeView, setActiveView] = useState("");
   const [activeTool, setActiveTool] = useState("read");
-  const { setfirst, setViewMode,setisExpanded,isExpanded } = useSettings();
+  const { setfirst, setViewMode,setisExpanded,isExpanded,first } = useSettings();
   const router = useRouter()
 
+
+useEffect(()=>{
+  if(!first){
+    setActiveTool("write");
+  }
+},[first])
   return (
     <div
       className="fixed left-6 top-36 flex h-[577px] w-[48px] flex-col items-center py-4"

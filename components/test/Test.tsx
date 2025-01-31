@@ -177,7 +177,7 @@ const PDFPage = ({
   });
   const [pageView, setPageView] = useState();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
-  const { ispagesZooming, currentDocumentId } = useSettings();
+  const { ispagesZooming, currentDocumentId,isDarkFilter } = useSettings();
 
   const setRefs = (element) => {
     containerRef.current = element;
@@ -213,7 +213,7 @@ let targetWidth
     <div ref={setRefs} className={`relative overflow-auto scrollbar-hidden max-w-full `}>
       {inView && (
         <div className="w-full" >
-          <div style={{ filter: false ? "invert(1)" : "" }}>
+          <div style={{ filter: isDarkFilter ? "invert(1)" : "" }}>
             <Page
               pageNumber={pageNumber}
               scale={zoom}
