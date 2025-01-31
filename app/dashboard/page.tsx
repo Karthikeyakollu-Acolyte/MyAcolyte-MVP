@@ -14,7 +14,7 @@ export default function Dashboard() {
         <SubjectFolders />
       </div>
 
-      <div className="mb-36">
+      <div className="mb-20">
       <StudyDashboard />
       </div>
     </div>

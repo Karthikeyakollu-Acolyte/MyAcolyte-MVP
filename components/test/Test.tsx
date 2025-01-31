@@ -14,20 +14,20 @@ import { useSettings } from "@/context/SettingsContext";
 import { Slider } from "../ui/slider";
 import { ThumbnailDiv } from "./ThumbnailDiv";
 import { TouchGestureHandler } from "./TouchGestureHandler";
-// Set up PDF.js worker
+
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
-// Loading and Error Component
+
 const Loading = ({ message }) => (
   <div className="text-center">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
     <p className="mt-2 text-gray-600">{message}</p>
   </div>
 );
+
 const ErrorComponent = ({ message }) => (
   <div className="text-red-500 text-center">{message}</div>
 );
 
-// PDF Page Component with Excalidraw Overlay
 const PDFPage = ({
   pageNumber,
   isVisible,
@@ -35,181 +35,147 @@ const PDFPage = ({
   setZoom,
   pageWidth,
   viewMode,
+  fitToWidth,
+  setFitToWidth,
+  isExpanded,
 }) => {
   const containerRef = useRef(null);
-  const { ref: inViewRef, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: true,
-  });
-  const {
-    isDarkFilter,
-    ispagesZooming,
-    setisPagesZoomingFromGesture,
-    currentDocumentId,
-  } = useSettings();
-  const [pageView, setpageView] = useState();
-  const [isPageLoaded, setisPageLoaded] = useState(false);
-  const [initialScale, setInitialScale] = useState(1);
-  // Combine both refs using callback ref pattern
+  const { ref: inViewRef, inView } = useInView({ threshold: 0.1, triggerOnce: true });
+  const [pageView, setPageView] = useState();
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+
   const setRefs = (element) => {
     containerRef.current = element;
     inViewRef(element);
   };
-  useEffect(() => {
-    setZoom((prev: number) => prev + 0.1);
-    const timeoutId = setTimeout(() => {
-      setZoom((prev: number) => prev - 0.1);
-    }, 300);
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [viewMode,pageWidth]);
-
-  useEffect(() => {
-    if (!isPageLoaded) return;
-  console.log(window.innerWidth)
-    const targetWidth = viewMode === "double" ? (window.innerWidth/2) : (pageWidth);
-    const newScale = targetWidth / pageView.view[2];
-  
-    setZoom(newScale +0.2);
-    setInitialScale(newScale);
-  }, [isPageLoaded, viewMode, pageWidth]);
-  
 
   const handleLoadSuccess = (page) => {
-    setpageView(page);
-    setisPageLoaded(true);
+    setPageView(page);
+    setIsPageLoaded(true);
   };
-  const handleZoomChange = useCallback(
-    (newZoom) => {
-      console.log(newZoom) // zoom is resetting to intila position so that whole pages is making small and big
-      // setZoom((prevZoom) =>  newZoom);
-      setisPagesZoomingFromGesture(true);
-    },
-    [setZoom]
-  );
+
   useEffect(() => {
-    const scrollPad = document.getElementById("scrollPad");
-    scrollPad?.addEventListener("", () => {
-      console.log("gesture enabled");
-    });
-  }, []);
+    if (!isPageLoaded || !containerRef.current) return;
+    
+    const container = containerRef.current;
+    const targetWidth = isExpanded ? pageWidth : container.offsetWidth;
+    const newScale = targetWidth / pageView.view[2];
+
+    if (fitToWidth) {
+      setZoom(newScale);
+    }
+  }, [isPageLoaded, pageView, fitToWidth, isExpanded]);
+
   return (
-    <div ref={setRefs} className="relative overflow-auto max-w-full">
-      {  inView && 
-        <div>
-          <div
-            style={{
-              filter: isDarkFilter ? "invert(1)" : "",
-            }}
-          >
+    <div 
+      ref={setRefs} 
+      className={`relative overflow-auto max-w-full ${viewMode === "single" && !isExpanded ? "w-[50vw]" : ""}`} 
+    >
+      {inView && (
+        <div className="w-full">
+          <div style={{ filter: false ? "invert(1)" : "" }}>
             <Page
               pageNumber={pageNumber}
-              scale={zoom} // Sync zoom directly with the PDF page scale
+              scale={zoom}
               onLoadSuccess={handleLoadSuccess}
-              className="shadow-lg mx-auto rounded-md overflow-hidden"
+              className="mx-auto"
               renderTextLayer={true}
               renderAnnotationLayer={false}
-              loading={`Loading page ${pageNumber}...`}
-              error={`Error loading page ${pageNumber}`}
+              loading={<Loading message={`Loading page ${pageNumber}...`} />}
+              error={<ErrorComponent message={`Error loading page ${pageNumber}`} />}
             />
           </div>
-          {/* {ispagesZooming && (
-            <TouchGestureHandler onZoomChange={handleZoomChange} />
-          )}
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-auto">
-            <ExcalidrawFabric
-              pageIndex={pageNumber}
-              currentDocumentId={currentDocumentId}
-              zoom={zoom / 5} // Sync zoom here for Excalidraw canvas
-              setZoom={setZoom}
-            />
-          </div> */}
         </div>
-      }
+      )}
     </div>
   );
 };
 
 
+const ViewMode = {
+  SINGLE: "single",
+  DOUBLE: "double",
+  CAROUSEL: "carousel",
+};
+
 const PDFViewer = ({ url }) => {
   const [numPages, setNumPages] = useState(null);
   const [zoom, setZoom] = useState(1);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [slideDirection, setSlideDirection] = useState(null);
-  const ViewMode = {
-    SINGLE: "single",
-    DOUBLE: "double",
-    CAROUSEL: "carousel",
-  };
+  const [fitToWidth, setFitToWidth] = useState(true);
   const {
     viewMode,
-    setViewMode,
     currentPage,
     setCurrentPage,
-    setisPagesZoomingFromGesture,
-    setPages
+    isExpanded,
+    setisExpanded,
   } = useSettings();
   const containerRef = useRef(null);
-  const handleDocumentLoadSuccess = ({ numPages }) => {setNumPages(numPages); setPages(numPages)};
-  const handleCarouselScroll = (direction) => {
-    if (isTransitioning) return;
-    const newPage =
-      direction === "next"
-        ? Math.min(currentPage + 1, numPages)
-        : Math.max(currentPage - 1, 1);
-    if (newPage === currentPage) return;
-    setIsTransitioning(true);
-    setSlideDirection(direction);
-    setCurrentPage(newPage);
-    setTimeout(() => {
-      setIsTransitioning(false);
-      setSlideDirection(null);
-    }, 300);
-  };
+
   useEffect(() => {
-    if (viewMode === ViewMode.CAROUSEL) {
-      const handleKeyPress = (e) => {
-        if (e.key === "ArrowRight") handleCarouselScroll("next");
-        if (e.key === "ArrowLeft") handleCarouselScroll("prev");
-      };
-      window.addEventListener("keydown", handleKeyPress);
-      return () => window.removeEventListener("keydown", handleKeyPress);
+    // Auto fit when switching to double-page mode
+    if (viewMode === "double") {
+      setFitToWidth(true);
     }
-  }, [viewMode, currentPage, isTransitioning]);
-  const renderSinglePage = (commonProps) => (
+  }, [viewMode]);
+
+  const handleZoomChange = (value) => {
+    setZoom(value[0]);
+  };
+
+  const toggleExpand = () => {
+    setisExpanded((prev) => !prev);
+    if (!isExpanded) {
+      setFitToWidth(true);
+    }
+  };
+
+  const renderSinglePage = () => (
     <div className="flex flex-col gap-4 items-center">
       {Array.from({ length: numPages }, (_, index) => (
-        <div key={index}>
-          <PDFPage
-            pageNumber={index + 1}
-            isVisible={index + 1 === currentPage}
-            {...commonProps}
-            zoom={zoom}
-            setZoom={setZoom}
-          />
-        </div>
+        <PDFPage
+          key={index + 1}
+          pageNumber={index + 1}
+          isVisible={index + 1 === currentPage}
+          zoom={zoom}
+          setZoom={setZoom}
+          pageWidth={containerRef?.current?.offsetWidth}
+          viewMode={viewMode}
+          fitToWidth={fitToWidth}
+          setFitToWidth={setFitToWidth}
+          isExpanded={isExpanded}
+        />
       ))}
     </div>
   );
-  const renderDoublePage = (commonProps) => (
+
+  const renderDoublePage = () => (
     <div className="flex flex-col gap-4">
       {Array.from({ length: Math.ceil(numPages / 2) }, (_, index) => (
         <div key={`spread-${index}`} className="flex gap-4 justify-center">
           <PDFPage
+            key={index * 2 + 1}
             pageNumber={index * 2 + 1}
             isVisible={index * 2 + 1 === currentPage}
-            {...commonProps}
             zoom={zoom}
             setZoom={setZoom}
+            pageWidth={containerRef?.current?.offsetWidth / 2}
+            viewMode={viewMode}
+            fitToWidth={true} // Always fit to width for double-page view
+            setFitToWidth={setFitToWidth}
+            isExpanded={isExpanded}
           />
           {index * 2 + 2 <= numPages && (
             <PDFPage
+              key={index * 2 + 2}
               pageNumber={index * 2 + 2}
               isVisible={index * 2 + 2 === currentPage}
-              {...commonProps}
               zoom={zoom}
               setZoom={setZoom}
+              pageWidth={containerRef?.current?.offsetWidth / 2}
+              viewMode={viewMode}
+              fitToWidth={true}
+              setFitToWidth={setFitToWidth}
+              isExpanded={isExpanded}
             />
           )}
         </div>
@@ -217,32 +183,16 @@ const PDFViewer = ({ url }) => {
     </div>
   );
 
-  const renderPages = () => {
-    if (!numPages) return null;
-    const commonProps = {
-      zoom,
-      pageWidth: 900,
-      viewMode,
-    };
-    switch (viewMode) {
-      case ViewMode.SINGLE:
-        return renderSinglePage(commonProps);
-      case ViewMode.DOUBLE:
-        return renderDoublePage(commonProps);
-      case ViewMode.CAROUSEL:
-        return null
-      default:
-        return null;
-    }
-  };
-  const handleZoomChange = (value) => {
-    setZoom(value[0]);
-    setisPagesZoomingFromGesture(true);
-  };
   return (
     <div className="flex h-full max-w-full">
       <div className="flex-1 flex flex-col">
-        <div className="fixed top-4 right-4 z-50">
+        <div className="fixed top-4 right-4 z-50 flex gap-2">
+          <button
+            onClick={toggleExpand}
+            className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+          >
+            {isExpanded ? "Normal Width" : "Expand to Full Width"}
+          </button>
           <Slider
             min={0.5}
             max={4}
@@ -252,31 +202,29 @@ const PDFViewer = ({ url }) => {
             className="w-40"
           />
         </div>
-        <div ref={containerRef} className="flex-1 overflow-auto p-4" id="doc">
+        <div ref={containerRef} className="flex-1 overflow-auto p-4">
           <Document
             file={url}
-            onLoadSuccess={handleDocumentLoadSuccess}
+            onLoadSuccess={(doc) => setNumPages(doc.numPages)}
             loading={<Loading message="Loading PDF..." />}
             error={<ErrorComponent message="Failed to load PDF" />}
           >
-            {renderPages()}
+            {viewMode === "single" ? renderSinglePage() : renderDoublePage()}
           </Document>
         </div>
       </div>
-     <div className="">
-     <ThumbnailDiv currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={numPages} scrollToPage={()=>{}}/>
-     </div>
     </div>
   );
 };
+
+
 const PdfViewer = ({ id }) => {
   const [pdfData, setPdfData] = useState<string | null>(null);
+
   const handleFetchPdf = async () => {
     try {
-      // d97e169c-ea97-4de6-a2fe-68e3547498e6
       const pdf = await getPdfById(id);
       if (pdf?.base64) {
-        // Convert the base64 string to a data URL
         const dataUrl = pdf.base64;
         setPdfData(dataUrl);
       }
@@ -284,15 +232,16 @@ const PdfViewer = ({ id }) => {
       console.error("Error fetching PDF:", error);
     }
   };
+
   useEffect(() => {
     handleFetchPdf();
   }, []);
+
   return (
-    <div>
-      <PDFViewer url={pdfData} />
-      {/* <Toolbar/> */}
-     
+    <div className="h-screen w-full">
+      {pdfData && <PDFViewer url={pdfData} />}
     </div>
   );
 };
+
 export default PdfViewer;
