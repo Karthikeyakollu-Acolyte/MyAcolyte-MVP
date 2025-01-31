@@ -72,7 +72,7 @@ const TrackerDashboard = () => {
         <div className="col-span-7">
           <div className="grid grid-cols-3 gap-6 mb-6">
             {/* Cumulative Progress */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm w-[171px] h-[160px]">
+            <div className="bg-white rounded-2xl p-3 pt-5 shadow-sm w-[171px] h-[160px]">
               <h2 className="text-gray-700 text-sm mb-4">
                 Cumulative Progress
               </h2>
@@ -131,7 +131,7 @@ const TrackerDashboard = () => {
 
             {/* Total Study Hour */}
             <div className="bg-white rounded-2xl p-5 shadow-sm w-[171px] h-[160px]">
-              <h2 className="text-gray-700 font-medium mb-4">
+              <h2 className="text-gray-700 text-sm font-medium mb-4">
                 Total study hour
               </h2>
               <div className="flex flex-col items-center">
