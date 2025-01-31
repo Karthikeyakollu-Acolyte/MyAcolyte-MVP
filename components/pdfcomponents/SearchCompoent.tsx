@@ -12,7 +12,7 @@ const SearchComponent = () => {
     const [highlights, setHighlights] = useState([]);
     const searchInputRef = useRef(null);
     const searchBarRef = useRef(null);
-    const { pages } = useSettings();
+    const { pages,scale } = useSettings();
 
     const clearHighlights = () => {
         document.querySelectorAll('.pdf-search-highlight').forEach(el => {
@@ -193,6 +193,14 @@ const SearchComponent = () => {
         };
     }, [debouncedSearch]);
 
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            handleSearch();
+        }, 400); // Adjust the delay time as needed
+    
+        return () => clearTimeout(delayDebounceFn);
+    }, [scale]);
+
     // Handle window resize
     useEffect(() => {
         const handleResize = _.debounce(() => {
@@ -295,3 +303,98 @@ const SearchComponent = () => {
 };
 
 export default SearchComponent;
+
+
+
+
+// export function PDFTextSearch({ pdfDocument, numPages }) {
+//     const [searchTerm, setSearchTerm] = useState("");
+//     const [foundMatches, setFoundMatches] = useState([]);
+//     const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  
+//     const handleSearch = async () => {
+//       if (!pdfDocument || !searchTerm) return;
+//       let matches = [];
+  
+//       for (let i = 1; i <= numPages; i++) {
+//         const page = await pdfDocument.getPage(i);
+//         const textContent = await page.getTextContent();
+        
+//         let matchIndices = [];
+//         let fullText = "";
+//         let textPositions = [];
+  
+//         textContent.items.forEach((item, index) => {
+//           fullText += item.str + " ";
+//           textPositions.push({ text: item.str, bbox: item.transform, index });
+//         });
+  
+//         let searchRegex = new RegExp(searchTerm, "gi");
+//         let match;
+//         while ((match = searchRegex.exec(fullText)) !== null) {
+//           matchIndices.push({ page: i, index: match.index });
+//         }
+  
+//         matchIndices.forEach(({ page, index }) => {
+//           const matchedItem = textPositions.find((t) => fullText.indexOf(t.text) === index);
+//           if (matchedItem) {
+//             matches.push({ page, bbox: matchedItem.bbox });
+//           }
+//         });
+//       }
+  
+//       setFoundMatches(matches);
+//       setCurrentMatchIndex(0);
+//       if (matches.length > 0) scrollToMatch(0);
+//     };
+  
+//     const scrollToMatch = (matchIndex) => {
+//       if (foundMatches.length === 0) return;
+//       setCurrentMatchIndex(matchIndex);
+//       const match = foundMatches[matchIndex];
+//       const pageElement = document.querySelector(`[data-page-number='${match.page}']`);
+  
+//       if (pageElement) {
+//         pageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+//       }
+//     };
+  
+//     return (
+//       <div className="p-4">
+//         <div className="flex gap-2 mb-4">
+//           <Input
+//             type="text"
+//             placeholder="Search text"
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//           />
+//           <Button onClick={handleSearch}>Search</Button>
+//         </div>
+  
+//         {foundMatches.length > 0 && (
+//           <div className="flex gap-2 items-center">
+//             <Button onClick={() => scrollToMatch(Math.max(0, currentMatchIndex - 1))}>Prev</Button>
+//             <span>
+//               {currentMatchIndex + 1} / {foundMatches.length}
+//             </span>
+//             <Button onClick={() => scrollToMatch(Math.min(foundMatches.length - 1, currentMatchIndex + 1))}>
+//               Next
+//             </Button>
+//           </div>
+//         )}
+  
+//         {foundMatches.map((match, index) => (
+//           <div
+//             key={index}
+//             className="absolute bg-yellow-300 opacity-50"
+//             style={{
+//               left: `${match.bbox[4]}px`,
+//               top: `${match.bbox[5]}px`,
+//               width: "100px",
+//               height: "20px",
+//             }}
+//           />
+//         ))}
+//       </div>
+//     );
+//   }

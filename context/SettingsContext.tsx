@@ -95,7 +95,10 @@ interface SettingsContextType {
   ispagesZooming:boolean,
    setispagesZooming:any;
    isPagesZoomingFromGesture:boolean,
-   setisPagesZoomingFromGesture:any
+   setisPagesZoomingFromGesture:any,
+   isSearchVisible:boolean; setisSearchVisible:any;
+   isExpanded:boolean;
+   setisExpanded:any
 }
 interface SelectionPoint {
   x: number;
@@ -162,6 +165,8 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const [isDarkFilter, setisDarkFilter] = useState()
   const [ispagesZooming, setispagesZooming] = useState();
   const [isPagesZoomingFromGesture, setisPagesZoomingFromGesture] = useState(false)
+  const [isSearchVisible, setisSearchVisible] = useState(false);
+  const [isExpanded, setisExpanded] = useState(false)
 
   return (
     <SettingsContext.Provider
@@ -209,7 +214,9 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         ispagesZooming,
         setispagesZooming,
         isPagesZoomingFromGesture,
-        setisPagesZoomingFromGesture
+        setisPagesZoomingFromGesture,
+        isSearchVisible, setisSearchVisible,
+        isExpanded, setisExpanded
       }}
     >
       {children}

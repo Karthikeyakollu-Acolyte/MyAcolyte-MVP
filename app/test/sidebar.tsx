@@ -71,7 +71,7 @@ export default function Sidebar() {
   const [activeNav, setActiveNav] = useState("");
   const [activeView, setActiveView] = useState("");
   const [activeTool, setActiveTool] = useState("read");
-  const { setfirst, setViewMode } = useSettings();
+  const { setfirst, setViewMode,setisExpanded,isExpanded } = useSettings();
   const router = useRouter()
 
   return (
@@ -139,7 +139,7 @@ export default function Sidebar() {
         <div className="">
           <NavButton
             active={activeNav === "expand"}
-            onClick={() => setActiveNav("expand")}
+            onClick={() => {setActiveNav("expand"); setisExpanded(!isExpanded) }}
             icon={expand}
             label="Expand"
           />
