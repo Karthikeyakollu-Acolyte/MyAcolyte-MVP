@@ -131,19 +131,19 @@ const DocumentRow = ({ number, more }) => {
   };
 
   return (
-    <div className="py-4 px-6 flex items-center justify-between">
-      <div className="flex items-center gap-4">
+    <div className="py-6 pr-2 pl-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
         <FileText className="w-5 h-5 text-indigo-600" />
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-indigo-600 font-medium">Guyton and hall</span>
-            <span className="text-gray-500">- physiology</span>
+            <span className="text-indigo-600 font-medium text-xl">Guyton and hall</span>
+            <span className="text-gray-500 text-sm">- physiology</span>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <button className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
+      <div className="flex items-center gap-1">
+        <button className="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
           <PlusIcon className="w-4 h-4 text-gray-500" />
         </button>
         
@@ -152,14 +152,14 @@ const DocumentRow = ({ number, more }) => {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="w-8 h-8 rounded-full border-2 border-white bg-gray-200"
+                className="w-5 h-5 rounded-full border-2 border-white bg-gray-200"
               />
             ))}
           </div>
           <span className="ml-2 text-gray-500 text-sm">+2 more</span>
         </div>
 
-        <div className={`w-6 h-6 rounded-full ${getCircleColor(number)} flex items-center justify-center text-sm font-medium`}>
+        <div className={`w-6 h-6 rounded-full ${getCircleColor(number)} flex items-center justify-center text-sm font-medium ml-2`}>
           {number}
         </div>
       </div>

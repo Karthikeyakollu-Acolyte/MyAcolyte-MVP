@@ -37,11 +37,11 @@ const TrackerDashboard = () => {
      <div className="grid grid-cols-12 gap-6   ">
         {/* Left Column - Conceptual Usage */}
         <div className="col-span-5 w-[375px] h-[349px]">
-          <div className="bg-white rounded-2xl p-6 shadow-sm h-full">
+          <div className="bg-white rounded-2xl pl-8 p-6 shadow-sm h-full">
             <h2 className="text-xl text-gray-700 font-medium mb-8">
               Conceptual usage
             </h2>
-            <div className="space-y-8">
+            <div className="space-y-4 overflow-auto">
               {[
                 { label: "Pdf viewer", value: 44, color: "#f87171" },
                 { label: "Pdf viewer", value: 56, color: "#60a5fa" },
@@ -51,9 +51,10 @@ const TrackerDashboard = () => {
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-600">{item.label}</span>
-                    <span style={{ color: item.color }}>{item.value}%</span>
+                    
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="flex gap-4">
+                  <div className="h-2 bg-gray-100 w-[85%] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -62,6 +63,8 @@ const TrackerDashboard = () => {
                       }}
                     />
                   </div>
+                  <span style={{ color: item.color }} className="-mt-2.5">{item.value}%</span>
+                </div>
                 </div>
               ))}
             </div>

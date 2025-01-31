@@ -95,7 +95,7 @@ export default function Header({
       { (
         <header 
           className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300
-           flex flex-wrap items-center w-full p-2 font-sans h-[100px]
+           flex items-center w-full p-3 font-sans h-[80px]
           ${theme === 'Dark Brown' ? 'bg-[#291D00] text-white' :
             theme === 'Deep Red' ? 'bg-[#390003] text-white' :
             theme === 'Midnight Blue' ? 'bg-[#002033] text-white' :

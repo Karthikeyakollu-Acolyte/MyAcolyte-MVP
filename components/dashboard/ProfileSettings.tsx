@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, User } from 'lucide-react';
+import Image from 'next/image';
+import avatar from '@/public/Photo.png'
 
 const ProfileSettings = () => {
   const [formData, setFormData] = useState({
@@ -30,7 +32,7 @@ const ProfileSettings = () => {
 
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-            <User className="w-8 h-8 text-gray-500" />
+            <Image src={avatar} alt='' className="w-full h-full text-gray-500" />
           </div>
           <div>
             <h2 className="text-lg font-medium">Anima Agrawal</h2>
