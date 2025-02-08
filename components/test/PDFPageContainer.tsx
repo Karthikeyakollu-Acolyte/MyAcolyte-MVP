@@ -123,6 +123,7 @@ const PDFPageContainer = ({
         : viewMode === ViewMode.SINGLE
         ? 800 
         : pageWidth;
+        console.log(targetWidth,pageWidth)
       return targetWidth / pageView.view[2];
     };
 
@@ -146,7 +147,7 @@ const PDFPageContainer = ({
             onLoad={handleLoadSuccess}
           />
           {/* Uncomment this section for Excalidraw overlay */}
-          {/* {isPageLoaded && (
+          {isPageLoaded && (
             <ExcalidrawOverlay
               pageNumber={pageNumber}
               currentDocumentId={currentDocumentId}
@@ -154,7 +155,7 @@ const PDFPageContainer = ({
               setZoom={setZoom}
               scrollPdf={scrollPdf}
             />
-          )} */}
+          )}
         </div>
       )}
     </div>
