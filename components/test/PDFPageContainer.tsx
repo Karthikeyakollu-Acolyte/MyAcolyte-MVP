@@ -40,7 +40,7 @@ const PDFPageView = React.memo(({ pageNumber, zoom, isDarkFilter, onLoad }) => (
 ));
 
 // Memoized ExcalidrawOverlay component
-const ExcalidrawOverlay = React.memo(({
+export const ExcalidrawOverlay = React.memo(({
   pageNumber,
   currentDocumentId,
   zoom,
@@ -146,7 +146,7 @@ const PDFPageContainer = ({
             onLoad={handleLoadSuccess}
           />
           {/* Uncomment this section for Excalidraw overlay */}
-          {isPageLoaded && (
+          {/* {isPageLoaded && (
             <ExcalidrawOverlay
               pageNumber={pageNumber}
               currentDocumentId={currentDocumentId}
@@ -154,7 +154,7 @@ const PDFPageContainer = ({
               setZoom={setZoom}
               scrollPdf={scrollPdf}
             />
-          )}
+          )} */}
         </div>
       )}
     </div>
