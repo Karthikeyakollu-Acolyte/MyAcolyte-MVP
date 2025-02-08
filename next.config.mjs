@@ -9,6 +9,7 @@ const nextConfig = {
     typescript: {
       ignoreBuildErrors: true, // Skips TypeScript errors during builds
     },
+    
   };
   
   export default nextConfig;

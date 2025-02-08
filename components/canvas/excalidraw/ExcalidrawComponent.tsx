@@ -23,7 +23,7 @@ import { getAppState } from "@/db/note/canvas";
 import { saveAppState } from "@/db/note/canvas";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/navigation";
-
+import { first } from "lodash";
 
 const Excalidraw = dynamic(
   () => import("@excalidraw/excalidraw").then((mod) => mod.Excalidraw), // Adjust the import path if necessary
@@ -40,15 +40,23 @@ const ExcalidrawComponent = ({ id }: { id: string }) => {
     activeTool,
     selectedColor,
     setActiveTool,
-    setfirst
+    setfirst,
+    setcurrentView,
+    first
   } = useSettings();
-const router = useRouter()
+  const router = useRouter();
+
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
 
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
-  const handleInitialize = useCallback((api: ExcalidrawImperativeAPI) => {
-    setExcalidrawAPI(api);
-    console.log("Excalidraw API initialized:", api);
+
+
+  useEffect(() => {
+    setcurrentView("write");
+    if (!activeTool?.id) return;
+    switchTool(activeTool.id);
   }, []);
 
   // Handle changes in the Excalidraw component
@@ -68,6 +76,7 @@ const router = useRouter()
 
   const save = async () => {
     const elements = excalidrawAPI?.getSceneElements();
+    console.log(elements)
     const state = data ? excalidrawAPI?.getAppState() : {};
     const files = excalidrawAPI?.getFiles();
     // saveCanvas(elements, state,files,pageIndex);
@@ -104,11 +113,37 @@ const router = useRouter()
     fetchAndSetCanvas();
   }, [excalidrawAPI]);
 
+  const handlePointerUpdate = () => {
+   const elements = excalidrawAPI?.getSceneElements()
+   if (!activeTool?.id) return;
+   switchTool(activeTool.id);
+  };
+
+  
+ // Handle undo action
+ const undo = () => {
+  const undoButton = document.querySelector('[aria-label="Undo"]');
+  if(undoButton){
+    undoButton?.click()
+  }
+};
+
+// Handle redo action
+const redo = () => {
+  const undoButton = document.querySelector('[aria-label="Redo"]');
+  console.log(undoButton)
+  if(undoButton){
+    undoButton?.click()
+  }
+};
+
+
+
   const switchTool = (selectedTool: ActiveTool["type"]) => {
     if (!excalidrawAPI) return;
-    
+
     console.log("Switching tool:", selectedTool);
-  
+
     // Reset tool properties
     const resetToolProperties = () => {
       excalidrawAPI.updateScene({
@@ -119,7 +154,7 @@ const router = useRouter()
         },
       });
     };
-  
+
     // Define active tool properties with safe defaults
     const toolProperties = activeTool || {
       strokeColor: "#000000",
@@ -128,7 +163,7 @@ const router = useRouter()
       fillColor: "transparent",
       color: "#000000",
     };
-  
+
     switch (selectedTool) {
       case "pen":
       case "pencil":
@@ -143,12 +178,12 @@ const router = useRouter()
           },
         });
         break;
-  
+
       case "image":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "image" });
         break;
-  
+
       case "arrow":
       case "line":
         resetToolProperties();
@@ -161,23 +196,33 @@ const router = useRouter()
           },
         });
         break;
-  
+
       case "circle":
-      case "square":
+      case "rectangle":
       case "diamond":
         resetToolProperties();
-        console.log(activeTool)
-        excalidrawAPI.setActiveTool({ type: selectedTool === "circle" ? "ellipse" : selectedTool });
+        console.log(activeTool);
+
+        // Map the selected tool properly
+        const mappedTool =
+          selectedTool === "circle"
+            ? "ellipse"
+            : selectedTool === "rectangle"
+            ? "rectangle"
+            : selectedTool;
+
+        excalidrawAPI.setActiveTool({ type: mappedTool });
         excalidrawAPI.updateScene({
           appState: {
             currentItemStrokeColor: toolProperties.strokeColor || "#000000",
-            currentItemStrokeWidth: toolProperties.strokeWidth|| 2,
+            currentItemStrokeWidth: toolProperties.strokeWidth || 2,
             currentItemOpacity: toolProperties.opacity || 100,
-            currentItemBackgroundColor: toolProperties?.fillColor || "transparent",
+            currentItemBackgroundColor:
+              toolProperties?.fillColor || "transparent",
           },
         });
         break;
-  
+
       case "texthighlighter":
         excalidrawAPI.setActiveTool({ type: "line" });
         excalidrawAPI.updateScene({
@@ -188,7 +233,7 @@ const router = useRouter()
           },
         });
         break;
-  
+
       case "text":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "text" });
@@ -198,23 +243,35 @@ const router = useRouter()
           },
         });
         break;
-  
+
       case "objectEraser":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "eraser" });
         break;
-  
+
       case "rectangleSelection":
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
         break;
-  
+      case "undo":
+        resetToolProperties();
+        console.log("trogg");
+        undo();
+        setActiveTool(null);
+        break;
+      case "redo":
+        resetToolProperties();
+        redo();
+        setActiveTool(null);
+        console.log("trogg");
+        break;
+
       default:
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
     }
   };
-  
+
   useEffect(() => {
     if (!activeTool?.id) return;
     switchTool(activeTool.id);
@@ -227,6 +284,7 @@ const router = useRouter()
     activeTool?.fillColor,
     activeTool?.strokeColor,
     activeTool?.strokeWidth,
+    first
   ]);
 
   const addImageToExcalidraw = async (x: number, y: number) => {
@@ -284,13 +342,11 @@ const router = useRouter()
         elements: restoreElements(elements),
         appState,
       });
-      
-      
 
       // Reset data state after successful update
       setTimeout(() => {
         setData(null);
-        setfirst(true)
+        setfirst(true);
       }, 1000);
     } catch (error) {
       console.error("Error adding image to Excalidraw:", error);
@@ -320,6 +376,7 @@ const router = useRouter()
     <div className={`w-full h-full ${data ? "canvas-dotted" : ""}`}>
       <Excalidraw
         onChange={handleChange}
+        onPointerUpdate={handlePointerUpdate}
         excalidrawAPI={(api) => setExcalidrawAPI(api)}
         // handleKeyboardGlobally={false}
         zenModeEnabled={false}
@@ -342,3 +399,4 @@ const router = useRouter()
 };
 
 export default ExcalidrawComponent;
+

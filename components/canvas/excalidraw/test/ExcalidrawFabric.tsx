@@ -11,7 +11,7 @@ import { getAppState, saveAppState } from "@/db/pdf/canvas";
 import { useSettings } from "@/context/SettingsContext";
 import type { ActiveTool } from "@/context/SettingsContext";
 import html2canvas from "html2canvas";
-import { X } from "lucide-react";
+import { ReceiptEuro, X } from "lucide-react";
 import "@/components/canvas/excalidraw/CustomExcalidraw.css";
 
 interface SelectionPoint {
@@ -52,7 +52,7 @@ const ExcalidrawFabric = ({
     setisHeadderVisible,
     setispagesZooming,
     setisPagesZoomingFromGesture,
-    ispagesZooming
+    ispagesZooming,
   } = useSettings();
 
   const initialAppState: AppState = {
@@ -76,9 +76,8 @@ const ExcalidrawFabric = ({
     excalidrawAPI?.updateScene({ elements: hiddenElements });
   };
 
-
-   // Function to enable all elements
-   const enableAllElements = () => {
+  // Function to enable all elements
+  const enableAllElements = () => {
     const excalidraw = excalidrawAPI?.getSceneElements();
     const enabledElements = excalidraw?.map((el) => {
       el.isDeleted = false; // Set isDeleted to false to show
@@ -95,7 +94,7 @@ const ExcalidrawFabric = ({
     let shouldUpdateScene = false;
     const newAppState: Pick<AppState, keyof AppState> = { ...state };
     const appstate = excalidrawAPI.getAppState();
-    console.log(elements)
+    // console.log(elements);
 
     if (activeTool?.id === "rectangleSelection") {
       if (state.zoom.value !== initialAppState1.zoom.value) {
@@ -106,7 +105,6 @@ const ExcalidrawFabric = ({
     } else if (state.zoom.value !== initialAppState.zoom.value) {
       newAppState.zoom = { value: initialAppState.zoom.value };
       shouldUpdateScene = true;
-
     }
 
     if (state.scrollX !== initialAppState.scrollX) {
@@ -127,12 +125,11 @@ const ExcalidrawFabric = ({
         },
       });
 
-      setScrollPdf(true);
+
       setisHeadderVisible(true);
       setispagesZooming(true);
       // setZoom((prev:number)=> prev+0.1)
       setTimeout(() => {
-        setScrollPdf(false);
         setispagesZooming(false);
         // setZoom((prev:number) => prev-0.1)
         setisPagesZoomingFromGesture(false);
@@ -144,7 +141,7 @@ const ExcalidrawFabric = ({
     const elements = excalidrawAPI?.getSceneElements();
     const state = excalidrawAPI?.getAppState();
     const files = excalidrawAPI?.getFiles();
-    console.log("saving..");
+    // console.log("saving..");
     await saveAppState(currentDocumentId, elements, state, files, pageIndex);
   };
 
@@ -176,43 +173,29 @@ const ExcalidrawFabric = ({
 
   let isUndoing = false; // Flag to prevent multiple undo actions
 
-  const undo = () => {
-    // Prevent multiple undo actions if one is already in progress
-    if (isUndoing) {
-      console.log("Undo already in progress.");
-      return;
-    }
 
-    // Mark the undo process as in progress
-    isUndoing = true;
+   // Handle undo action
+ const undo = () => {
+  const excalidrawEle = document.getElementById(`excalidraw-page-${currentPage}`)
+  console.log(excalidrawEle)
+  const undoButton = excalidrawEle.querySelector('[aria-label="Undo"]');
+  if(undoButton){
+    undoButton?.click()
+    console.log("clicking....")
+  }
+};
 
-    // Find the container element
-    const undoButtonContainers = document.querySelectorAll(
-      ".undo-button-container"
-    );
+// Handle redo action
+const redo = () => {
+  const excalidrawEle = document.getElementById(`excalidraw-page-${currentPage}`)
+  const undoButton = excalidrawEle.querySelector('[aria-label="Redo"]');
+  console.log(undoButton)
+  if(undoButton){
+    undoButton?.click()
+    console.log("clicking....")
+  }
+};
 
-    // Ensure we found at least one container
-    if (undoButtonContainers.length > 0) {
-      // Find the button inside the specified container for the current page (if needed)
-      const undoButton = undoButtonContainers[0]?.querySelector("button");
-
-      // Ensure the button exists and click it
-      if (undoButton) {
-        undoButton.click();
-        setActiveTool(null); // Reset the active tool
-        console.log("Undo button clicked:", undoButton);
-      } else {
-        console.log("Undo button not found inside the container.");
-      }
-    } else {
-      console.log("Undo button container not found.");
-    }
-
-    // Reset the undo flag after a short delay to allow the click to complete
-    setTimeout(() => {
-      isUndoing = false;
-    }, 100); // Adjust timeout as needed to avoid multiple calls
-  };
 
   const switchTool = (selectedTool: ActiveTool["type"]) => {
     if (!excalidrawAPI) return;
@@ -273,13 +256,20 @@ const ExcalidrawFabric = ({
         break;
 
       case "circle":
-      case "square":
+      case "rectangle":
       case "diamond":
         resetToolProperties();
         console.log(activeTool);
-        excalidrawAPI.setActiveTool({
-          type: selectedTool === "circle" ? "ellipse" : selectedTool,
-        });
+
+        // Map the selected tool properly
+        const mappedTool =
+          selectedTool === "circle"
+            ? "ellipse"
+            : selectedTool === "rectangle"
+            ? "rectangle"
+            : selectedTool;
+
+        excalidrawAPI.setActiveTool({ type: mappedTool });
         excalidrawAPI.updateScene({
           appState: {
             currentItemStrokeColor: toolProperties.strokeColor || "#000000",
@@ -322,6 +312,21 @@ const ExcalidrawFabric = ({
         excalidrawAPI.setActiveTool({ type: "selection" });
         break;
 
+      case "undo":
+         console.log(currentPage===pageIndex)
+         if(currentPage!=pageIndex) return
+          resetToolProperties();
+          undo();
+          setActiveTool(null);
+          break;
+      case "redo":
+        console.log(currentPage===pageIndex)
+        if(currentPage!=pageIndex) return
+          resetToolProperties();
+          redo();
+          setActiveTool(null);
+          break;
+
       default:
         resetToolProperties();
         excalidrawAPI.setActiveTool({ type: "selection" });
@@ -340,6 +345,7 @@ const ExcalidrawFabric = ({
     activeTool?.fillColor,
     activeTool?.strokeColor,
     activeTool?.strokeWidth,
+    currentPage
   ]);
 
   let imageBounds;
@@ -491,7 +497,10 @@ const ExcalidrawFabric = ({
   }, [zoom]);
 
   return (
-    <div className="w-full h-full" style={{pointerEvents:ispagesZooming?"none":"auto"}}>
+    <div
+      className="w-full h-full"
+      // style={{ pointerEvents: ispagesZooming ? "none" : "auto" }}
+    >
       <Excalidraw
         onPointerDown={(e) => {}}
         onPointerUpdate={handlePointerUpdate}

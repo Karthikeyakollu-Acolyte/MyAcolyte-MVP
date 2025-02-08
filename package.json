@@ -26,6 +26,7 @@
     "@radix-ui/react-toggle-group": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
     "@tabler/icons-react": "^3.26.0",
+    "@use-gesture/react": "^10.3.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.15.0",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
+    "@types/lodash": "^4.17.15",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

@@ -44,10 +44,10 @@ export interface ActiveTool {
   color?: string;
   text?: string;
   className?: string;
-  strokeWidth?:number;
-  opacity?:number;
-  fillColor?:string;
-  strokeColor?:string;
+  strokeWidth?: number;
+  opacity?: number;
+  fillColor?: string;
+  strokeColor?: string;
 }
 
 interface SettingsContextType {
@@ -90,15 +90,20 @@ interface SettingsContextType {
   setActiveTool: any;
   viewMode: any;
   setViewMode: any;
-  isHeadderVisible:boolean; setisHeadderVisible:any;
-  isDarkFilter:boolean; setisDarkFilter:any;
-  ispagesZooming:boolean,
-   setispagesZooming:any;
-   isPagesZoomingFromGesture:boolean,
-   setisPagesZoomingFromGesture:any,
-   isSearchVisible:boolean; setisSearchVisible:any;
-   isExpanded:boolean;
-   setisExpanded:any
+  isHeadderVisible: boolean;
+  setisHeadderVisible: any;
+  isDarkFilter: boolean;
+  setisDarkFilter: any;
+  ispagesZooming: boolean;
+  setispagesZooming: any;
+  isPagesZoomingFromGesture: boolean;
+  setisPagesZoomingFromGesture: any;
+  isSearchVisible: boolean;
+  setisSearchVisible: any;
+  isExpanded: boolean;
+  setisExpanded: any;
+  currentView: boolean;
+  setcurrentView: any;
 }
 interface SelectionPoint {
   x: number;
@@ -137,6 +142,9 @@ const ViewMode = {
   DOUBLE: "double",
   CAROUSEL: "carousel",
 };
+interface View {
+  view: "write" | "read";
+}
 
 type ViewOption = 1 | 2 | 3;
 export function SettingsProvider({ children }: SettingsProviderProps) {
@@ -162,11 +170,13 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const [selectedColor, setSelectedColor] = useState("#000");
   const [viewMode, setViewMode] = useState(ViewMode.SINGLE);
   const [isHeadderVisible, setisHeadderVisible] = useState(false);
-  const [isDarkFilter, setisDarkFilter] = useState()
+  const [isDarkFilter, setisDarkFilter] = useState();
   const [ispagesZooming, setispagesZooming] = useState();
-  const [isPagesZoomingFromGesture, setisPagesZoomingFromGesture] = useState(false)
+  const [isPagesZoomingFromGesture, setisPagesZoomingFromGesture] =
+    useState(false);
   const [isSearchVisible, setisSearchVisible] = useState(false);
-  const [isExpanded, setisExpanded] = useState(false)
+  const [isExpanded, setisExpanded] = useState(false);
+  const [currentView, setcurrentView] = useState<View>();
 
   return (
     <SettingsContext.Provider
@@ -215,8 +225,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         setispagesZooming,
         isPagesZoomingFromGesture,
         setisPagesZoomingFromGesture,
-        isSearchVisible, setisSearchVisible,
-        isExpanded, setisExpanded
+        isSearchVisible,
+        setisSearchVisible,
+        isExpanded,
+        setisExpanded,
+        currentView,
+        setcurrentView,
       }}
     >
       {children}

@@ -104,7 +104,9 @@ export default function Header({
             theme === 'Midnight Blue' ? 'bg-[#002033] text-white' :
             theme === 'Deep Purple' ? 'bg-[#160039] text-white' :
             theme === 'Charcoal Black' ? 'bg-[#202020] text-white' :
-            theme === 'Very Dark Purple' ? 'bg-[#090822] text-white' : 'bg-white text-black'
+            theme === 'Very Dark Purple' ? 'bg-[#090822] text-white' :
+            theme === 'light' ? 'bg-white text-black' :
+             'bg-white text-black'
           }`}
         >
           <div className="flex w-full justify-between items-center font-rubik">
@@ -121,8 +123,8 @@ export default function Header({
               </p>
             </div>
 
-            <div className="flex justify-start items-center gap-5 sm:gap-3">
-              <Collaborators />
+            <div className="flex justify-start items-center gap-3 sm:gap-2">
+              {/* <Collaborators /> */}
               <PdfThemes/>
               <Button
                 variant="ghost"
