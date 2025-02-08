@@ -12,6 +12,7 @@ import { debounce } from "lodash";
 import PDFPageContainer, { ExcalidrawOverlay } from "@/components/test/PDFPageContainer";
 import { TwoFingerScroll } from "@/components/pdfcomponents/TwoFingerScroll";
 import Toolbar from "@/components/Toolbar";
+import { useParams } from "next/navigation";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
 
@@ -240,11 +241,17 @@ const PDFViewer = ({ url }) => {
 };
 
 const PdfViewer = () => {
+  
   const [pdfData, setPdfData] = useState<string | null>(null);
+  const { id }:{id:string} = useParams();
+  useEffect(()=>{
+    // console.log(id)
+    handleFetchPdf(id);
+  },[id])
 
-  const handleFetchPdf = async () => {
+  const handleFetchPdf = async (id) => {
     try {
-      const pdf = await getPdfById("de1855d7-ccd8-469a-87c4-5aee04295359");
+      const pdf = await getPdfById(id);
       if (pdf?.base64) {
         const dataUrl = pdf.base64;
         setPdfData(dataUrl);
@@ -254,9 +261,9 @@ const PdfViewer = () => {
     }
   };
 
-  useEffect(() => {
-    handleFetchPdf();
-  }, []);
+  // useEffect(() => {
+  //   handleFetchPdf();
+  // }, []);
 
   return (
     <div className="h-screen w-full overflow-auto bg-slate-400">
