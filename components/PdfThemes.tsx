@@ -16,7 +16,8 @@ const availableThemes = [
   "Midnight Blue",     // #002033
   "Deep Purple",       // #160039
   "Charcoal Black",    // #202020
-  "Very Dark Purple"   // #090822
+  "Very Dark Purple",   // #090822
+  "light",
 ];
 
 const THEME_STORAGE_KEY = 'pdf-theme-preference';

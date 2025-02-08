@@ -420,7 +420,7 @@ const Toolbar = () => {
   };
 
   return (
-    <div className="fixed bottom-9 left-1/2 transform -translate-x-1/2  font-sans" style={{zIndex:10}}>
+    <div className="fixed bottom-9 left-3/4 transform -translate-x-1/2  font-sans" style={{zIndex:10}}>
       <div className="bg-[#F6F6F6] w-[532px] h-[87px] rounded-full overflow-hidden pl-6 flex gap-3 max-w-2xl mx-auto shadow-2xl">
         {/* Undo and Redo */}
         <div className="flex items-center gap-3">
@@ -462,6 +462,9 @@ const Toolbar = () => {
                 }}
               >
                 {renderTool(tool)}
+                {/* <object data="marker.svg" type="image/svg+xml" width="100" height="100"></object> */}
+
+                {/* <img src={`marker.svg`} width="100" height="100" alt=""/> */}
               </button>
             </div>
           ))}
@@ -524,6 +527,7 @@ const Toolbar = () => {
             )}
           </div>
         </div>
+
 
         {/* Shapes and Text */}
         <div className="flex flex-col justify-center items-center gap-1.5">

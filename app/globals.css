@@ -571,3 +571,10 @@ html body .textLayer>div:not(.PdfHighlighter__highlight-layer):not(.Highlight):n
   scrollbar-width: none;
 }
 
+
+
+img {
+  image-rendering: -webkit-optimize-contrast; /* For Safari */
+  image-rendering: crisp-edges;
+}
+

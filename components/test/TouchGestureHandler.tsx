@@ -1,118 +1,129 @@
 "use client";
 import { useSettings } from "@/context/SettingsContext";
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { usePinch } from "@use-gesture/react";
+
 
 export const TouchGestureHandler = ({ onZoomChange }) => {
-    const initialDistance = useRef(null);
-    const currentScale = useRef(1);
-    const lastScale = useRef(1);
-    const {scale} = useSettings()
-  
-    useEffect(() => {
-      const scrollPad = document.getElementById("scrollPad");
-  
-      const calculateDistance = (touch1, touch2) => {
-        const dx = touch1.clientX - touch2.clientX;
-        const dy = touch1.clientY - touch2.clientY;
-        return Math.hypot(dx, dy);
-      };
-  
-      // Handle touch pinch gestures
-      const handleTouchStart = (event) => {
-        if (event.touches.length === 2) {
-          initialDistance.current = calculateDistance(
-            event.touches[0],
-            event.touches[1]
-          );
-          lastScale.current = currentScale.current;
-          console.log("Pinch gesture started");
-        }
-      };
-  
-      const handleTouchMove = (event) => {
-        if (event.touches.length === 2 && initialDistance.current !== null) {
-          const currentDistance = calculateDistance(
-            event.touches[0],
-            event.touches[1]
-          );
-      
-          const scale = currentDistance / initialDistance.current;
-          let targetScale = lastScale.current * scale;
-      
-          // Step adjustment (rounded to nearest 0.1)
-          targetScale = Math.round(targetScale * 10) / 10;
-      
-          // Apply the change if there's a meaningful difference
-          if (Math.abs(currentScale.current - targetScale) >= 0.1) {
-            currentScale.current = targetScale;
-            onZoomChange(targetScale,event);
-            console.log("Current scale (touch):", targetScale);
-          }
-      
-          event.preventDefault();
-        }
-      };
-      
-  
-      const handleTouchEnd = () => {
-        initialDistance.current = null;
-        lastScale.current = currentScale.current;
-        console.log("Gesture ended");
-      };
-  
-      // Handle trackpad pinch gesture (using wheel events)
-      const handleWheel = (event) => {
-        if (event.ctrlKey) {
-          const delta = event.deltaY || event.deltaX; // Trackpad delta (vertical or horizontal)
-          const scaleChange = delta > 0 ? -0.1 : 0.1; // Adjust zoom direction
-          const targetScale = currentScale.current + scaleChange;
-      
-          // Step adjustment (rounded to nearest 0.1)
-          const newScale = Math.round(targetScale * 10) / 10;
-      
-          // Apply the change
-          currentScale.current = newScale;
-          onZoomChange(newScale,event);
-          console.log("Current scale (trackpad):", newScale);
-      
-          event.preventDefault();
-        }
-      };
-      
-  
-      // Adding event listeners for touch events
-      if (scrollPad) {
-        scrollPad.addEventListener("touchstart", handleTouchStart);
-        scrollPad.addEventListener("touchmove", handleTouchMove);
-        scrollPad.addEventListener("touchend", handleTouchEnd);
-        scrollPad.addEventListener("touchcancel", handleTouchEnd);
-  
-        // Adding event listener for trackpad gestures (wheel events)
-        scrollPad.addEventListener("wheel", handleWheel);
+  const { scale } = useSettings();
+  const currentScale = useRef(1);
+
+  // Define the min and max zoom scale limits
+  const MIN_ZOOM = 0.2;
+  const MAX_ZOOM = 5;
+
+  // Using usePinch hook to handle pinch gesture
+  const bind = usePinch(
+    ({ offset: [zoom], memo = currentScale.current }) => {
+      let targetScale = memo * zoom;
+
+      // Step adjustment (rounded to nearest 0.1)
+      let newScale = Math.round(targetScale * 10) / 10;
+
+      // Enforce the min and max zoom limits
+      if (newScale < MIN_ZOOM) {
+        newScale = MIN_ZOOM;
+      } else if (newScale > MAX_ZOOM) {
+        newScale = MAX_ZOOM;
       }
-  
-      // Clean up event listeners when component unmounts
-      return () => {
-        if (scrollPad) {
-          scrollPad.removeEventListener("touchstart", handleTouchStart);
-          scrollPad.removeEventListener("touchmove", handleTouchMove);
-          scrollPad.removeEventListener("touchend", handleTouchEnd);
-          scrollPad.removeEventListener("touchcancel", handleTouchEnd);
-  
-          // Remove trackpad wheel event listener
-          scrollPad.removeEventListener("wheel", handleWheel);
-        }
-      };
-    }, [onZoomChange]);
-  
-    return (
-      <div
-        className="absolute top-0 left-0 w-full h-full  bg-blue-900"
-        id="scrollPad"
-        style={{ zIndex: 100 }}
-      />
-    );
-  };
+
+      // Only update scale if there's a significant change
+      if (Math.abs(currentScale.current - newScale) >= 0.1) {
+        currentScale.current = newScale;
+        onZoomChange(newScale);
+        console.log("Current scale (pinch):", newScale);
+      }
+
+      return newScale; // Return the newScale instead of memo to reflect the current value
+    },
+    { target: document.getElementById('scrollPad') } // Specify the target element
+  );
+
+  // The component only returns null, since the scrollpad is handled by the parent.
+  return <div id="scrollPad" className="w-full h-full" {...bind} />;
+};
 
 
-  /// tools scre .....
+
+
+export const TwoFingerScroll = () => {
+  let lastTouchY = 0;
+  let lastTouchX = 0;
+  let isTwoFingerTouch = false;
+  const [data, setdata] = useState("");
+  const { setScrollPdf } = useSettings();
+
+  useEffect(() => {
+    const scrollPad = document.getElementById("scrollPad");
+    const scrollableElement = document.querySelector(".scrollableElement");
+
+    if (!scrollPad || !scrollableElement) return;
+
+    const handleTouchStart = (event) => {
+      console.log("Touch start detected", event.touches.length);
+      setdata(`Touch start detected, ${event.touches.length}`);
+
+      if (event.touches.length === 2) {
+        isTwoFingerTouch = true;
+        lastTouchY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        lastTouchX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+
+        console.log("Two-finger touch started at", lastTouchX, lastTouchY);
+
+        setScrollPdf(true);
+        setTimeout(() => setScrollPdf(false), 1000);
+      } else {
+        isTwoFingerTouch = false;
+      }
+    };
+
+    const handleTouchMove = (event) => {
+      if (isTwoFingerTouch && event.touches.length === 2) {
+        event.preventDefault();
+
+        let currentTouchY =
+          (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        let currentTouchX =
+          (event.touches[0].clientX + event.touches[1].clientX) / 2;
+
+        let deltaY = currentTouchY - lastTouchY;
+        let deltaX = currentTouchX - lastTouchX;
+
+        console.log(
+          "Touch move detected: deltaX =",
+          deltaX,
+          "deltaY =",
+          deltaY
+        );
+
+        // Now scrolling `.scrollableElement` instead of `scrollPad`
+        // scrollableElement.scrollBy(-deltaX, -deltaY);
+
+        lastTouchY = currentTouchY;
+        lastTouchX = currentTouchX;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      console.log("Touch end detected");
+      setdata("Touch end detected");
+      isTwoFingerTouch = false;
+    };
+
+    scrollPad.addEventListener("touchstart", handleTouchStart);
+    scrollPad.addEventListener("touchmove", handleTouchMove, {
+      passive: false,
+    });
+    scrollPad.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      scrollPad.removeEventListener("touchstart", handleTouchStart);
+      scrollPad.removeEventListener("touchmove", handleTouchMove);
+      scrollPad.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
+  return (
+  null
+  );
+};

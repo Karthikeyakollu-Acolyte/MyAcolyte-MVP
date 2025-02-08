@@ -116,7 +116,6 @@ const SearchComponent = () => {
 
             for (let i = 1; i <= pages; i++) {
                 const textLayer = document.querySelector(`[data-page-number="${i}"] .react-pdf__Page__textContent`);
-                console.log(textLayer,pages)
                 if (textLayer) {
                     totalMatchCount += highlightText(textLayer, searchText, i);
                 }

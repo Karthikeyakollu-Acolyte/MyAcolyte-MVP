@@ -71,8 +71,17 @@ export default function Sidebar() {
   const [activeNav, setActiveNav] = useState("");
   const [activeView, setActiveView] = useState("");
   const [activeTool, setActiveTool] = useState("read");
-  const { setfirst, setViewMode,setisExpanded,isExpanded } = useSettings();
+  const { setfirst, setViewMode,setisExpanded,isExpanded,currentView } = useSettings();
   const router = useRouter()
+
+
+
+useEffect(()=>{
+
+    // setActiveTool("write");
+console.log(currentView)
+setActiveTool(currentView)
+},[currentView])
 
   return (
     <div
