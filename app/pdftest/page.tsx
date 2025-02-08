@@ -410,7 +410,6 @@ const PDFViewer = ({ url }) => {
     </div>
   );
 };
-
 const page = () => {
 
   const [pdfData, setPdfData] = useState<string | null>(null);

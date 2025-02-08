@@ -12,7 +12,7 @@ import { Slider } from "../ui/slider";
 import { ThumbnailDiv } from "./ThumbnailDiv";
 import { debounce } from "lodash";
 import PDFPageContainer from "./PDFPageContainer";
-import { TwoFingerScroll } from "@/app/test/page";
+import { TwoFingerScroll } from "@/components/pdfcomponents/TwoFingerScroll";
 import { TouchGestureHandler } from "./TouchGestureHandler";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs`;
