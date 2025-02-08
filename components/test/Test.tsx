@@ -99,7 +99,7 @@ const PDFViewer = ({ url }) => {
           isVisible={index + 1 === currentPage}
           zoom={zoom}
           setZoom={setZoom}
-          pageWidth={containerRef?.current?.offsetWidth}
+          pageWidth={window.innerWidth}
           viewMode={viewMode}
           fitToWidth={fitToWidth}
           setFitToWidth={setFitToWidth}
@@ -120,7 +120,7 @@ const PDFViewer = ({ url }) => {
             isVisible={index * 2 + 1 === currentPage}
             zoom={zoom}
             setZoom={setZoom}
-            pageWidth={containerRef?.current?.offsetWidth / 2}
+            pageWidth={window.innerWidth / 2}
             viewMode={viewMode}
             fitToWidth={true} // Always fit to width for double-page view
             setFitToWidth={setFitToWidth}
@@ -134,7 +134,7 @@ const PDFViewer = ({ url }) => {
               isVisible={index * 2 + 2 === currentPage}
               zoom={zoom}
               setZoom={setZoom}
-              pageWidth={containerRef?.current?.offsetWidth / 2}
+              pageWidth={window.innerWidth / 2}
               viewMode={viewMode}
               fitToWidth={true}
               setFitToWidth={setFitToWidth}
@@ -175,18 +175,18 @@ const PDFViewer = ({ url }) => {
     debouncedSetZoom(value[0]);
   };
 
-  // const handleZoomChange1 = (zoom, event) => {
-  //   console.log(zoom);
-  //   setLocalZoom(zoom)
-  //   debouncedSetZoom(zoom);
-  // };
+  const handleZoomChange1 = (zoom, event) => {
+    console.log(zoom);
+    setLocalZoom(zoom)
+    debouncedSetZoom(zoom);
+  };
 
 
 
   return (
     <div className="flex h-full max-w-full  scrollbar-hidden">
       <div className="flex-1 flex flex-col">
-        {/* <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <div className="fixed top-4 right-4 z-50 flex gap-2" style={{zIndex:100}} >
           <button
             onClick={toggleExpand}
             className="p-2 rounded-lg bg-gray-200 hover:bg-gray-300"
@@ -201,7 +201,7 @@ const PDFViewer = ({ url }) => {
             onValueChange={handleZoomChange}
             className="w-40"
           />
-        </div> */}
+        </div>
         <div
           ref={containerRef}
           className="flex-1  p-4  overflow-auto scrollbar-hidden relative  "
@@ -231,11 +231,11 @@ const PDFViewer = ({ url }) => {
             </Document>
           </TwoFingerScroll>
         </div>
-        {/* {true && (
+        {true && (
             <div className="w-[100vw] h-[100vh] absolute top-0 left-0">
               <TouchGestureHandler onZoomChange={handleZoomChange1} />
             </div>
-          )} */}
+          )}
       </div>
     </div>
   );
